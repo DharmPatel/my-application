@@ -44,7 +44,9 @@ import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -79,9 +81,6 @@ public class PendingTask extends Fragment {
     ImageView imageViewFilter;
     ArrayAdapter<String> FloorAdapter;
     List<String> FloorArray = new ArrayList<String>();
-    List<String> AssetArray = new ArrayList<String>();
-    List<String> TaskArray = new ArrayList<String>();
-    String DateValue, AssetValue, TaskValue;
 
     public PendingTask(){}
 
@@ -194,27 +193,30 @@ public class PendingTask extends Fragment {
         final android.app.AlertDialog dialog = alert.create();
         dialog.show();
         Button Ok = (Button) alertLayout.findViewById(R.id.OkId);
-        Spinner FloorSP = (Spinner) alertLayout.findViewById(R.id.spinnerFloor);
+        final Spinner FloorSP = (Spinner) alertLayout.findViewById(R.id.spinnerFloor);
         FloorAdapter = new ArrayAdapter<String>(getActivity(), R.layout.spinner_item_value, FloorArray);
         FloorAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         try {
             db = myDb.getReadableDatabase();
             String Query = "  SELECT DISTINCT td.Asset_Location\n" +
-                           "  FROM Task_Details td \n" +
-                           "  LEFT JOIN User_Group ug ON \n" +
-                           "  ug.User_Group_Id=td.Assigned_To_User_Group_Id \n" +
-                           "  WHERE td.Assigned_To_User_Group_Id IN ("+myDb.UserGroupId(User_Id)+") \n" +
-                           "  AND td.Site_Location_Id='"+myDb.Site_Location_Id(User_Id)+"' AND td.Asset_Status= 'WORKING'  AND td.Task_Status='Pending' AND td.RecordStatus != 'D'";
+                    "  FROM Task_Details td \n" +
+                    "  LEFT JOIN User_Group ug ON \n" +
+                    "  ug.User_Group_Id=td.Assigned_To_User_Group_Id \n" +
+                    "  WHERE td.Assigned_To_User_Group_Id IN ("+myDb.UserGroupId(User_Id)+") \n" +
+                    "  AND td.Site_Location_Id='"+myDb.Site_Location_Id(User_Id)+"' AND td.Asset_Status= 'WORKING'  AND td.Task_Status='Pending' AND td.RecordStatus != 'D'";
             Cursor cursor = db.rawQuery(Query,null);
             Log.d("cursorCount",cursor.getCount()+"");
-            if (cursor.getCount() == 1){
+            Log.d("FloorFilterQuery",Query);
+            if (cursor.getCount() != 0){
+                FloorArray.add("Select Floor");
                 if (cursor.moveToFirst()){
                     do {
                         String FloorData = cursor.getString(cursor.getColumnIndex("Asset_Location"));
+
                         FloorArray.add(FloorData);
                     }while (cursor.moveToNext());
                 }
-            }else {
+            }/*else {
                 FloorArray.add("Select Floor");
                 if (cursor.moveToFirst()){
                     do {
@@ -222,19 +224,25 @@ public class PendingTask extends Fragment {
                         FloorArray.add(FloorData);
                     }while (cursor.moveToNext());
                 }
-            }
+            }*/
             cursor.close();
             db.close();
         }catch (Exception e){
             e.printStackTrace();
         }
         FloorSP.setAdapter(FloorAdapter);
+
+        Set<String> hashSet = new LinkedHashSet<>(FloorArray);
+        hashSet.addAll(FloorArray);
+        FloorArray.clear();
+        FloorArray.addAll(hashSet);
         FloorSP.setSelection(FloorAdapter.getPosition(FloorValue));
         FloorSP.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 String item = parent.getItemAtPosition(position).toString();
                 FloorValue = item.toString();
+                Log.d("FloorValue",FloorValue);
             }
 
             @Override
@@ -246,7 +254,12 @@ public class PendingTask extends Fragment {
             @Override
             public void onClick(View v) {
                 dialog.dismiss();
-                floorData();
+
+                if (FloorSP.getSelectedItem() == null || FloorSP.getSelectedItem().equals("Select Floor")){
+                    Toast.makeText(getActivity(),"Please select floors",Toast.LENGTH_SHORT).show();
+                }else {
+                    floorData();
+                }
             }
         });
     }
@@ -257,14 +270,16 @@ public class PendingTask extends Fragment {
         taskDataAdapter = new TaskDataAdapter(getContext(), R.layout.list_item);
         lv.setAdapter(taskDataAdapter);
         if (FloorValue != "Select Floor"){
-            Query = " SELECT td.*\n" +
+            Query = " SELECT td.*,\n" +
+                    "        ug.Group_Name\n" +
                     " FROM Task_Details td \n" +
                     " LEFT JOIN User_Group ug ON \n" +
                     " ug.User_Group_Id=td.Assigned_To_User_Group_Id \n" +
-                    " WHERE td.Assigned_To_User_Group_Id IN ('c61a7683-33dc-11e7-aff2-44a84248bc63') \n" +
-                    " AND td.Site_Location_Id='611f16a5-f825-11e6-87e1-842b2b780a3f' AND td.Asset_Status= 'WORKING'  AND td.Task_Status='Pending' AND  td.Asset_Location = 'RMU Yard' AND td.RecordStatus != 'D'";
+                    " WHERE td.Assigned_To_User_Group_Id IN ("+myDb.UserGroupId(User_Id)+") \n" +
+                    " AND td.Site_Location_Id='"+myDb.Site_Location_Id(User_Id)+"' AND td.Asset_Status= 'WORKING'  AND td.Task_Status='Pending' AND  td.Asset_Location = '"+FloorValue+"' AND td.RecordStatus != 'D'";
         }
         Cursor cursor = db.rawQuery(Query, null);
+        Log.d("floorDataQuery",Query);
         if (cursor.getCount()!=0){
             if (cursor.moveToFirst()) {
                 do {
@@ -288,7 +303,7 @@ public class PendingTask extends Fragment {
                     try {
                         if(parseDate(StartDateTime).before(LimitTime) || parseDate(StartDateTime).equals(LimitTime)) {
                             taskProvider = new TaskProvider(TaskId, Frequency_Id, Site_Location_Id, Assigned_To_User_Id, Asset_Id, From_Id, StartDateTime, EndDateTime, Asset_Code, Asset_Name, Asset_Location, Asset_Status, Activity_Name, Task_Status,Group_Name,Assigned_To_User_Group_Id,null);
-                            taskProviders.add(taskProvider);
+                            taskDataAdapter.add(taskProvider);
                         }
                     } catch (Exception e) {
                         e.printStackTrace();
@@ -300,6 +315,7 @@ public class PendingTask extends Fragment {
         cursor.close();
         db.close();
     }
+
 
     public void DataInfo (String dataABC1){
         try {
