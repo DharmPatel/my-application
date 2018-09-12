@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:paddingBottom="@dimen/activity_vertical_margin"
+    android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingTop="@dimen/activity_vertical_margin"
+    tools:context="com.example.google.template.ResetActivity">
+<LinearLayout
+    android:layout_width="match_parent"
+    android:orientation="horizontal"
+    android:paddingTop="10dp"
+    android:layout_height="wrap_content"
+    android:weightSum="1">
+    <TextView
+        android:layout_width="100dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="0.30"
+        android:textColor="#337ab7"
+        android:textStyle="bold"
+        android:text="LAST READING"/>
+    <EditText
+        android:id="@+id/meterLastReading"
+        android:layout_width="100dp"
+        android:layout_weight="0.70"
+        android:inputType="number"
+        android:layout_height="wrap_content" />
+</LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:orientation="horizontal"
+        android:paddingTop="10dp"
+        android:layout_height="wrap_content"
+        android:weightSum="1">
+        <TextView
+            android:layout_width="100dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.30"
+            android:textColor="#337ab7"
+            android:textStyle="bold"
+            android:text="DATE-TIME"/>
+        <EditText
+            android:editable="false"
+            android:focusable="false"
+            android:id="@+id/DateTime"
+            android:layout_width="100dp"
+            android:layout_weight="0.70"
+            android:layout_height="wrap_content" />
+    </LinearLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:orientation="horizontal"
+        android:paddingTop="10dp"
+        android:layout_height="wrap_content"
+        android:weightSum="1">
+        <TextView
+            android:layout_width="100dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.30"
+            android:textColor="#337ab7"
+            android:textStyle="bold"
+            android:text="START READING"/>
+        <EditText
+            android:id="@+id/StartReading"
+            android:layout_width="100dp"
+            android:layout_weight="0.70"
+            android:inputType="number"
+            android:layout_height="wrap_content" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:orientation="horizontal"
+        android:paddingTop="10dp"
+        android:layout_height="wrap_content"
+        android:weightSum="1">
+        <TextView
+            android:layout_width="100dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.30"
+            android:textColor="#337ab7"
+            android:textStyle="bold"
+            android:text="CURRENT READING"/>
+        <EditText
+            android:id="@+id/CurrentReading"
+            android:layout_width="100dp"
+            android:inputType="number"
+            android:layout_weight="0.70"
+            android:layout_height="wrap_content" />
+    </LinearLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:orientation="horizontal"
+        android:paddingTop="15dp"
+        android:layout_height="wrap_content"
+        android:weightSum="1">
+        <TextView
+            android:layout_width="100dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.30"
+            android:textColor="#337ab7"
+            android:textStyle="bold"
+            android:text="UNIT OF MEASURE"/>
+        <RadioGroup
+            android:id="@+id/radioGroupUOM"
+            android:layout_weight="0.50"
+            android:weightSum="1"
+            android:layout_width="wrap_content"
+            android:orientation="horizontal"
+            android:layout_height="wrap_content">
+            <RadioButton
+                android:id="@+id/rbW"
+                android:layout_weight="0.50"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="W"/>
+            <RadioButton
+                android:id="@+id/rbKW"
+                android:layout_weight="0.50"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="KW"/>
+        </RadioGroup>
+    </LinearLayout>
+
+    <Button
+        android:id="@+id/btnReset"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="90dp"
+        android:backgroundTint="#337ab7"
+        android:textColor="#F0FBFB"
+        android:background="@drawable/file1"
+        android:text="RESET"/>
+</LinearLayout>

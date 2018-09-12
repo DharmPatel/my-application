@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    package="com.example.google.template">
+
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.NFC" />
+
+    <uses-feature
+        android:name="android.hardware.nfc"
+        android:required="true" />
+    <uses-feature android:name="android.hardware.camera" />
+
+    <application
+        android:name=".applicationClass"
+        android:allowBackup="false"
+        android:hardwareAccelerated="false"
+        android:icon="@drawable/applogo"
+        android:label="@string/application_name"
+        android:largeHeap="true"
+        android:theme="@style/AppTheme1">
+        <activity
+            android:name=".LoginActivity"
+            android:screenOrientation="portrait">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name=".HomePage"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme1" />
+
+        <meta-data
+            android:name="com.google.android.gms.version"
+            android:value="@integer/google_play_services_version" />
+
+        <activity
+            android:name=".AssetsActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme1" />
+        <activity
+            android:name=".TaskDetails"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppThemeTaskDetails" />
+        <activity
+            android:name=".DynamicForm"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppThemeTaskDetails" />
+        <activity
+            android:name=".ResetForm"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme2" />
+        <activity
+            android:name=".ResetDynamicForm"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme2" />
+        <activity
+            android:name=".UnplannedActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme" />
+        <activity
+            android:name=".AlertActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme" />
+        <activity
+            android:name=".TicketActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme" />
+        <activity
+            android:name=".MultipuleTask"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name="com.journeyapps.barcodescanner.CaptureActivity"
+            android:screenOrientation="portrait"
+            tools:replace="screenOrientation" />
+        <activity
+            android:name=".MissedDelayTask"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".ppm_activity"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppThemeTaskDetails"/>
+
+        <activity
+            android:name=".PPMMultipuleTask"
+            android:screenOrientation="portrait" />
+
+        <service
+            android:name=".MyService"
+            android:enabled="true"
+            android:exported="true" />
+        <service
+            android:name=".MyIntentService"
+            android:enabled="true"
+            android:exported="true" />
+
+        <activity
+            android:name=".Setting_pref"
+            android:label="Settings"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme" />
+        <activity android:name=".PpmDemo"></activity>
+    </application>
+
+</manifest>

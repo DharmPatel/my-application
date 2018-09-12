@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    >
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="45dp"
+        android:weightSum="1"
+        >
+        <TextView
+            android:id="@+id/tvTime"
+            android:text=""
+            android:textColor="#808B96"
+            android:textSize="12dp"
+            android:layout_gravity="center_vertical"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:textStyle="bold"
+            android:layout_weight="0.40"
+            >
+        </TextView>
+
+
+        <TextView
+            android:id="@+id/tvAssetName"
+            android:text=""
+            android:textColor="#808B96"
+            android:layout_width="0dp"
+            android:layout_gravity="center_vertical"
+            android:textSize="12dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.30"
+            android:textStyle="bold"
+            >
+        </TextView>
+
+        <TextView
+            android:layout_weight="0.30"
+            android:id="@+id/tvActivity_name"
+            android:layout_width="0dp"
+            android:textSize="12dp"
+            android:textColor="#808B96"
+            android:paddingLeft="20dp"
+            android:layout_gravity="center_vertical"
+            android:text=""
+            android:layout_height="wrap_content"
+            android:textStyle="bold"
+            >
+        </TextView>
+
+        <TextView
+            android:layout_weight="0"
+            android:id="@+id/tvAssetCode"
+            android:paddingTop="25dp"
+            android:layout_width="0dp"
+            android:layout_height="70dp"
+            android:layout_column="2"
+            android:gravity="center"
+            android:padding="10sp"
+            android:textStyle="bold"
+            >
+        </TextView>
+        <TextView
+            android:layout_weight="0"
+            android:id="@+id/tvAsset_Id"
+            android:layout_width="0dp"
+            android:text="autoid"
+            android:layout_height="70dp"
+            android:layout_column="2"
+            android:gravity="center"
+            android:padding="10sp"
+            android:textStyle="bold"
+            >
+        </TextView>
+        <TextView
+            android:layout_weight="0.00"
+            android:id="@+id/tvUpdateStatus"
+            android:layout_width="0dp"
+            android:text="autoid"
+            android:layout_height="70dp"
+            android:layout_column="2"
+            android:gravity="center"
+            android:padding="10sp"
+            android:textStyle="bold"
+            >
+        </TextView>
+    </LinearLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="45dp"
+        android:weightSum="1">
+        <TextView
+            android:id="@+id/graceDuration2"
+            android:textSize="12dp"
+            android:paddingTop="10dp"
+            android:textColor="@color/bg_main"
+            android:layout_gravity="top"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:textStyle="bold"
+            android:layout_weight="0.40"
+            >
+        </TextView>
+        <LinearLayout
+            android:layout_width="0dp"
+            android:paddingTop="10dp"
+            android:layout_gravity="center_vertical"
+            android:layout_height="0dp">
+            <TextView
+                android:id="@+id/graceDuration"
+                android:textColor="@color/bg_main"                android:layout_gravity="center_vertical"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:textStyle="bold"
+                >
+            </TextView>
+
+
+        </LinearLayout>
+
+
+        <TextView
+            android:id="@+id/tvAssetLocation"
+            android:text=""
+            android:textColor="@color/bg_main"
+            android:layout_width="0dp"
+            android:paddingTop="10dp"
+            android:textSize="12dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="top"
+            android:layout_weight="0.60"
+            android:textStyle="bold"
+            >
+        </TextView>
+        <TextView
+            android:id="@+id/tvTaskType"
+            android:text=" "
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_weight="0.35"
+            android:textStyle="bold"
+            >
+        </TextView>
+
+    </LinearLayout>
+</LinearLayout>

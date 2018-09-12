@@ -1,0 +1,20 @@
+<resources>
+    <string-array name="spinnerItems">
+        <item>Select Subject</item>
+    <item>Fire</item>
+    <item>Spill</item>
+    <item> Meter Reading out of range</item>
+    <item>Missed Task</item>
+    <item>Electronic Failure</item>
+</string-array>
+
+    <string-array name="spinnerPrority">
+        <item>Select Priority</item>
+        <item>High</item>
+        <item>Low</item>
+        <item>Medium</item>
+    </string-array>
+
+
+
+</resources>

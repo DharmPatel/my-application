@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent">
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:weightSum="1"
+        android:layout_height="wrap_content">
+        <EditText
+            android:layout_width="match_parent"
+            android:text="[Asset Name]"
+            android:layout_marginLeft="20dp"
+            android:id="@+id/etAssetChangeTime"
+            android:editable="false"
+            android:layout_weight="0.20"
+            android:textSize="15dp"
+            android:layout_height="match_parent" />
+        <ImageView
+            android:id="@+id/imageViewTime"
+            android:layout_width="match_parent"
+            android:layout_height="40dp"
+            android:layout_weight="0.80"
+            android:src="@drawable/cal"/>
+    </LinearLayout>
+
+    <RadioGroup
+        android:layout_marginLeft="20dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/radioStatusGroup"
+        android:paddingTop="10dp"
+        android:paddingBottom="10dp"
+        android:orientation="vertical">
+
+    </RadioGroup>
+    <EditText
+        android:layout_width="match_parent"
+        android:hint="Remark"
+        android:layout_marginLeft="20dp"
+        android:id="@+id/etAssetRemark"
+        android:lines="3"
+        android:maxLines="5"
+        android:textSize="15dp"
+        android:layout_height="wrap_content" />
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:orientation="horizontal"
+        android:weightSum="1"
+        android:layout_marginLeft="20dp"
+        android:layout_marginRight="20dp"
+        android:layout_marginBottom="20dp"
+        android:layout_height="wrap_content">
+        <CheckBox
+            android:id="@+id/cbReset"
+            android:layout_width="wrap_content"
+            android:text="RESET"
+            android:layout_height="wrap_content" />
+
+    </LinearLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:orientation="horizontal"
+        android:weightSum="1"
+        android:layout_marginLeft="20dp"
+        android:layout_marginRight="20dp"
+        android:layout_marginBottom="20dp"
+        android:layout_height="wrap_content">
+        <Button
+            android:id="@+id/btnCancel"
+            android:background="@color/bg_main"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="0.50"
+            android:layout_marginRight="10dp"
+            android:textColor="@color/white"
+            android:text="Cancel"/>
+        <Button
+            android:background="@color/bg_main"
+            android:textColor="@color/white"
+            android:id="@+id/dialogSubmit"
+            android:layout_marginLeft="10dp"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="0.50"
+            android:text="Submit"/>
+    </LinearLayout>
+</LinearLayout>

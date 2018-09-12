@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+
+
+    <TextView
+        android:id="@+id/tvTitle"
+        android:layout_width="wrap_content"
+        android:textColor="@color/bg_main"
+        android:textStyle="bold"
+        android:layout_marginLeft="20dp"
+        android:paddingTop="10dp"
+        android:layout_height="wrap_content"
+        android:textSize="15dp"
+        android:text=""/>
+
+    <RadioGroup
+        android:layout_marginLeft="20dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/scanType"
+        android:paddingBottom="10dp"
+        android:orientation="horizontal">
+
+        <RadioButton
+            android:id="@+id/rbNFC"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="NFC"
+            />
+
+        <RadioButton
+            android:id="@+id/rbQR"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="QR"/>
+        <!--<RadioButton
+            android:id="@+id/rbBoth"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Both"/>-->
+
+    </RadioGroup>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:orientation="horizontal"
+        android:weightSum="1"
+        android:layout_marginLeft="20dp"
+        android:layout_marginRight="20dp"
+        android:layout_marginBottom="20dp"
+        android:layout_height="wrap_content">
+        <Button
+            android:id="@+id/btnCancel1"
+            android:background="@color/bg_main"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="0.50"
+            android:layout_marginRight="10dp"
+            android:textColor="@color/white"
+            android:text="Cancel"/>
+        <Button
+            android:background="@color/bg_main"
+            android:textColor="@color/white"
+            android:id="@+id/dialogSubmit1"
+            android:layout_marginLeft="10dp"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="0.50"
+            android:text="Submit"/>
+    </LinearLayout>
+</LinearLayout>

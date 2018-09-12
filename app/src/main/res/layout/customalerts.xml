@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView
+    android:layout_height="wrap_content"
+    android:layout_width="wrap_content"
+    xmlns:android="http://schemas.android.com/apk/res/android" >
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:paddingBottom="20dp"
+        android:paddingTop="10dp"
+        android:id="@+id/linearLayoutAlerts"
+        android:layout_height="fill_parent">
+
+       <!-- <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <TextView
+                android:id="@+id/textViewTitle"
+                android:layout_width="wrap_content"
+                android:textStyle="bold"
+                android:layout_marginLeft="05dp"
+                android:textColor="@color/bg_register"
+                android:textSize="20dp"
+                android:layout_height="wrap_content" />
+        </LinearLayout>-->
+        <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:weightSum="1"
+            android:layout_marginLeft="02dp"
+            android:layout_marginRight="02dp"
+            android:layout_height="29dp">
+
+            <TextView
+                android:layout_weight="0.35"
+                android:layout_width="wrap_content"
+                android:text="Parameter Name"
+                android:textStyle="bold"
+                android:textSize="15dp"
+                android:layout_marginLeft="07dp"
+                android:orientation="vertical"
+                android:layout_height="wrap_content">
+
+            </TextView>
+
+            <TextView
+                android:layout_weight="0.25"
+                android:layout_width="wrap_content"
+                android:orientation="vertical"
+                android:text="Value"
+                android:textSize="15dp"
+                android:textStyle="bold"
+                android:layout_height="wrap_content">
+
+            </TextView>
+
+            <TextView
+                android:layout_weight="0.30"
+                android:layout_width="wrap_content"
+                android:text="SafeRange"
+                android:textStyle="bold"
+                android:textSize="15dp"
+                android:orientation="vertical"
+                android:layout_height="wrap_content">
+
+            </TextView>
+            <TextView
+                android:layout_weight="0.10"
+                android:layout_width="wrap_content"
+                android:text="Status"
+                android:textStyle="bold"
+                android:textSize="15dp"
+                android:orientation="vertical"
+                android:layout_height="wrap_content">
+
+            </TextView>
+
+        </LinearLayout>
+
+
+    </LinearLayout>
+</ScrollView>

@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string-array name="Scantype_Array">
+        <item name="1">QR</item>
+        <item name="2">NFC</item>
+    </string-array>
+
+    <string-array name="Scantype_Value">
+        <item>1</item>
+        <item>2</item>
+    </string-array>
+
+    <string-array name="listArray">
+        <item>15 minutes</item>
+        <item>30 minutes</item>
+        <item>60 minutes</item>
+        <item>120 minutes</item>
+    </string-array>
+
+    <string-array name="listArray1">
+        <item>5 minutes</item>
+        <item>10 minutes</item>
+        <item>15 minutes</item>
+        <item>30 minutes</item>
+    </string-array>
+
+    <string-array name="listArrayValue1">
+        <item>5</item>
+        <item>10</item>
+        <item>15</item>
+        <item>30</item>
+    </string-array>
+
+    <string-array name="listArrayValue">
+        <item>15</item>
+        <item>30</item>
+        <item>60</item>
+        <item>120</item>
+    </string-array>
+
+</resources>
