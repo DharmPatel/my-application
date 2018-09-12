@@ -4300,6 +4300,7 @@ public class HomePage extends AppCompatActivity {
 
             Cursor cursor = db.rawQuery(selectQuery, null);
             Log.d("Teasdasd",selectQuery + " "+cursor.getCount() );
+            Log.d("Teasdasd","GitWorklingas");
             if (cursor.moveToFirst()) {
                 do {
                     JSONObject PPMTaskJsonObject = new JSONObject();
