@@ -2,8 +2,8 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/Facilitymate.iml" filepath="$PROJECT_DIR$/Facilitymate.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
+      <module fileurl="file://$PROJECT_DIR$/my-application12.iml" filepath="$PROJECT_DIR$/my-application12.iml" />
     </modules>
   </component>
 </project>
