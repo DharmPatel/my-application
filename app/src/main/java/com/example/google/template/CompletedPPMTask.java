@@ -39,7 +39,7 @@ public class CompletedPPMTask extends Fragment {
     LinearLayout ProgressBarLayout;
     Calendar calenderCurrent;
     PpmTaskProvider ppmTaskProvider;
-    String User_Id,Auto_Id,Form_Id,updatedStatus, Site_Location_Id,activity_frequency,task_date,task_end_date,task_status,asset_activity_linking_id,timestartson,Activity_Name,Asset_Code,Asset_Name,Asset_Location,Asset_Type,Status,Assigned_To_User_Group_Id,Group_Name;
+    String User_Id,Auto_Id,Form_Id,updatedStatus, Site_Location_Id,activity_frequency,task_date,task_end_date,task_status,task_done_at,asset_activity_linking_id,timestartson,Activity_Name,Asset_Code,Asset_Name,Asset_Location,Asset_Type,Status,Assigned_To_User_Group_Id,Group_Name;
     Date dateTimeStart,dateTimeEnd,LimitTime;
 
     int activity_duration,grace_duration_before,grace_duration_after;
@@ -134,7 +134,7 @@ public class CompletedPPMTask extends Fragment {
                     "          ppm.Activity_Frequency , \n" +
                     "          ppm.Task_Date , \n" +
                     "          ppm.Task_End_Date , \n" +
-                    "          ppm.Task_Status , \n" +
+                    "          ppm.Task_Status ,ppm.Task_Done_At, \n" +
                     "          ppm.Asset_Activity_Linking_Id , \n" +
                     "          ppm.Timestartson , \n" +
                     "          ppm.Activity_Duration , \n" +
@@ -176,6 +176,7 @@ public class CompletedPPMTask extends Fragment {
                     task_date = cursor.getString(cursor.getColumnIndex("Task_Date"));
                     task_end_date = cursor.getString(cursor.getColumnIndex("Task_End_Date"));
                     task_status = cursor.getString(cursor.getColumnIndex("Task_Status"));
+                    task_done_at = cursor.getString(cursor.getColumnIndex("Task_Done_At"));
                     asset_activity_linking_id = cursor.getString(cursor.getColumnIndex("Asset_Activity_Linking_Id"));
                     timestartson =  cursor.getString(cursor.getColumnIndex("Timestartson"));
                     activity_duration = cursor.getInt(cursor.getColumnIndex("Activity_Duration"));
@@ -193,10 +194,10 @@ public class CompletedPPMTask extends Fragment {
                     updatedStatus = cursor.getString(cursor.getColumnIndex("UpdatedStatus"));
 
                     dateTimeStart = parseDate(task_date + " " + timestartson);
-                    dateTimeEnd = parseDate(task_end_date + " " + timestartson);
+                    dateTimeEnd = parseDate(task_done_at);
                     try {
-                        if (dateTimeStart.equals(LimitTime)||dateTimeStart.after(LimitTime)||updatedStatus.equalsIgnoreCase("no")){
-                            ppmTaskProvider = new PpmTaskProvider(Auto_Id,Site_Location_Id,activity_frequency,formatDate(dateTimeStart),task_status,asset_activity_linking_id,formatDate(dateTimeEnd),Activity_Name,Form_Id,Asset_Code,Asset_Name,Asset_Location,Asset_Type,Status,Assigned_To_User_Group_Id,Group_Name,updatedStatus);
+                        if (dateTimeEnd.equals(LimitTime)||dateTimeEnd.after(LimitTime)||updatedStatus.equalsIgnoreCase("no")){
+                            ppmTaskProvider = new PpmTaskProvider(Auto_Id,Site_Location_Id,activity_frequency,formatDate(dateTimeStart),task_status,asset_activity_linking_id,task_done_at,Activity_Name,Form_Id,Asset_Code,Asset_Name,Asset_Location,Asset_Type,Status,Assigned_To_User_Group_Id,Group_Name,updatedStatus);
                             listItems.add(ppmTaskProvider);
                         }
                     }catch (Exception e){

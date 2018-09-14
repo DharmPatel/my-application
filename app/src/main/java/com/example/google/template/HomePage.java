@@ -1607,37 +1607,44 @@ public class HomePage extends AppCompatActivity {
             switch (values[2]){
                 case 0:
                     pDialog.setMessage("Downloading Uploaded Task. Please Wait..");
-
+                    pDialog.setProgressPercentFormat(null);
                     break;
 
                  case 1:
                      pDialog.setMessage("Downloading Readings. Please Wait..");
-
+                     pDialog.setProgressPercentFormat(null);
                      break;
 
                 case 2:
                     pDialog.setMessage("Downloading Pervious Data. Please Wait..");
-
+                    pDialog.setProgressPercentFormat(null);
                     break;
 
                 case 3:
                     pDialog.setMessage("Downloading Activities. Please Wait..");
-
+                    pDialog.setProgressPercentFormat(null);
                     break;
 
                 case 4:
                     pDialog.setMessage("Downloading Assets. Please Wait..");
-
+                    pDialog.setProgressPercentFormat(null);
                     break;
                 case 5:
                     pDialog.setMessage("Downloading Forms. Please Wait..");
+                    pDialog.setProgressPercentFormat(null);
                     break;
                 case 6:
                     pDialog.setMessage("Downloading  Parameters. Please Wait..");
-
+                    pDialog.setProgressPercentFormat(null);
                     break;
                 case 7:
                     pDialog.setMessage("Downloading  PPM Task. Please Wait..");
+                    pDialog.setProgressPercentFormat(null);
+                    break;
+
+                case 8:
+                    pDialog.setMessage("Getting Data From Server. Please Wait..");
+
 
                     break;
 
@@ -1649,19 +1656,21 @@ public class HomePage extends AppCompatActivity {
             pDialog.setMax(values[1]);
             pDialog.setProgress(values[0]);
            // pDialog.setProgressNumberFormat(null);
-            pDialog.setProgressPercentFormat(null);
+
 
 
         }
         @Override
         protected String doInBackground(String... URL) {
             HttpHandler handler = new HttpHandler();
+            publishProgress(0,100,8);
             String jsonTaskDone = handler.getTaskDetailsServer(myDb.UserGroupId(User_Id), new applicationClass().yymmdd(), myDb.Site_Location_Id(User_Id));
-
+            publishProgress(33,100,8);
 
             String jsonStrTask = handler.taskDataCall(myDb.UserGroupId(User_Id), myDb.Site_Location_Id(User_Id), myDb.SiteURL(User_Id));
+            publishProgress(66,100,8);
             String PPMTaskjson = handler.getPPmTask(myDb.UserGroupId(User_Id), myDb.Site_Location_Id(User_Id));
-
+            publishProgress(100,100,8);
             if (jsonTaskDone != null) {
                 try {
                     JSONObject jsonObj = new JSONObject(jsonTaskDone);
@@ -2231,7 +2240,7 @@ public class HomePage extends AppCompatActivity {
                             String AssetActivityLinkingsql = "insert into Asset_Activity_Linking (Site_Location_Id ,Auto_Id ,Asset_Id ,Activity_Id,RecordStatus ,UpdatedStatus )values(?,?,?,?,?,?);";
                             String ActivityMastersql = "insert into Activity_Master (Site_Location_Id ,Auto_Id ,Form_Id ,Activity_Name ,RecordStatus ,UpdatedStatus )values(?,?,?,?,?,?);";
                             String AssetActivityAssignedTosql = "insert into Asset_Activity_AssignedTo (Site_Location_Id ,Auto_Id ,Assigned_To_User_Id ,Assigned_To_User_Group_Id ,Asset_Activity_Linking_Id,RecordStatus ,UpdatedStatus )values(?,?,?,?,?,?,?);";
-                            String PpmTasksql = "insert into PPM_Task (Auto_Id, Site_Location_Id, Activity_Frequency, Task_Date,Task_End_Date, Task_Status, Asset_Activity_Linking_Id,  Assigned_To_User_Id, Assigned_To_User_Group_Id, TimeStartson, Activity_Duration, Grace_Duration_Before, Grace_Duration_After, Record_Status, UpdatedStatus)values(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?);";
+                            String PpmTasksql = "insert into PPM_Task (Auto_Id, Site_Location_Id, Activity_Frequency, Task_Date,Task_End_Date, Task_Status,Task_Done_At , Asset_Activity_Linking_Id,  Assigned_To_User_Id, Assigned_To_User_Group_Id, TimeStartson, Activity_Duration, Grace_Duration_Before, Grace_Duration_After, Record_Status, UpdatedStatus)values(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?);";
                             db.beginTransaction();
                             SQLiteStatement AssetActivityLinkingstmt = db.compileStatement(AssetActivityLinkingsql);
                             SQLiteStatement ActivityMasterstmt = db.compileStatement(ActivityMastersql);
@@ -2255,6 +2264,7 @@ public class HomePage extends AppCompatActivity {
                                 String Assigned_To_User_Id = c.getString("Assigned_To_User_Id");
                                 String Assigned_To_User_Group_Id = c.getString("Assigned_To_User_Group_Id");
                                 String  task_status = c.getString("Task_Status");
+                                String  Task_Done_At = c.getString("Task_Done_At");
                                 String  timestartson = c.getString("Timestartson");
                                 String  Task_End_Date = c.getString("Task_End_Date");
                                 String  activity_duration = c.getString("Activity_Duration");
@@ -2268,18 +2278,19 @@ public class HomePage extends AppCompatActivity {
                                 PpmTaskstmt.bindString(4,task_date);
                                 PpmTaskstmt.bindString(5,Task_End_Date);
                                 PpmTaskstmt.bindString(6,task_status);
-                                PpmTaskstmt.bindString(7,asset_activity_linking_id);
-                                PpmTaskstmt.bindString(8,Assigned_To_User_Id);
-                                PpmTaskstmt.bindString(9,Assigned_To_User_Group_Id);
-                                PpmTaskstmt.bindString(10,timestartson);
-                                PpmTaskstmt.bindString(11,activity_duration);
-                                PpmTaskstmt.bindString(12,grace_duration_before);
-                                PpmTaskstmt.bindString(13,grace_duration_after);
-                                PpmTaskstmt.bindString(14,ppm_Record_Status);
+                                PpmTaskstmt.bindString(7,Task_Done_At);
+                                PpmTaskstmt.bindString(8,asset_activity_linking_id);
+                                PpmTaskstmt.bindString(9,Assigned_To_User_Id);
+                                PpmTaskstmt.bindString(10,Assigned_To_User_Group_Id);
+                                PpmTaskstmt.bindString(11,timestartson);
+                                PpmTaskstmt.bindString(12,activity_duration);
+                                PpmTaskstmt.bindString(13,grace_duration_before);
+                                PpmTaskstmt.bindString(14,grace_duration_after);
+                                PpmTaskstmt.bindString(15,ppm_Record_Status);
                                 if(task_status.equals("Completed")||task_status.equals("Missed")){
-                                    PpmTaskstmt.bindString(15,"yes");
+                                    PpmTaskstmt.bindString(16,"yes");
                                 }else {
-                                    PpmTaskstmt.bindString(15,"no");
+                                    PpmTaskstmt.bindString(16,"no");
                                 }
 
 
