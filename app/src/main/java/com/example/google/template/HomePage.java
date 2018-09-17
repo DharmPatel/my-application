@@ -2847,6 +2847,8 @@ public class HomePage extends AppCompatActivity {
                     int cursorValue = cursor.getCount();
 
                     if (cursorValue > 0) {
+                        pDialog.setMessage("Uploading Task. Please Wait");
+
                         jumptime += 25;
                         pDialog.setProgress(jumptime);
                         uploadData();
@@ -2855,7 +2857,8 @@ public class HomePage extends AppCompatActivity {
                         editorTaskInsert = settings.edit();
                         editorTaskInsert.putString("day", null);
                         editorTaskInsert.commit();
-                        new DataDownload().execute();
+                        //new DataDownload().execute();
+                        uploadDataPPM();
                         //getPPMTask();
 
                     }
@@ -3059,6 +3062,162 @@ public class HomePage extends AppCompatActivity {
             e.printStackTrace();
         }
     }
+
+
+
+    public void uploadDataPPM() {
+        pDialog.setMessage("Checking for PPM Task to upload. Please Wait");
+
+        countvalue++;
+        AsyncHttpClient client = new AsyncHttpClient();
+        RequestParams params = new RequestParams();
+        JSONArray uploadData = new JSONArray();
+
+        try {
+            uploadData = composeJSONPPM(myDb.Site_Location_Id(User_Id), User_Id);
+
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        int networkStrength = 0;
+        String carrierName = null;
+        String deviceDetails = null;
+        try {
+            networkStrength = NetworkStrength();
+            carrierName = CarrierName();
+            deviceDetails = DeviceDetails();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        if(LOG)Log.d(TAG, "1" + networkStrength + "  " + haveNetworkConnection() + "  " + carrierName + "   " + signalStrengthValue + "  " + deviceDetails);
+        params.put("Sync_Info", myDb.SyncInfo(User_Id, level, networkStrength, haveNetworkConnection(), carrierName, deviceDetails));
+        params.put("Sync_Count", countvalue);
+        params.put("Site_Location_Id", myDb.Site_Location_Id(User_Id));
+        params.put("PPMTaskDetails", uploadData);
+        Log.d("dfhj",params.toString());
+
+        if (WRITE_JSON_FILE) {
+            generateNoteOnSD(getApplicationContext(), "uploadData" + countvalue + ".txt", params.toString());
+        }
+        if(LOG)Log.d(TAG, "URL002" + myDb.SiteURL(User_Id) +" "+ new applicationClass().urlString() + new applicationClass().insertTask());
+        Log.d("Teasdasdasd",URLSTRING + new applicationClass().insertTask());
+        client.post(URLSTRING + new applicationClass().insertPPMTask(), params, new TextHttpResponseHandler() {//http://eclockwork.in/inserttask.php
+            @Override
+            public void onFailure(int statusCode, Header[] headers, String responseString, Throwable throwable) {
+                // TODO Auto-generated method stub
+
+                if (statusCode == 404) {
+                    Toast.makeText(getApplicationContext(), "Requested resource not found", Toast.LENGTH_LONG).show();
+                    pDialog.dismiss();
+                } else if (statusCode == 500) {
+                    Toast.makeText(getApplicationContext(), "Something went wrong at server end", Toast.LENGTH_LONG).show();
+                    pDialog.dismiss();
+                } else {
+                    pDialog.dismiss();
+                    final Snackbar snackbar = Snackbar
+                            .make(linearLayout, "Internet Connection Lost.Synchronization failed.", Snackbar.LENGTH_LONG)
+                            .setAction("Sync Again.", new View.OnClickListener() {
+                                @Override
+                                public void onClick(View view) {
+                                    new CheckingInternetConnectivity().execute();
+                                }
+                            });
+
+                    snackbar.setDuration(20000);
+                    snackbar.show();
+                }
+            }
+
+            @Override
+            public void onSuccess(int statusCode, Header[] headers, String responseString) {
+                db = myDb.getWritableDatabase();
+                if (WRITE_JSON_FILE) {
+                    generateNoteOnSD(getApplicationContext(), "responseString1908" + countvalue + ".txt", responseString.toString());
+                }
+                try {
+                    JSONObject jsonObjTask = new JSONObject(responseString);
+
+                    try {
+                        JSONObject json2 = jsonObjTask.getJSONObject("PPMTaskDetails");
+                        JSONArray task = json2.getJSONArray("TaskIds");
+                        if (task != null) {
+                            for (int i = 0; i < task.length(); i++) {
+                                String Status = json2.get("Status").toString();
+                                String TaskId = task.get(i).toString();
+
+                                if (Status.equalsIgnoreCase("yes")) {
+                                    ContentValues contentValues = new ContentValues();
+                                    contentValues.put("UpdatedStatus", Status);
+                                    db.update("PPM_Task", contentValues, "Auto_Id ='" + TaskId + "'", null);
+                                    db.update("Meter_Reading", contentValues, "Task_Id ='" + TaskId + "'", null);
+                                    db.update("Data_Posting", contentValues, "Task_Id ='" + TaskId + "'", null);
+                                    db.update("AlertMaster", contentValues, "Task_Id ='" + TaskId + "'", null);
+                                    if (new applicationClass().imageVariable().equals("yes")) {
+                                        imageServer(TaskId);
+                                    }
+                                }
+                            }
+                        }
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+
+
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+
+
+                try {
+                    String selectQuery = "SELECT  * FROM PPM_Task where UpdatedStatus = 'no' and  Assigned_To_User_Id='" + User_Id + "' and Site_Location_Id='" + myDb.Site_Location_Id(User_Id) + "'";
+                    Cursor cursor = db.rawQuery(selectQuery, null);
+                    int cursorValue = cursor.getCount();
+
+                    if (cursorValue > 0) {
+                        pDialog.setMessage("Uploading PPM Task. Please Wait");
+
+                        jumptime += 25;
+                        pDialog.setProgress(jumptime);
+                        uploadDataPPM();
+
+                    } else {
+                        editorTaskInsert = settings.edit();
+                        editorTaskInsert.putString("day", null);
+                        editorTaskInsert.commit();
+                        new DataDownload().execute();
+                        //getPPMTask();
+
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+
+
+               /* try {
+                    String query = "SELECT * FROM PPM_Task where UpdatedStatus = 'no' and Site_Location_Id='" + myDb.Site_Location_Id(User_Id) + "'";
+                    Cursor cursor = db.rawQuery(query, null);
+                    int cursorValue = cursor.getCount();
+                    if (cursorValue > 0){
+
+                    }else {
+                        getPPMTask();
+                    }
+                }catch (Exception e) {
+                    e.printStackTrace();
+                }*/
+                db.close();
+            }
+
+        });
+
+    }
+
+
+
+
+
     public JSONArray composeJSONfortaskDetailsNew(String site_id,String UserId){
         JSONArray UploadArray = new JSONArray();
         JSONObject TaskDetails = new JSONObject();
@@ -3443,7 +3602,8 @@ public class HomePage extends AppCompatActivity {
                     uploadDataReconfig();
                 }else {
                     pDialog = new ProgressDialog(HomePage.this);
-                    pDialog.setMessage(SYNCString);
+                    pDialog.setMessage("Checking for data to upload. Please Wait");
+                    //pDialog.setMessage(SYNCString);
                     pDialog.setIndeterminate(false);
                     pDialog.setMax(TotalTask());
                     pDialog.setProgress(0);

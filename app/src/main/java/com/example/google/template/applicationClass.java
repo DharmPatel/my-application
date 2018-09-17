@@ -109,6 +109,7 @@ public class applicationClass extends Application {
     public String Notification(){ return "true"; }
     public String defaultNFC(){return "QR";}
     public String insertTask(){return "insertTask.php";}
+    public String insertPPMTask(){return "ppmTaskUpload.php";}
     public String urlString(){
         return "http://192.168.0.56/PunNewTemplate/";
     }
