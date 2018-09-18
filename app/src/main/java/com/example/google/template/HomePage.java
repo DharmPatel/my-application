@@ -45,11 +45,13 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.telephony.PhoneStateListener;
 import android.telephony.SignalStrength;
 import android.telephony.TelephonyManager;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -68,8 +70,11 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.VolleyLog;
 import com.android.volley.toolbox.JsonObjectRequest;
+import com.example.google.template.ConstantList.Config;
 import com.example.google.template.ConstantList.DatabaseColumn;
 import com.example.google.template.ConstantList.UrlList;
+import com.example.google.template.util.NotificationUtils;
+import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
 import com.loopj.android.http.AsyncHttpClient;
@@ -123,6 +128,8 @@ import cz.msebera.android.httpclient.Header;
 
 
 public class HomePage extends AppCompatActivity {
+
+    private BroadcastReceiver mRegistrationBroadcastReceiver;
     int NUM_PAGES;
     DatabaseHelper myDb;
     SQLiteDatabase db;
@@ -289,8 +296,40 @@ public class HomePage extends AppCompatActivity {
         deletePreviousData();
         insertMissedTask();
         insertCancelledTask();
-        downloadAsset();
+        //downloadAsset();
         Slider();
+
+        //onNewIntent(getIntent());
+
+        mRegistrationBroadcastReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+
+
+                // checking for type intent filter
+
+
+                Log.d("testasdasdasdasd1234",intent.getStringExtra("message"));
+                if (intent.getAction().equals(Config.REGISTRATION_COMPLETE)) {
+                    // gcm successfully registered
+                    // now subscribe to `global` topic to receive app wide notifications
+                    FirebaseMessaging.getInstance().subscribeToTopic(Config.TOPIC_GLOBAL);
+
+                    displayFirebaseRegId();
+
+                } else if (intent.getAction().equals(Config.PUSH_NOTIFICATION)) {
+                    // new push notification is received
+
+                    String message = intent.getStringExtra("message");
+                    if(message.equalsIgnoreCase("Update")){
+                        PromptApkDialog();
+                    }
+
+                    Toast.makeText(getApplicationContext(), "Push notification: " + message, Toast.LENGTH_LONG).show();
+
+                }
+            }
+        };
 
 
         //new CheckDateTime().execute();
@@ -489,7 +528,7 @@ public class HomePage extends AppCompatActivity {
 
         viewPager.setCurrentItem(1, true);
 
-        /*final Handler handler = new Handler();
+        final Handler handler = new Handler();
         final Runnable Update = new Runnable() {
             public void run() {
                 Log.d("sdhsghdf",currentPage+":"+NUM_PAGES);
@@ -507,7 +546,7 @@ public class HomePage extends AppCompatActivity {
             public void run() {
                 handler.post(Update);
             }
-        }, 500, 3000);*/
+        }, 500, 3000);
     }
 
     private ArrayList<Bitmap> getImageArray(){
@@ -1147,7 +1186,7 @@ public class HomePage extends AppCompatActivity {
 
         try {
             if (LOG)Log.d(TAG, "refrenseTableCount" + myDb.refrenseTableCount(myDb.Site_Location_Id(User_Id)));
-            if (myDb.refrenseTableCount(myDb.Site_Location_Id(User_Id)) != 0) {
+            //if (myDb.refrenseTableCount(myDb.Site_Location_Id(User_Id)) != 0) {
                 AlertDialog dialog = new AlertDialog.Builder(HomePage.this)
                         .setTitle("New update found")
                         .setMessage("Do you want to update data?")
@@ -1161,7 +1200,7 @@ public class HomePage extends AppCompatActivity {
                                 }).create();
                 dialog.setCancelable(false);
                 dialog.show();
-            }
+            //}
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -4064,6 +4103,22 @@ public class HomePage extends AppCompatActivity {
     @Override
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
+
+        Bundle extras = intent.getExtras();
+        String tabNumber;
+
+        if(extras != null) {
+            tabNumber = extras.getString("message");
+
+            if(tabNumber.equalsIgnoreCase("Update")){
+                PromptApkDialog();
+            }
+
+
+        } else {
+            Log.d("TEMP", "Extras are NULL");
+
+        }
         if(NFCbarcode!=null) {
             try {
                 if (intent.hasExtra(mNfcAdapter.EXTRA_TAG)) {
@@ -4091,6 +4146,16 @@ public class HomePage extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         try {
+            LocalBroadcastManager.getInstance(this).registerReceiver(mRegistrationBroadcastReceiver,
+                    new IntentFilter(Config.REGISTRATION_COMPLETE));
+
+            // register new push message receiver
+            // by doing this, the activity will be notified each time a new message arrives
+            LocalBroadcastManager.getInstance(this).registerReceiver(mRegistrationBroadcastReceiver,
+                    new IntentFilter(Config.PUSH_NOTIFICATION));
+
+            // clear the notification area when the app is opened
+            NotificationUtils.clearNotifications(getApplicationContext());
             //downloadAsset();
             enableForegroundDispatchSystem();
 
@@ -4101,6 +4166,8 @@ public class HomePage extends AppCompatActivity {
     @Override
     protected void onPause() {
         super.onPause();
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(mRegistrationBroadcastReceiver);
+
         try {
              disableForegroundDispatchSystem();
         } catch (Exception e) {
@@ -4586,4 +4653,16 @@ public class HomePage extends AppCompatActivity {
 
         return UploadArray;
     }
+
+
+    private void displayFirebaseRegId() {
+        SharedPreferences pref = getApplicationContext().getSharedPreferences(Config.SHARED_PREF, 0);
+        String regId = pref.getString("regId", null);
+
+        Log.e(TAG, "Firebase reg id: " + regId);
+
+    }
+
+
+
 }
