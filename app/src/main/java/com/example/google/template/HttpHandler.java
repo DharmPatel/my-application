@@ -86,6 +86,39 @@ public class HttpHandler {
         return response;
     }
 
+    public String incidentnumber(String User_Group_Id, String Form_StructureId) {
+        String response = "";
+        try {
+            String reqUrl =  new applicationClass().urlString()+"tech_demo/android/getIncidentNumber.php";
+            URL url = new URL(reqUrl);
+            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+            conn.setRequestMethod("POST");
+            OutputStream outputStream = conn.getOutputStream();
+            BufferedWriter bufferedWriter = new BufferedWriter(new OutputStreamWriter(outputStream,"UTF-8"));
+
+            String data = URLEncoder.encode("Assigned_To_User_Group_Id", "UTF-8") + "=" + URLEncoder.encode(User_Group_Id, "UTF-8")+"&"+
+                    URLEncoder.encode("Form_Structure_Id", "UTF-8") + "=" + URLEncoder.encode(Form_StructureId, "UTF-8");
+            Log.d("DataDownlo444a", "" + reqUrl + "?" + data);
+            bufferedWriter.write(data);
+            bufferedWriter.flush();
+            bufferedWriter.close();
+            outputStream.close();
+
+            InputStream in = new BufferedInputStream(conn.getInputStream());
+
+            response = convertStreamToString(in);
+        } catch (MalformedURLException e) {
+            Log.e(TAG, "MalformedURLException: " + e.getMessage());
+        } catch (ProtocolException e) {
+            Log.e(TAG, "ProtocolException: " + e.getMessage());
+        } catch (IOException e) {
+            Log.e(TAG, "IOException: " + e.getMessage());
+        } catch (Exception e) {
+            Log.e(TAG, "Exception: " + e.getMessage());
+        }
+        return response;
+    }
+
     public String apkDetails(int apkversion,String UserId) {
         String response = "";
         Log.d("StringDataForm",apkversion + "Value");

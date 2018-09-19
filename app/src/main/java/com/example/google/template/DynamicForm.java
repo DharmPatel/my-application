@@ -13,6 +13,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.res.Resources;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
@@ -46,6 +47,8 @@ import android.view.inputmethod.EditorInfo;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -83,6 +86,19 @@ public class DynamicForm extends AppCompatActivity {
     ImageView taskSelfie,assetImage;
     int j = 0;
     double totalfeedback= 0.0;
+    int ID=-1;
+    int scoringval =0,TotalOfScore = 0;
+    boolean on = false;
+    private static final String  emailId = "support@punctualiti.in", emailPwd = "oriole579";
+    Map.Entry<String,String> emailPair;
+    HashMap<String,String> emaildata = new HashMap<>();
+    Iterator emailvals;
+    private List<RadioGroup> textRadioGroupRadioRadio = new ArrayList<RadioGroup>();
+    private List<TextView> CalculationList = new ArrayList<TextView>();
+    private List<EditText> editTextAddList = new ArrayList<EditText>();
+    private List<EditText> editTextaddition = new ArrayList<EditText>();
+    private List<EditText> editTextWithCbList = new ArrayList<EditText>();
+    private List<TextView> textViewListBranch = new ArrayList<TextView>();
     private List<EditText> editTextList = new ArrayList<EditText>();
     private List<EditText> editTextDGTimeList = new ArrayList<EditText>();
     Map<Integer,EditText> editTextListFeedback = new HashMap<Integer,EditText>();
@@ -101,13 +117,14 @@ public class DynamicForm extends AppCompatActivity {
     private List<RadioGroup> textRadioGroupBranchingList = new ArrayList<RadioGroup>();
     private List<RadioGroup> textRadioGroupConsumption = new ArrayList<RadioGroup>();
     private List<RadioGroup> textRadioGroupList = new ArrayList<RadioGroup>();
+    private List<RadioGroup> textRadioGroupScoreList = new ArrayList<RadioGroup>();
     private List<RadioGroup> textRadioFeedbackList = new ArrayList<RadioGroup>();
     ArrayList<String> previoudReadings = new ArrayList<>();
     private List<TextView> previousReadingChange = new ArrayList<TextView>();
     private List<TextView> textViewListIncident = new ArrayList<TextView>();
     Map<Integer,ImageView> drawableRadioImage = new HashMap<Integer,ImageView>();
-    String readingConstant ="";
-    LinearLayout.LayoutParams fittype, fittype1, fittype2, textLayout;
+    String readingConstant ="",EmployeeName="";
+    LinearLayout.LayoutParams fittype, fittype1, fittype2, textLayout,textBranchType;
     TextView reading;
     DatabaseHelper myDb;
     SQLiteDatabase db;
@@ -126,9 +143,11 @@ public class DynamicForm extends AppCompatActivity {
     String FormType = "";
     String TAG = DynamicForm.class.getSimpleName();
     int Id = 0,SafeRange;
+    static final boolean LOG = new applicationClass().checkLog();
     String Form_IdIntent, PPM_Intent, Record_id,AssetId,frequencyId,label_value;
     String Field_Id,Reading,Remarks,UOM,Value,Form_Id,Field_Label,Field_Type,Field_Options,sections,Asset_Name,Asset_Location,Asset_Status,Completed="",Activity_Name;
     SharedPreferences settings;
+    SharedPreferences.Editor editor;
     String selectRB = "";
     String companyId, SiteId, User_Id,User_Group_Id,Scan_Type="",taskStatus="";
     TextView textView;
@@ -156,6 +175,9 @@ public class DynamicForm extends AppCompatActivity {
     double editTextSecondValue = 0;
     String intentFromReset;
     String uuid1, ClosingTaskId;
+    Double subFactor=0.0, addFactor=0.0, multiFactor=1.0, divFactor=1.0, firstVal = 0.0, secondVal = 0.0;
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -187,6 +209,7 @@ public class DynamicForm extends AppCompatActivity {
         intentFromReset = getIntent().getStringExtra("FromReset");
         Scan_Type = myDb.ScanType(User_Id);
         applicationClass = new applicationClass();
+        EmployeeName = myDb.EmployeeName(User_Id);
 
         //createCutomActionBarTitle();
         try{
@@ -200,7 +223,7 @@ public class DynamicForm extends AppCompatActivity {
             if (Completed == null){
                 Completed = "Pending";
             }
-            Log.d("StatusVal",Completed);
+            if(LOG) Log.d("StatusVal",Completed);
             if (Completed.equals("Completed") || Completed.equals("Delayed")){
                 getData();
             }else {
@@ -296,7 +319,7 @@ public class DynamicForm extends AppCompatActivity {
                     FormType = cursor.getString(cursor.getColumnIndex("FormType"));
                     Field_Id =cursor.getString(cursor.getColumnIndex("Field_Id"));
                     SafeRange =cursor.getInt(cursor.getColumnIndex("Field_Id"));
-
+                    calculationvalue =cursor.getInt(cursor.getColumnIndex("Calculation"));
 
                     try {
                         String query = "Select Activity_Frequency_Id, Form_Id,Form_Structure_Id,Field_Option_Id, Field_Limit_From ,Field_Limit_To ," +
@@ -308,7 +331,6 @@ public class DynamicForm extends AppCompatActivity {
                         if (parameterCount > 0) {
                             if (parameter.moveToNext()) {
                                 do {
-
                                     activityFrequencyId = parameter.getString(parameter.getColumnIndex("Activity_Frequency_Id"));
                                     formStructureId = parameter.getString(parameter.getColumnIndex("Form_Structure_Id"));
                                     field_Limit_Form = parameter.getString(parameter.getColumnIndex("Field_Limit_From"));
@@ -399,11 +421,116 @@ public class DynamicForm extends AppCompatActivity {
                             e.printStackTrace();
                         }
                     }
+                    if (Field_Type.equals("branchingText")) {
+                        try {
+                            formLayout.addView(branchTextlinearlayout(Mandatory, Field_Label, Id, section,sid));
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
+                    if (Field_Type.equals("textwithcb")) {
 
+                        try {
+                            if (parameterCount==0) {
+                                formLayout.addView(checkboxlinearlayout(Mandatory, Field_Label, Id, Value, "", "", "", "", "", SafeRange,calculationvalue));
+                            } else {
+                                formLayout.addView(checkboxlinearlayout(Mandatory, Field_Label, Id, Value, field_Limit_Form, field_Limit_To, threshold_From, threshold_To, validation_Type, SafeRange,calculationvalue));
+                            }
+                            //formLayout.addView(checkboxlinearlayout(Mandatory, Field_Label, Id, ""));
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
+                    if (Field_Type.equals("textview")) {
+
+                        try {
+                            formLayout.addView(textViewLabel(Field_Label));
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
+                    if (Field_Type.equals("textscore")){
+                        formLayout.addView(textViewScore("",Id));
+                    }
+                    if (Field_Type.equals("addReading")) {
+                        try {
+                            formLayout.addView(meterTextlinearlayout(Mandatory, Field_Label, Id, Value));
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
+                    if (Field_Type.equals("consumption")) {
+                        try {
+                            formLayout.addView(consumptionlinearlayout(Mandatory, Field_Label, Field_Options, Id, "", Value, Field_Id, calculationvalue));
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
+                    if (Field_Type.equals("incident")) {
+                        try {
+                            if (parameterCount==0) {
+                                formLayout.addView(incidentlinearlayout(Field_Label, Field_Options, Id, "", "", section));
+                            } else {
+                                formLayout.addView(incidentlinearlayout(Field_Label, Field_Options, Id, "", Field_Option_Id, section));
+                            }
+
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
+                    if (Field_Type.equals("radioScore")) {
+                        try {
+                            if (parameterCount==0) {
+                                formLayout.addView(radioScorelinearlayout(Field_Label,Field_Id,Field_Options,Id,Value,""));
+                            } else {
+                                formLayout.addView(radioScorelinearlayout(Field_Label,Field_Id,Field_Options,Id,Value,Field_Option_Id));
+                            }
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
+                    if (Field_Type.equals("radiofeedback")) {
+                        try {
+                            formLayout.addView(radiofeedbacklinearlayout(Field_Label, Field_Options, Id, ""));
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
+                    if (Field_Type.equals("feedbackscore")) {
+                        try {
+                            formLayout.addView(textView(Field_Label));
+                            formLayout.addView(Score(Field_Label, Id, "", calculationvalue));
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
+                    if (Field_Type.equals("name")) {
+                        try {
+                            formLayout.addView(textView(Field_Label));
+                            formLayout.addView(editTextareaName(Field_Label, Id));
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
                     if (Field_Type.equals("branching")) {
 
                         try {
                             formLayout.addView(sectionLinearLayout(Mandatory, Field_Label, Id, Field_Options, section, Value));
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
+                    if (Field_Type.equals("dg")) {
+
+                        try {
+                            formLayout.addView(dglinearlayout(Mandatory, Field_Label, Id, "", Value));
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }if (Field_Type.equals("radiowithradio")) {
+
+                        try {
+                            formLayout.addView(radiowithradiolinearlayout(Mandatory, Field_Label, Field_Options, Id, "", Value, Field_Id));
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
@@ -413,9 +540,9 @@ public class DynamicForm extends AppCompatActivity {
                         try {
                             formLayout.addView(textView(Field_Label));
                             if (parameterCount==0) {
-                                formLayout.addView(editText(Mandatory, Field_Label, Id ,Value,"","","","","",SafeRange));
+                                formLayout.addView(editText(Mandatory, Field_Label, Id ,Value,"","","","","",SafeRange,calculationvalue));
                             } else {
-                                formLayout.addView(editText(Mandatory, field_Limit_Form + " - " + field_Limit_To +" (Safe Range: "+ threshold_From + " - " +threshold_To+" )", Id,Value, field_Limit_Form, field_Limit_To, threshold_From, threshold_To, validation_Type,SafeRange));
+                                formLayout.addView(editText(Mandatory, field_Limit_Form + " - " + field_Limit_To +" (Safe Range: "+ threshold_From + " - " +threshold_To+" )", Id,Value, field_Limit_Form, field_Limit_To, threshold_From, threshold_To, validation_Type,SafeRange,calculationvalue));
                             }
                         } catch (Exception e) {
                             e.printStackTrace();
@@ -738,10 +865,38 @@ public class DynamicForm extends AppCompatActivity {
                         try {
                             formLayout.addView(textView(Field_Label));
                             if (parameterCount==0) {
-                                formLayout.addView(editText(Mandatory, Field_Label, Id , "","","","","","",SafeRange));
+                                formLayout.addView(editText(Mandatory, Field_Label, Id , "","","","","","",SafeRange,calculationvalue));
                             } else {
-                                formLayout.addView(editText(Mandatory, field_Limit_Form + " - " + field_Limit_To +" (Safe Range: "+ threshold_From + " - " +threshold_To+" )", Id, "", field_Limit_Form, field_Limit_To, threshold_From, threshold_To, validation_Type,SafeRange));
+                                formLayout.addView(editText(Mandatory, field_Limit_Form + " - " + field_Limit_To +" (Safe Range: "+ threshold_From + " - " +threshold_To+" )", Id, "", field_Limit_Form, field_Limit_To, threshold_From, threshold_To, validation_Type,SafeRange,calculationvalue));
                             }
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
+                    if (Field_Type.equals("branchingText")) {
+                        try {
+                            formLayout.addView(branchTextlinearlayout(Mandatory, Field_Label, Id, section, sid));
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
+                    if (Field_Type.equals("textwithcb")) {
+
+                        try {
+                            if (parameterCount==0) {
+                                formLayout.addView(checkboxlinearlayout(Mandatory, Field_Label, Id, "", "", "", "", "", "", SafeRange,calculationvalue));
+                            } else {
+                                formLayout.addView(checkboxlinearlayout(Mandatory, Field_Label, Id, "", field_Limit_Form, field_Limit_To, threshold_From, threshold_To, validation_Type, SafeRange,calculationvalue));
+                            }
+                            //formLayout.addView(checkboxlinearlayout(Mandatory, Field_Label, Id, ""));
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
+                    if (Field_Type.equals("textview")) {
+
+                        try {
+                            formLayout.addView(textViewLabel(Field_Label));
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
@@ -751,6 +906,28 @@ public class DynamicForm extends AppCompatActivity {
                         try {
                             formLayout.addView(textView(Field_Label));
                             formLayout.addView(editTextFixed(Mandatory, Field_Label, Id, FixedValue));
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
+                    if (Field_Type.equals("textscore")){
+                        formLayout.addView(textViewScore("",Id));
+                    }
+                    if (Field_Type.equals("addReading")) {
+                        try {
+                            formLayout.addView(meterTextlinearlayout(Mandatory, Field_Label, Id, ""));
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
+                    if (Field_Type.equals("incident")) {
+                        try {
+                            if (parameterCount==0) {
+                                formLayout.addView(incidentlinearlayout(Field_Label, Field_Options, Id, "", "", section));
+                            } else {
+                                formLayout.addView(incidentlinearlayout(Field_Label, Field_Options, Id, "", Field_Option_Id, section));
+                            }
+
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
@@ -773,6 +950,17 @@ public class DynamicForm extends AppCompatActivity {
                                 formLayout.addView(radiolinearlayout(Field_Label, Field_Options, Id, "", ""));
                             } else {
                                 formLayout.addView(radiolinearlayout(Field_Label, Field_Options, Id, "", Field_Option_Id));
+                            }
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
+                    if (Field_Type.equals("radioScore")) {
+                        try {
+                            if (parameterCount==0) {
+                                formLayout.addView(radioScorelinearlayout(Field_Label,Field_Id,Field_Options,Id,"",""));
+                            } else {
+                                formLayout.addView(radioScorelinearlayout(Field_Label,Field_Id,Field_Options,Id,"",Field_Option_Id));
                             }
                         } catch (Exception e) {
                             e.printStackTrace();
@@ -807,6 +995,14 @@ public class DynamicForm extends AppCompatActivity {
                         try {
                             formLayout.addView(textView(Field_Label));
                             formLayout.addView(editTextarea(Field_Label, Id, ""));
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
+                    if (Field_Type.equals("name")) {
+                        try {
+                            formLayout.addView(textView(Field_Label));
+                            formLayout.addView(editTextareaName(Field_Label, Id));
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
@@ -847,9 +1043,17 @@ public class DynamicForm extends AppCompatActivity {
 
                         try {
                             formLayout.addView(textView(Field_Label));
-                            Log.d("Tasdasdasdasd",calculationvalue+"");
+                            if(LOG) Log.d("Tasdasdasdasd",calculationvalue+"");
                             formLayout.addView(Score(Field_Label, Id, "", calculationvalue));
 
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
+                    if (Field_Type.equals("radiowithradio")) {
+
+                        try {
+                            formLayout.addView(radiowithradiolinearlayout(Mandatory, Field_Label, Field_Options, Id, "", " , , ", Field_Id));
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
@@ -933,7 +1137,7 @@ public class DynamicForm extends AppCompatActivity {
         submit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (checkSubmitEditText() == true && checkSubmitEditTextMeter() == true && checkSubmitRadio() == true && checkSubmitRadioMeter() == true && checkSpinnerValue() == true && checkSubmitRemark() == true) {
+                if (checkSubmitEditTextAdd() == true && checkSubmitEditText() == true && checkSubmitEditTextMeter() == true && checkSubmitRadio() == true && checkSubmitRadioMeter() == true && checkSpinnerValue() == true && checkSubmitRemark() == true) {
                     if (checkSubmitLowerReading() == true) {
                         if (intentFromReset.equals("Closing")){
                             saveData(taskInsert(taskStatus));
@@ -974,7 +1178,7 @@ public class DynamicForm extends AppCompatActivity {
                                     new DialogInterface.OnClickListener() {
                                         @Override
                                         public void onClick(DialogInterface dialog, int which) {
-                                            Log.d("taskStatusVal","1:"+taskStatus);
+                                            if(LOG) Log.d("taskStatusVal","1:"+taskStatus);
                                             if (PPM_Intent.equals("PPMPending")){
                                                 saveData(taskInsert(taskStatus));
                                                 Intent intent = new Intent(DynamicForm.this, ppm_activity.class);
@@ -1116,7 +1320,15 @@ public class DynamicForm extends AppCompatActivity {
         textViewList.add(textView);
         return textView;
     }
-
+    private TextView textViewLabel(String label) {
+        TextView textView = new TextView(this);
+        textView.setTextSize(30);
+        textView.setText("" + label + ": ");
+        textView.setTextColor(getResources().getColor(R.color.bg_main));
+        textView.setLayoutParams(textLayout);
+        textViewList.add(textView);
+        return textView;
+    }
     private TextView textViewIncident(String label) {
         TextView textView = new TextView(this);
         textView.setTextSize(20);
@@ -1126,6 +1338,395 @@ public class DynamicForm extends AppCompatActivity {
         textViewListIncident.add(textView);
         return textView;
     }
+    private TextView textViewScore(String label,int Id) {
+        TextView textView = new TextView(this);
+        textView.setId(Id);
+        textView.setTextSize(20);
+        textView.setText(label);
+        textView.setTextColor(getResources().getColor(R.color.bg_main));
+        textView.setLayoutParams(fittype1);
+        textView.setLayoutParams(textLayout);
+        CalculationList.add(textView);
+        return textView;
+    }
+    private LinearLayout incidentlinearlayout(String field_Label,String field_option,int id,String setText,String Field_Option_Id,String section) {
+        LinearLayout radioLayout = new LinearLayout(getApplicationContext());
+        radioLayout.setOrientation(LinearLayout.VERTICAL);
+        radioLayout.setLayoutParams(textLayout);
+        radioLayout.addView(textView(field_Label));
+        radioLayout.addView(incidentSpinner(field_option, id, setText, radioLayout, Field_Option_Id, section));
+        return radioLayout;
+    }
+
+    private Spinner incidentSpinner(String options, int sp_id, String qval,LinearLayout linearLayout, final String Field_Option_Id,final String Section_Id) {
+        final Spinner qualifiactionSpinner = new Spinner(this);
+        qualifiactionSpinner.setId(sp_id);
+        sp1 = (Spinner) findViewById(qualifiactionSpinner.getId());
+        String[] optionList = options.split(",");
+        List<String> spinnerArray = new ArrayList<String>();
+        spinnerArray.add("-- Select One --");
+
+        final TextView textView = new TextView(DynamicForm.this);
+        textView.setText("[ Warning ]");
+        textView.setTextColor(Color.RED);
+        textView.setTextSize(9);
+        LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        layoutParams.setMargins(15, 0, 0, 0);
+        textView.setLayoutParams(layoutParams);
+        linearLayout.addView(textView);
+        textView.setVisibility(View.GONE);
+
+        for (String value : optionList) {
+            spinnerArray.add(value);
+            ArrayAdapter<String> adapter = new ArrayAdapter<String>(
+                    this, android.R.layout.simple_spinner_item, spinnerArray);
+            adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+            qualifiactionSpinner.setAdapter(adapter);
+        }
+        if(Completed.equals("Completed")){
+            qualifiactionSpinner.setEnabled(false);
+        }
+        qualifiactionSpinner.setLayoutParams(textLayout);
+        textSpinnerList.add(qualifiactionSpinner.getSelectedItemPosition(), qualifiactionSpinner);
+        for (String optValue : optionList) {
+            ArrayAdapter<String> adapter = new ArrayAdapter<String>(
+                    this, android.R.layout.simple_spinner_item, spinnerArray);
+            int selectionPosition = adapter.getPosition(qval);
+            if (qval.equalsIgnoreCase(optValue))
+                qualifiactionSpinner.setSelection(selectionPosition);
+        }
+
+        qualifiactionSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                String SpinnerValue = String.valueOf(qualifiactionSpinner.getSelectedItem());
+                int SpinnerId = qualifiactionSpinner.getId();
+                if (Completed.equals("Completed")) {
+                    qualifiactionSpinner.setEnabled(false);
+                    qualifiactionSpinner.setClickable(false);
+                } else {
+                    editor = settings.edit();
+                    editor.putString("IncidentSpValue", SpinnerValue);
+                    editor.putInt("IncidentSpId", SpinnerId);
+                    editor.commit();
+                    String formQuery = "select * from Form_Structure where Form_Id='" + Section_Id + "' and Record_Status <> 'D' and sid='" + (position - 1) + "' ORDER BY Display_Order ASC";
+                    db = myDb.getWritableDatabase();
+                    Cursor cursor = db.rawQuery(formQuery, null);
+                    if (cursor.getCount() > 0) {
+                        Intent intent = new Intent(DynamicForm.this, IncidentForm.class);
+                        intent.putExtra("Section_Id", Section_Id);
+                        intent.putExtra("sid", (position - 1));
+                        intent.putExtra("FrequencyId", frequencyId);
+                        intent.putExtra("Activity_Name", Activity_Name);
+                        intent.putExtra("Asset_Name", Asset_Name);
+                        intent.putExtra("TaskId", TaskId);
+                        intent.putExtra("Scan_Type", Scan_Type);
+                        intent.putExtra("User_Id", User_Id);
+                        intent.putExtra("unplanned", unplanned);
+                        intent.putExtra("AssetId", AssetId);
+                        intent.putExtra("Form_Id", Form_IdIntent);
+                        intent.putExtra("AssetCode", assetCode);
+                        intent.putExtra("Asset_Location", Asset_Location);
+                        intent.putExtra("Asset_Status", Asset_Status);
+                        intent.putExtra("User_Group_Id", User_Group_Id);
+                        intent.putExtra("Incident", 0);
+                        startActivity(intent);
+                        finish();
+                    }
+                }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
+        return qualifiactionSpinner;
+    }
+
+
+    private LinearLayout branchTextlinearlayout(int Mandatory, String field_Label,int id,String section,int sid) {
+        LinearLayout radioLayout = new LinearLayout(getApplicationContext());
+        radioLayout.setOrientation(LinearLayout.VERTICAL);
+        textBranchType = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        textBranchType.setMargins(0,0,0,25);
+        radioLayout.setLayoutParams(textBranchType);
+        radioLayout.setBackgroundColor(Color.parseColor("#e0e0e0"));
+        radioLayout.addView(textViewBranch(radioLayout,id,field_Label,section,sid));
+        return radioLayout;
+    }
+    private LinearLayout meterTextlinearlayout(int Mandatory, String field_Label,int id,String Value) {
+        final LinearLayout radioLayout = new LinearLayout(getApplicationContext());
+        radioLayout.setOrientation(LinearLayout.VERTICAL);
+        radioLayout.setLayoutParams(textLayout);
+        String[] label = field_Label.split(",");
+        for(int i = 0; i< label.length;i++){
+            radioLayout.addView(textView(label[i]));
+            radioLayout.addView(editText(Mandatory,label[i],id,Value));
+        }
+        return radioLayout;
+    }
+    private EditText editText(final int mandatory, String name,final int id, String setText) {
+        final EditText editText = new EditText(this);
+        editText.setId(id);
+        editText.setLayoutParams(textLayout);
+        editText.setText(setText);
+        editText.setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_FLAG_DECIMAL);
+        if(SafeRange==1){
+            editText.setHint(name);
+        }
+        if(Completed.equals("Completed")){
+            editText.setEnabled(false);
+        }
+
+        editText.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View view, boolean b) {
+                if(editTextAddList!=null){
+                    editTextCalc(id);
+                }
+            }
+        });
+
+        try {
+            editTextAddList.add(editText);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return editText;
+    }
+
+    private void editTextCalc(int id) {
+        EditText addedValue = new EditText(this);
+        addedValue.setId(id);
+        ArrayList<String> valuesgot = new ArrayList<>();
+        try {
+            int Add=0;
+            for(int i=0;i< editTextAddList.size()-1;i++){
+                String value = editTextAddList.get(i).getText().toString();
+                valuesgot.add(value);
+                if(value.equals("")){
+                    Add += 0;
+                } else {
+                    Add+=Integer.parseInt(value);
+                }
+            }
+            if(editTextAddList.size() >= 2) {
+                if (editTextAddList != null && !editTextAddList.isEmpty()) {
+                    try {
+                        editTextAddList.get(editTextAddList.size()-1).setText(Add+"");
+                        editTextAddList.get(editTextAddList.size()-1).setEnabled(false);
+                        addedValue.setText(valuesgot.get(0)+","+valuesgot.get(1)+","+Add);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+            editTextaddition.add(addedValue);
+
+        } catch (NumberFormatException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private TextView textViewBranch(final LinearLayout linearLayout, final int id, String label, final String Section_Id, final int sid) {
+        final TextView textView = new TextView(this);
+        final LinearLayout linLayout = new LinearLayout(getApplicationContext());
+        linLayout.setOrientation(LinearLayout.VERTICAL);
+        linLayout.setLayoutParams(textLayout);
+        textView.setTextSize(20);
+        textView.setText(label+":");
+        textView.setTextColor(getResources().getColor(R.color.bg_main));
+        textView.setLayoutParams(textLayout);
+        textViewListBranch.add(textView);
+        textView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                try {
+                    final int childCount = linLayout.getChildCount();
+                    if(LOG) Log.d("ChildCount"," "+childCount+" "+on+" "+id+" "+ID);
+                    if(ID != id) {
+                        ID = id;
+                        if (childCount == 0) {
+                            try {
+                                linearLayout.addView(linLayout);
+                                linLayout.setVisibility(View.VISIBLE);
+                                if(LOG) Log.d("Test", "Section " + linLayout.getVisibility());
+                                textView.setTextColor(Color.GRAY);
+                                sectionForm(Section_Id, sid, linLayout);
+                                on = true;
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+                        } else if (linLayout.getVisibility()==View.GONE && childCount != 0) {
+                            try {
+                                linearLayout.addView(linLayout);
+                                linLayout.setVisibility(View.VISIBLE);
+                                if(LOG) Log.d("Test", "GetSection " + linLayout.getVisibility());
+                                textView.setTextColor(Color.GRAY);
+                                //sectionForm(Section_Id, sid, linLayout);
+                                on = true;
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+                        } else if (linLayout.getVisibility()==View.VISIBLE && childCount != 0) {
+                            try {
+                                linLayout.setVisibility(View.GONE);
+                                if(LOG) Log.d("Test", "RemoveView " + linLayout.getVisibility());
+                                textView.setTextColor(getResources().getColor(R.color.bg_main));
+                                //removeRadioremark(linLayout, 1);
+                                linearLayout.removeView(linLayout);
+                                on = false;
+                            } catch (Resources.NotFoundException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    } else if(ID==id){
+                        if (linLayout.getVisibility()==View.GONE && childCount != 0) {
+                            try {
+                                linearLayout.addView(linLayout);
+                                linLayout.setVisibility(View.VISIBLE);
+                                if(LOG) Log.d("Test", "GetSection " + linLayout.getVisibility());
+                                textView.setTextColor(Color.GRAY);
+                                //sectionForm(Section_Id, sid, linLayout);
+                                on = true;
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+                        } else if (linLayout.getVisibility()==View.VISIBLE && childCount != 0) {
+                            try {
+                                linLayout.setVisibility(View.GONE);
+                                if(LOG) Log.d("Test", "RemoveView " + linLayout.getVisibility());
+                                textView.setTextColor(getResources().getColor(R.color.bg_main));
+                                //removeRadioremark(linLayout, 1);
+                                linearLayout.removeView(linLayout);
+                                on = false;
+                            } catch (Resources.NotFoundException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    }
+
+                } catch (Resources.NotFoundException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+
+        return textView;
+    }
+
+    private EditText editTextareaName(String name, int id) {
+        final EditText editText = new EditText(this);
+        editText.setId(id);
+
+        editText.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_MULTI_LINE);
+        editText.setLayoutParams(textLayout);
+        //if(Completed.equals("Completed")){
+        editText.setEnabled(false);
+        //}
+        editText.setSingleLine(false);
+        editText.setImeOptions(EditorInfo.IME_FLAG_NO_ENTER_ACTION);
+        editText.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_MULTI_LINE);
+        editText.setLines(2);
+        editText.setMaxLines(5);
+        editText.setVerticalScrollBarEnabled(true);
+        editText.setMovementMethod(ScrollingMovementMethod.getInstance());
+        editText.setScrollBarStyle(View.SCROLLBARS_INSIDE_INSET);
+        editText.setHint(name);
+        editText.setFilters(new InputFilter[]{filter});
+        editText.setText(EmployeeName);
+        editTextareaList.add(editText);
+        return editText;
+    }
+
+    private LinearLayout checkboxlinearlayout(int Mandatory, String field_Label,int id,String Value,String field_Limit_Form,String field_Limit_To,String threshold_From, String threshold_To,String validation_Type,int SafeRange, final int calculationvalue) {
+        LinearLayout checkboxLinear = new LinearLayout(getApplicationContext());
+        checkboxLinear.setOrientation(LinearLayout.VERTICAL);
+        checkboxLinear.setLayoutParams(textLayout);
+        String[] CbLabel = field_Label.split("\\|");
+        checkboxLinear.addView(textViewIncident(CbLabel[0]));
+        checkboxLinear.addView(checkBox(checkboxLinear, CbLabel[0], CbLabel[1], Value, id, field_Limit_To, field_Limit_Form, threshold_To, threshold_From, SafeRange,calculationvalue));
+        checkboxLinear.addView(editTextWithCb(Mandatory, CbLabel[0], id, Value, field_Limit_To, field_Limit_Form, threshold_To, threshold_From, SafeRange,calculationvalue));
+        return checkboxLinear;
+    }
+
+    public CheckBox checkBox(final LinearLayout checkboxLayout, final String Label1, final String Label2, String Value, final int id, final String field_Limit_To, final String field_Limit_Form, final String threshold_To, final String threshold_From, final int SafeRange, final int calculationvalue){
+        CheckBox checkBox = new CheckBox(this);
+        checkBox.setText(Label2);
+        if(Value.equals(Label2)){
+            checkBox.setChecked(true);
+        }
+        if(Completed.equals("Completed")){
+            checkBox.setEnabled(false);
+        }
+        checkBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (isChecked) {
+                    removeEditTextWithCb(checkboxLayout, Label2, id);
+                } else {
+                    for (EditText editTextCb : editTextWithCbList) {
+                        if (editTextCb.getId() == id) {
+                            editTextWithCbList.clear();
+                            checkboxLayout.addView(editTextWithCb(Mandatory, Label1, id, "", field_Limit_To, field_Limit_Form, threshold_To, threshold_From, SafeRange,calculationvalue));
+                        }
+
+                    }
+                }
+            }
+        });
+        return checkBox;
+    }
+
+    private void removeEditTextWithCb(LinearLayout layout,String cbLabel,int id) {
+
+        for(EditText editTextCb : editTextWithCbList){
+            if(editTextCb.getId()==id){
+                editTextCb.setText(cbLabel);
+                layout.removeView(editTextCb);
+            }
+
+        }
+
+    }
+
+    private EditText editTextWithCb(final int mandatory, String name, int id, String setText,final String Field_Limit_To,final String Field_Limit_From,final String Threshold_To,final String Threshold_From,final int SafeRange,final int calculationvalue) {
+        final EditText editText = new EditText(this);
+        editText.setId(id);
+        editText.setLayoutParams(textLayout);
+        editText.setText(setText);
+        editText.setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_FLAG_DECIMAL);
+        editText.setHint(name);
+
+        editText.setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_FLAG_DECIMAL);
+        if(Completed.equals("Completed")){
+            editText.setEnabled(false);
+        }
+        if(SafeRange==1){
+            editText.setHint(name);
+        }
+        editText.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View view, boolean b) {
+                try {
+                    Double val = Double.parseDouble(editText.getText().toString());
+                    if (val > Double.parseDouble(Field_Limit_To) || val < Double.parseDouble(Field_Limit_From)) {
+                        editText.setText("");
+                        editText.setError("Invalid Reading.Please Enter valid Reading");
+                    } else if ((val < Double.parseDouble(Threshold_From) && (val >= Double.parseDouble(Field_Limit_From))) || (val <= Double.parseDouble(Field_Limit_To)) && (val > Double.parseDouble(Threshold_To))) {
+                        editText.setError("Alert will generate.");
+                    } else {
+                    }
+                } catch (NumberFormatException ex) {
+                    ex.printStackTrace();
+                }
+            }
+        });
+        editTextWithCbList.add(editText);
+        return editText;
+    }
+
 
     private LinearLayout radiofeedbacklinearlayout(String field_Label,String field_option,int id,String setText) {
         LinearLayout radioLayout = new LinearLayout(getApplicationContext());
@@ -1211,7 +1812,7 @@ public class DynamicForm extends AppCompatActivity {
         editText.setText(setText);
         editText.setEnabled(false);
         editText.setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_FLAG_DECIMAL);
-        Log.d("Teasreasdasd",calculate+"");
+        if(LOG) Log.d("Teasreasdasd",calculate+"");
         editTextListFeedback.put(calculate, editText);
         return editText;
     }
@@ -1246,7 +1847,7 @@ public class DynamicForm extends AppCompatActivity {
         }
 
         totalfeedback +=totalfeedbackRadio;
-        Log.d("Totalscore",totalfeedback+" "+ textRadioFeedbackList.size() +" "+totalfeedbackRadio );
+        if(LOG)Log.d("Totalscore",totalfeedback+" "+ textRadioFeedbackList.size() +" "+totalfeedbackRadio );
 
         Iterator it = editTextListFeedback.entrySet().iterator();
         while (it.hasNext()) {
@@ -1254,8 +1855,8 @@ public class DynamicForm extends AppCompatActivity {
             EditText score = pair.getValue();
             score.setId(pair.getValue().getId());
             double totalvalue = textRadioFeedbackList.size() * 4;
-            Log.d("Calasdasdasdaxsd",pair.getKey()+"");
-            Log.d("Testinvalues", totalvalue + " " + totalfeedbackRadio + " " + totalfeedbackRadio / totalvalue + " " + (totalfeedbackRadio / totalvalue)*pair.getKey());
+            if(LOG)Log.d("Calasdasdasdaxsd",pair.getKey()+"");
+            if(LOG)Log.d("Testinvalues", totalvalue + " " + totalfeedbackRadio + " " + totalfeedbackRadio / totalvalue + " " + (totalfeedbackRadio / totalvalue)*pair.getKey());
             DecimalFormat df2 = new DecimalFormat("#.##");
             score.setText(df2.format(totalfeedbackRadio)+"");
             editTextListFeedback.replace(pair.getKey(),score);
@@ -1296,12 +1897,12 @@ public class DynamicForm extends AppCompatActivity {
         return radioGroup;
     }
 
-    public void uomChangeConsumption(List<RadioGroup> radioGroups,final int calucationvalue,LinearLayout linearLayout) {
+    /*public void uomChangeConsumption(List<RadioGroup> radioGroups,final int calucationvalue,LinearLayout linearLayout) {
 
         //final EditText editTextConsumptionValue,consumptionShowEdittext;
 
         final int childCount = linearLayout.getChildCount();
-        Log.d("Vasdasdasd",childCount+" ");
+        if(LOG)Log.d("Vasdasdasd",childCount+" ");
         View editTextFirstView,editTextSecondView,RadioGroupFirstView,RadioGroupSecondView,editTextConsumptionView;
 
         editTextFirstView = linearLayout.getChildAt(1);
@@ -1333,9 +1934,11 @@ public class DynamicForm extends AppCompatActivity {
             int idx2 = RadioGroupSecond.indexOfChild(rb2);
             RadioButton radioButton2 = (RadioButton) RadioGroupSecond.getChildAt(idx2);
 
-            int selectedId3 =
+            if (LOG) {
+                int selectedId3 =
 
-                    Log.d("ValuewOnEditText",radioButton.getText().toString() +" "+editTextFirst.getText().toString() +" "+radioButton2.getText().toString() +" "+editTextSecond.getText().toString() +" "+editTextConsumption.getText().toString());
+                        Log.d("ValuewOnEditText",radioButton.getText().toString() +" "+editTextFirst.getText().toString() +" "+radioButton2.getText().toString() +" "+editTextSecond.getText().toString() +" "+editTextConsumption.getText().toString());
+            }
 
             if (radioButton.isChecked()&& radioButton2.isChecked() && !editTextFirst.getText().toString().equals("") && !editTextSecond.getText().toString().equals("")) {
                 //selectRB = radioButton.getText().toString();
@@ -1343,7 +1946,10 @@ public class DynamicForm extends AppCompatActivity {
                 firstRadio = radioButton.getText().toString();
                 SecondRadio = radioButton2.getText().toString();
 
-                if(radioButton.getText().toString().equals("KWH") && radioButton2.getText().toString().equals("MWH")){
+                firstVal = Double.parseDouble(editTextFirst.getText().toString());
+                secondVal = myDb.Conversion(Double.parseDouble(editTextSecond.getText().toString()),firstRadio,SecondRadio);
+
+                *//*if(radioButton.getText().toString().equals("KWH") && radioButton2.getText().toString().equals("MWH")){
                     editTextFirstValue = Double.parseDouble(editTextFirst.getText().toString());
                     editTextSecondValue = Double.parseDouble(editTextSecond.getText().toString()) * 1000;
                     SecondRadio = "KWH";
@@ -1356,11 +1962,11 @@ public class DynamicForm extends AppCompatActivity {
                 }else if (radioButton.getText().toString().equals(radioButton2.getText().toString())) {
                     editTextFirstValue = Double.parseDouble(editTextFirst.getText().toString());
                     editTextSecondValue = Double.parseDouble(editTextSecond.getText().toString());
-                }
+                }*//*
 
 
                 //KWH -> GWH && GWH -> KWH
-            }if(radioButton.getText().toString().equals("KWH") && radioButton2.getText().toString().equals("GWH")) {
+            }*//*if(radioButton.getText().toString().equals("KWH") && radioButton2.getText().toString().equals("GWH")) {
                 editTextFirstValue = Double.parseDouble(editTextFirst.getText().toString());
                 editTextSecondValue = Double.parseDouble(editTextSecond.getText().toString())*1000000;
                 SecondRadio = "KWH";
@@ -1389,11 +1995,11 @@ public class DynamicForm extends AppCompatActivity {
             }else  if(radioButton.getText().toString().equals(radioButton2.getText().toString())) {
                 editTextFirstValue = Double.parseDouble(editTextFirst.getText().toString());
                 editTextSecondValue = Double.parseDouble(editTextSecond.getText().toString());
-            }
+            }*//*
 
 
 
-            if(editTextSecondValue < editTextFirstValue) {
+            if(secondVal < firstVal) {
                 Toast.makeText(getApplicationContext(), "Intial Reading Can't be Greater Than Final Reading", Toast.LENGTH_LONG).show();
                 editTextConsumption.setText("");
                 radioButton2.setChecked(false);
@@ -1405,7 +2011,7 @@ public class DynamicForm extends AppCompatActivity {
                     }
                 }
             }else {
-                double diff = editTextSecondValue - editTextFirstValue ;
+                double diff = secondVal - firstVal ;
                 double diffSeconds = diff * calucationvalue;
                 DecimalFormat format = new DecimalFormat("0.0000");
                 editTextConsumption.setText(format.format(diffSeconds) + " " + firstRadio);
@@ -1413,14 +2019,14 @@ public class DynamicForm extends AppCompatActivity {
                 for(EditText editText:editTextConsumptionData){
                     if(editText.getId() == editTextConsumption.getId()){
                         //editTextConsumptionValue = editText;
-                        editText.setText(editTextFirstValue + ","+editTextSecondValue+","+diffSeconds+" "+firstRadio+","+ SecondRadio+","+ firstRadio);
+                        editText.setText(firstVal + ","+secondVal+","+diffSeconds+" "+firstRadio+","+ SecondRadio+","+ firstRadio);
 
                         //editText.setText("");
                     }
                 }
 
 
-                Log.d("TestValuesGot",editTextFirstValue + ","+editTextSecondValue+","+diffSeconds+" "+firstRadio+","+ SecondRadio+","+ firstRadio);
+                if(LOG)Log.d("TestValuesGot",firstVal + ","+secondVal+","+diffSeconds+" "+firstRadio+","+ SecondRadio+","+ firstRadio);
 
             }
         } catch (NullPointerException e) {
@@ -1430,8 +2036,92 @@ public class DynamicForm extends AppCompatActivity {
             Toast.makeText(getApplicationContext(), "Error code: fd1303", Toast.LENGTH_SHORT).show();
             e.printStackTrace();
         }
-    }
+    }*/
 
+    public void uomChangeConsumption(List<RadioGroup> radioGroups,final int calucationvalue,LinearLayout linearLayout) {
+
+        //final EditText editTextConsumptionValue,consumptionShowEdittext;
+        final int childCount = linearLayout.getChildCount();
+        if(LOG) Log.d("Vasdasdasd",childCount+" ");
+        View editTextFirstView,editTextSecondView,RadioGroupFirstView,RadioGroupSecondView,editTextConsumptionView;
+
+        editTextFirstView = linearLayout.getChildAt(1);
+        editTextSecondView = linearLayout.getChildAt(5);
+        RadioGroupFirstView = linearLayout.getChildAt(3);
+        RadioGroupSecondView = linearLayout.getChildAt(7);
+        editTextConsumptionView = linearLayout.getChildAt(9);
+
+        RadioGroup RadioGroupFirst,RadioGroupSecond;
+        EditText editTextFirst,editTextSecond,editTextConsumption;
+
+        RadioGroupFirst = (RadioGroup) RadioGroupFirstView;
+        RadioGroupSecond = (RadioGroup) RadioGroupSecondView;
+
+        editTextFirst = (EditText) editTextFirstView;
+        editTextSecond = (EditText) editTextSecondView;
+        editTextConsumption = (EditText) editTextConsumptionView;
+
+        try {
+            int selectedId = RadioGroupFirst.getCheckedRadioButtonId();
+            View rb1 = RadioGroupFirst.findViewById(selectedId);
+            int idx = RadioGroupFirst.indexOfChild(rb1);
+            RadioButton radioButton = (RadioButton) RadioGroupFirst.getChildAt(idx);
+
+            int selectedId2 = RadioGroupSecond.getCheckedRadioButtonId();
+            View rb2 = RadioGroupSecond.findViewById(selectedId2);
+            int idx2 = RadioGroupSecond.indexOfChild(rb2);
+            RadioButton radioButton2 = (RadioButton) RadioGroupSecond.getChildAt(idx2);
+
+            if(LOG) {
+                int selectedId3 = Log.d("ValuewOnEditText", radioButton.getText().toString() + " " + editTextFirst.getText().toString() + " " + radioButton2.getText().toString() + " " + editTextSecond.getText().toString() + " " + editTextConsumption.getText().toString());
+            }
+
+            if (radioButton.isChecked() && radioButton2.isChecked() && !editTextFirst.getText().toString().equals("") && !editTextSecond.getText().toString().equals("")) {
+                //selectRB = radioButton.getText().toString();
+                if(LOG) Log.d("Consumption",selectRB);
+                firstRadio = radioButton.getText().toString();
+                SecondRadio = radioButton2.getText().toString();
+
+                firstVal = Double.parseDouble(editTextFirst.getText().toString());
+                secondVal = myDb.Conversion(Double.parseDouble(editTextSecond.getText().toString()),firstRadio,SecondRadio);
+                }
+
+
+            if(secondVal < firstVal) {
+                Toast.makeText(getApplicationContext(), "Initial Reading Can't be Greater Than Final Reading", Toast.LENGTH_LONG).show();
+                editTextConsumption.setText("");
+                radioButton2.setChecked(false);
+                //editTextSecond.setText("");
+                for(EditText editText:editTextConsumptionData){
+                    if(editText.getId() == editTextConsumption.getId()){
+                        //editTextConsumptionValue = editText;
+                        editText.setText("");
+                    }
+                }
+            } else {
+                double diff = secondVal - firstVal;
+                double diffSeconds = diff * calucationvalue;
+                DecimalFormat format = new DecimalFormat("0.0000");
+                editTextConsumption.setText(format.format(diffSeconds) + " " + firstRadio);
+
+                for(EditText editText:editTextConsumptionData){
+                    if(editText.getId() == editTextConsumption.getId()){
+                        //editTextConsumptionValue = editText;
+                        editText.setText(firstVal + ","+secondVal+","+diffSeconds+" "+firstRadio+","+ SecondRadio+","+ firstRadio);
+                        //editText.setText("");
+                    }
+                }
+                if(LOG) Log.d("TestValuesGot",firstVal + ","+secondVal+","+diffSeconds+" "+firstRadio+","+ SecondRadio+","+ firstRadio);
+            }
+
+        } catch (NullPointerException e) {
+            System.out.println("fbi540 ERROR==" + e);
+        } catch (Exception e) {
+            System.out.println("fd1303 ERROR==" + e);
+            Toast.makeText(getApplicationContext(), "Error code: fd1303", Toast.LENGTH_SHORT).show();
+            e.printStackTrace();
+        }
+    }
 
     private LinearLayout consumptionlinearlayout(int Mandatory, String field_Label,String Field_Options, int id,String getData,String Value,String Field_Id,int calcutionvalue) {
         LinearLayout radioLayout = new LinearLayout(getApplicationContext());
@@ -1444,7 +2134,7 @@ public class DynamicForm extends AppCompatActivity {
         String[] label = field_Label.split(",");
         for(int i = 0;i<label.length-1;i++){
             String[] labelValue = label[i].split("\\|");
-            Log.d("TestingValue", label[i] + " " + " " + labelValue);
+            if(LOG)Log.d("TestingValue", label[i] + " " + " " + labelValue);
             if(i == 0){
                 if(previousReading.equals("No Previous Reading")){
                     if(Completed.equals("Completed")) {
@@ -1462,7 +2152,7 @@ public class DynamicForm extends AppCompatActivity {
 
                 }else{
                     String[] previousReadingSplite = previousReading.split(",");
-                    Log.d("Teasdasdasxdcasdasd",previousReading + " "+ previousReadingSplite[0] +" "+ previousReadingSplite[1]);
+                    if(LOG)Log.d("Teasdasdasxdcasdasd",previousReading + " "+ previousReadingSplite[0] +" "+ previousReadingSplite[1]);
                     radioLayout.addView(textView(labelValue[0]));
                     radioLayout.addView(editTextConsumption(id, getData, previousReadingSplite[0]));
                     radioLayout.addView(textView(labelValue[1]));
@@ -1531,7 +2221,7 @@ public class DynamicForm extends AppCompatActivity {
         radioLayout.setLayoutParams(textLayout);
         String[] value = Value.split(",");
         String[] label = field_Label.split("\\|");
-        Log.d("abcdValueee", field_Label + ":" + Value+" "+label[0]+" "+label[1]);
+        if(LOG)Log.d("abcdValueee", field_Label + ":" + Value+" "+label[0]+" "+label[1]);
         radioLayout.addView(textView(label[0]));
         radioLayout.addView(editTextDGTime(id, getData, value[0]));
         radioLayout.addView(textView(label[1]));
@@ -1576,7 +2266,7 @@ public class DynamicForm extends AppCompatActivity {
         return editText;
     }
 
-    private EditText editText(final int mandatory, String name, int id, String setText, final String Field_Limit_From, final String Field_Limit_To, final String Threshold_From, final String Threshold_To, String Validation_Type,int SafeRange) {
+    private EditText editText(final int mandatory, String name, int id, String setText, final String Field_Limit_From, final String Field_Limit_To, final String Threshold_From, final String Threshold_To, String Validation_Type,int SafeRange,final int calculationvalue) {
         final EditText editText = new EditText(this);
         editText.setId(id);
         editText.setLayoutParams(textLayout);
@@ -1642,7 +2332,7 @@ public class DynamicForm extends AppCompatActivity {
         imageView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Log.d("asdasdcasdas","Imagasdcxada Clicked" + idimageview);
+                if(LOG)Log.d("asdasdcasdas","Imagasdcxada Clicked" + idimageview);
                 Intent cameraIntent = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
                 startActivityForResult(cameraIntent, idimageview);
             }
@@ -1732,7 +2422,7 @@ public class DynamicForm extends AppCompatActivity {
         imageView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Log.d("asdasdcasdas","Imagasdcxada Clicked" + idimageview);
+                if(LOG)Log.d("asdasdcasdas","Imagasdcxada Clicked" + idimageview);
                 Intent cameraIntent = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
                 startActivityForResult(cameraIntent, idimageview);
             }
@@ -1757,6 +2447,35 @@ public class DynamicForm extends AppCompatActivity {
         return radioLayout;
     }
 
+    private LinearLayout radiowithradiolinearlayout(int Mandatory, String field_Label,String Field_Options, int id,String getData,String Value,String Field_Id) {
+        LinearLayout radioLayout = new LinearLayout(getApplicationContext());
+        radioLayout.setOrientation(LinearLayout.VERTICAL);
+        radioLayout.setLayoutParams(textLayout);
+
+        String[] label = field_Label.split(",");
+        String[] FieldOption = Field_Options.split("\\|");
+        radioLayout.addView(textView(label[0]));
+        radioLayout.addView(textView(label[1]));
+        radioLayout.addView(radiogroupRadioRadio(FieldOption[0], id, getData));
+        radioLayout.addView(textView(label[2]));
+        radioLayout.addView(radiogroupRadioRadio(FieldOption[1], id + 1, getData));
+        return radioLayout;
+    }
+
+    private RadioGroup radiogroupRadioRadio(String optionRadio, int id, String setText) {
+
+        final RadioGroup radioGroup = new RadioGroup(getApplicationContext());
+
+        radioGroup.setId(id);
+        radioGroup.setOrientation(RadioGroup.HORIZONTAL);
+        radioGroup.setLayoutParams(textLayout);
+        String[] optionRadioList = optionRadio.split(",");
+        for (int i = 0; i < optionRadioList.length; i++) {
+            radioGroup.addView(radioButton(optionRadioList[i], i, setText));
+        }
+        textRadioGroupRadioRadio.add(radioGroup);
+        return radioGroup;
+    }
     private EditText editTextFixed(final int mandatory, String name, int id, String setText) {
         final EditText editText = new EditText(this);
         editText.setId(id);
@@ -1802,6 +2521,63 @@ public class DynamicForm extends AppCompatActivity {
         radioLayout.addView(radiogroup(field_option, id, setText, radioLayout, Field_Option_Id));
         return radioLayout;
     }
+
+    private LinearLayout radioScorelinearlayout(String field_Label, String form_strucure_id,String field_option,int id,String setText,String Field_Option_Id) {
+        LinearLayout radioLayout = new LinearLayout(getApplicationContext());
+        radioLayout.setOrientation(LinearLayout.VERTICAL);
+        if(LOG) Log.d("ASDASDASDASDDAS", field_Label+"Form_Struct_Id:"+form_strucure_id);
+        radioLayout.setLayoutParams(textLayout);
+        radioLayout.addView(textView(field_Label));
+        radioLayout.addView(radiogroupScore(field_option, id, setText, Field_Option_Id));
+        return radioLayout;
+    }
+
+    private RadioGroup radiogroupScore(final String optionRadio, final int id, String setText, final String Field_Option_Id) {
+
+        final RadioGroup radioGroup = new RadioGroup(getApplicationContext());
+        radioGroup.setId(id);
+        radioGroup.setOrientation(RadioGroup.HORIZONTAL);
+        radioGroup.setLayoutParams(textLayout);
+
+        String[] optionRadioList = optionRadio.split(",");
+        final TextView textView = new TextView(DynamicForm.this);
+        textView.setText("[ Warning ]");
+        textView.setTextColor(Color.RED);
+        textView.setTextSize(9);
+        LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        layoutParams.setMargins(15, 0, 0, 0);
+        textView.setLayoutParams(layoutParams);
+
+        textView.setVisibility(View.GONE);
+        for (int i = 0; i < optionRadioList.length; i++) {
+            radioGroup.addView(radioButton(optionRadioList[i], i, setText));
+        }
+
+        radioGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+
+            @SuppressLint("NewApi")
+            @Override
+            public void onCheckedChanged(RadioGroup arg0, int arg1) {
+                int selectedId = radioGroup.getCheckedRadioButtonId();
+                if (!Field_Option_Id.equals("")) {
+                    String[] label = Field_Option_Id.split("\\|");
+                    for (int i = 0; i < label.length; i++) {
+                        if (Integer.parseInt(label[i]) == selectedId) {
+                            textView.setVisibility(View.VISIBLE);
+                            break;
+                        } else {
+                            textView.setVisibility(View.GONE);
+                        }
+                    }
+                }
+            }
+
+
+        });
+        textRadioGroupScoreList.add(radioGroup);
+        return radioGroup;
+    }
+
 
     private RadioGroup radiogroup(String optionRadio, int id, String setText,final String Field_Option_Id) {
         final RadioGroup radioGroup = new RadioGroup(getApplicationContext());
@@ -2654,6 +3430,34 @@ public class DynamicForm extends AppCompatActivity {
             return false;
     }
 
+    public boolean checkSubmitEditTextAdd() {
+        boolean editTextCheck = false;
+        try {
+            if (editTextAddList.size() == 0){
+                editTextCheck = true;
+            }else {
+                for (EditText editLongText : editTextAddList) {
+                    slnew = editLongText.getText().toString();
+                    edittextValidation.add(editLongText.getText().toString());
+                    if (slnew.equals("")) {
+                        editTextCheck = false;
+                        editLongText.setError("Please Enter Value");
+                        Snackbar snackbar = Snackbar.make(formLayout, "Please Complete the form !!", Snackbar.LENGTH_SHORT);
+                        snackbar.show();
+                        break;
+                    } else {
+                        editTextCheck = true;
+                    }
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        if(editTextCheck==true){
+            return  true;
+        }else return false;
+    }
+
     public boolean checkSubmitEditText() {
         boolean editTextCheck = false;
         try {
@@ -2858,6 +3662,59 @@ public class DynamicForm extends AppCompatActivity {
                         String[] valueReading = readingConstant.split(" ");
                         final Double a = Double.parseDouble(str_chk1[2]);
                         final String c = str_chk1[3].toString();
+                        if(LOG) Log.d("Rasfjdskgfm"," "+radioButton.getText().toString());
+
+                        Double cal = myDb.Conversion(a,radioButton.getText().toString(),c);
+
+                        BigDecimal d = new BigDecimal(cal);
+                        reading.setText("Previous Reading: " + d.setScale(3, BigDecimal.ROUND_HALF_UP)+ " "+radioButton.getText().toString());
+
+                        /*if (radioButton.getId() == 0) {
+                            if (c.equals("MW")) {
+                                Double a2 = a * 1000;
+                                BigDecimal d = new BigDecimal(a2);
+                                reading.setText("Previous Reading: " + d.setScale(3,BigDecimal.ROUND_HALF_UP)+ " KW");
+                                //reading.setText("Previous Reading: " + d.setScale(3,BigDecimal.ROUND_HALF_UP)+ " KW");
+                            }
+                        } else if(radioButton.getId() == 1){
+                            if (c.equals("KW")) {
+
+                                Double a2 = a / 1000;
+                                BigDecimal d = new BigDecimal(a2);
+                                reading.setText("Previous Reading: " + d.setScale(3,BigDecimal.ROUND_HALF_UP) + " MW");
+                                //reading.setText("Previous Reading: " + d.setScale(3,BigDecimal.ROUND_HALF_UP) + " MW");
+                            }
+                        }*/
+
+                    }
+                }
+            });
+        }
+    }
+
+/*
+    public void uomChange(List<RadioGroup> radioGroups) {
+        int i = 0;
+
+        for(RadioGroup radioGroup1:radioGroups) {
+            radioGroup1.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+                @SuppressLint("ResourceType")
+                @Override
+                public void onCheckedChanged(RadioGroup radioGroup, int checkedId) {
+                    RadioButton radioButton = (RadioButton) radioGroup.getChildAt(checkedId);
+                    for (int k = 0; k < previousReadingChange.size(); k++) {
+                        textviewId = previousReadingChange.get(k).getId();
+                        if (textviewId == radioGroup.getId()-1) {
+
+                            reading = previousReadingChange.get(k);
+                            readingConstant = previousReadingChange.get(k).getText().toString();
+                        }
+                    }
+                    if (!reading.getText().toString().equals("Previous Reading: No Previous Reading")) {
+                        String[] str_chk1 = reading.getText().toString().split(" ");
+                        String[] valueReading = readingConstant.split(" ");
+                        final Double a = Double.parseDouble(str_chk1[2]);
+                        final String c = str_chk1[3].toString();
 
                         if (radioButton.getId() == 0) {
                             if (c.equals("MW")) {
@@ -2883,6 +3740,7 @@ public class DynamicForm extends AppCompatActivity {
 
         }
     }
+*/
 
 
     String date;
@@ -2936,11 +3794,11 @@ public class DynamicForm extends AppCompatActivity {
             Paint paint = new Paint();
             String textval = label_value;
             int lengthval = textval.length();
-            Log.d("valuestring", String.valueOf(textval.indexOf(" ",lengthval/2)));
+            if(LOG)Log.d("valuestring", String.valueOf(textval.indexOf(" ",lengthval/2)));
 
             String firstText = textval.substring(0,textval.indexOf(" ",lengthval/2));
             String SecondText = textval.substring(textval.indexOf(" ",lengthval/2), lengthval);
-            Log.d("kjsdfghkjdfhg  ", firstText);
+            if(LOG)Log.d("kjsdfghkjdfhg  ", firstText);
             paint.setColor(Color.RED);
             paint.setTextSize(7);
             paint.setTextAlign(Paint.Align.CENTER);
@@ -2956,7 +3814,7 @@ public class DynamicForm extends AppCompatActivity {
             while (it.hasNext()) {
                 Map.Entry<Integer,ImageView> pair = (Map.Entry)it.next();
 
-                Log.d("Tsdasdasd",requestCode+ " "+pair.getKey());
+                if(LOG)Log.d("Tsdasdasd",requestCode+ " "+pair.getKey());
                 if(requestCode == pair.getKey()){
                     ImageView imageView = pair.getValue();
                     imageView.setId(pair.getKey());
@@ -2985,11 +3843,11 @@ public class DynamicForm extends AppCompatActivity {
 
         ContentValues contentValues1 = new ContentValues();
         if (unplanned == null) {
-            Log.d("PPMIntent",PPM_Intent);
+            if(LOG)Log.d("PPMIntent",PPM_Intent);
             if (PPM_Intent.equals("PPMPending")){
                 myDb.updatedPPMTaskDetails(TaskId,taskStatus,Completed, applicationClass.yymmddhhmmss(), Scan_Type, User_Id, User_Group_Id, Remarks);
             }else {
-                myDb.updatedTaskDetails(TaskId, taskStatus, Completed, applicationClass.yymmddhhmmss(), Scan_Type, User_Id, Remarks);
+                myDb.updatedTaskDetails(TaskId, taskStatus, Completed, applicationClass.yymmddhhmmss(), Scan_Type, User_Id, Remarks,0);
             }
 
 
@@ -3079,7 +3937,7 @@ public class DynamicForm extends AppCompatActivity {
     }
 
     private TextView SectiontextView(String label) {
-        Log.d("jgfjhgd", label);
+        if(LOG)Log.d("jgfjhgd", label);
         TextView textView = new TextView(this);
         textView.setTextSize(15);
         textView.setText("" + label + ": ");
@@ -3100,7 +3958,7 @@ public class DynamicForm extends AppCompatActivity {
         sp1 = (Spinner) findViewById(qualifiactionSpinner.getId());
         String[] optionList = options.split(",");
         List<String> spinnerArray = new ArrayList<String>();
-        Log.d("in", "spinnercontentBranching");
+        if(LOG)Log.d("in", "spinnercontentBranching");
         spinnerArray.add("-- Select One --");
 
         for (String value : optionList) {
@@ -3119,7 +3977,7 @@ public class DynamicForm extends AppCompatActivity {
             ArrayAdapter<String> adapter = new ArrayAdapter<String>(
                     this, android.R.layout.simple_spinner_item, spinnerArray);
             int selectionPosition = adapter.getPosition(qval);
-            Log.d("dropdownSelectedValue:", qval);
+            if(LOG)Log.d("dropdownSelectedValue:", qval);
             if (qval.equalsIgnoreCase(optValue))
                 qualifiactionSpinner.setSelection(selectionPosition);
         }
@@ -3127,14 +3985,14 @@ public class DynamicForm extends AppCompatActivity {
         qualifiactionSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                Log.d("section spinner value: ",position+"section id: "+Section_Id+" sid value: "+sid);
+                if(LOG)Log.d("section spinner value: ",position+"section id: "+Section_Id+" sid value: "+sid);
                 String formQuery = "select * from Form_Structure where Form_Id='" + Section_Id + "' and Record_Status <> 'D' and sid='" + position + "'ORDER BY Display_Order ASC";
                 db = myDb.getWritableDatabase();
                 Cursor cursor = db.rawQuery(formQuery, null);
-                Log.d("SpinnerQuery",formQuery+" cursr count:"+cursor.getCount());
+                if(LOG)Log.d("SpinnerQuery",formQuery+" cursr count:"+cursor.getCount());
 
                 if (cursor.getCount() == 0) {
-                    Log.d("Teasreqasd1","Teasdasd1");
+                    if(LOG)Log.d("Teasreqasd1","Teasdasd1");
                     //layoutSpinner.removeAllViews();
                     linearLayout.removeView(layoutSpinner);
                     removeRadioremark(layoutSpinner, 0);
@@ -3198,10 +4056,10 @@ public class DynamicForm extends AppCompatActivity {
                 String formQuery = "select * from Form_Structure where Form_Id='" + sectionId + "' and Record_Status <> 'D' and sid='" + selectedId + "'ORDER BY Display_Order ASC";
                 db = myDb.getWritableDatabase();
                 Cursor cursor = db.rawQuery(formQuery, null);
-                Log.d("Teasreqasd","Teasdasd");
+                if(LOG)Log.d("Teasreqasd","Teasdasd");
                 //Log.d("QueryValues", formQuery + " CursorCount:" + cursor.getCount() + " SectionValue:" + sectionvalue + " SelectedId:" + selectedId);
                 if (cursor.getCount() == 0) {
-                    Log.d("Teasreqasd","Teasdasd");
+                    if(LOG)Log.d("Teasreqasd","Teasdasd");
                     layoutRadioButton.removeAllViews();
                     sectionLayout.removeView(layoutRadioButton);
                     removeRadioremark(layoutRadioButton, 0);
@@ -3239,6 +4097,7 @@ public class DynamicForm extends AppCompatActivity {
                 FormType = cursor.getString(cursor.getColumnIndex("FormType"));
                 Field_Id =cursor.getString(cursor.getColumnIndex("Field_Id"));
                 SafeRange =cursor.getInt(cursor.getColumnIndex("SafeRange"));
+                calculationvalue =cursor.getInt(cursor.getColumnIndex("Calculation"));
 
                 try {
                     db=myDb.getWritableDatabase();
@@ -3271,6 +4130,73 @@ public class DynamicForm extends AppCompatActivity {
                 }
 
 
+                try {
+                    db = myDb.getWritableDatabase();
+                    String formQuery1 = "select Value from Data_Posting where Form_Structure_Id='" + Field_Id + "' and Task_Id='" + TaskId + "'";
+                    Cursor DataPosting = db.rawQuery(formQuery1, null);
+                    if (DataPosting.getCount() > 0) {
+                        if (DataPosting.moveToNext()) {
+                            do {
+
+                                Value = DataPosting.getString(DataPosting.getColumnIndex("Value"));
+
+                            } while (DataPosting.moveToNext());
+                        }
+                    } else {
+
+                        Value = "";
+                    }
+                    DataPosting.close();
+                    db.close();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+
+                try {
+                    db = myDb.getWritableDatabase();
+                    String formQuery2 = "select Reading,UOM from Meter_Reading where Form_Structure_Id='" + Field_Id + "' and Task_Id='" + TaskId + "'";
+                    Cursor Meter_Reading = db.rawQuery(formQuery2, null);
+                    if (Meter_Reading.getCount() > 0) {
+                        if (Meter_Reading.moveToNext()) {
+                            do {
+
+                                Reading = Meter_Reading.getString(Meter_Reading.getColumnIndex("Reading"));
+                                UOM = Meter_Reading.getString(Meter_Reading.getColumnIndex("UOM"));
+
+                            } while (Meter_Reading.moveToNext());
+                        }
+                    } else {
+                        Reading = "";
+                        UOM = "";
+                    }
+                    Meter_Reading.close();
+                    db.close();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+
+                try {
+                    db = myDb.getWritableDatabase();
+                    String formQueryRemarks = "select Remarks from Task_Details where From_Id='" + Form_Id + "' and Auto_Id='" + TaskId + "'";
+                    Cursor cursorRemarks = db.rawQuery(formQueryRemarks, null);
+                    if (cursorRemarks.getCount() > 0) {
+                        if (cursorRemarks.moveToNext()) {
+                            do {
+
+                                Remarks = cursorRemarks.getString(cursorRemarks.getColumnIndex("Remarks"));
+
+                            } while (cursorRemarks.moveToNext());
+                        }
+                    } else {
+                        Remarks = "";
+                    }
+                    cursorRemarks.close();
+                    db.close();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+
+
                 previousReadingDatabase = myDb.lastMultiMeterReading(AssetId,Field_Id);
 
                 if (Field_Type.equals("meter")) {
@@ -3278,9 +4204,9 @@ public class DynamicForm extends AppCompatActivity {
                         String[] label = Field_Label.split("\\|");
                         formLayout.addView(perviousReading(previousReadingDatabase, Id));
                         formLayout.addView(textView(label[0]));
-                        formLayout.addView(editTextMeter(Mandatory, label[0], Id + 2, ""));
+                        formLayout.addView(editTextMeter(Mandatory, label[0], Id + 2, Reading));
                         formLayout.addView(textView(label[1]));
-                        formLayout.addView(radiogroupMeter(Field_Options, Id + 1, ""));
+                        formLayout.addView(radiogroupMeter(Field_Options, Id + 1, UOM));
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
@@ -3290,10 +4216,38 @@ public class DynamicForm extends AppCompatActivity {
                     try {
                         formLayout.addView(textView(Field_Label));
                         if (parameterCount==0) {
-                            formLayout.addView(editText(Mandatory, Field_Label, Id , "","","","","","",SafeRange));
+                            formLayout.addView(editText(Mandatory, Field_Label, Id , Value,"","","","","",SafeRange,calculationvalue));
                         } else {
-                            formLayout.addView(editText(Mandatory, field_Limit_Form + " - " + field_Limit_To +" (Safe Range: "+ threshold_From + " - " +threshold_To+" )", Id, "", field_Limit_Form, field_Limit_To, threshold_From, threshold_To, validation_Type,SafeRange));
+                            formLayout.addView(editText(Mandatory, field_Limit_Form + " - " + field_Limit_To +" (Safe Range: "+ threshold_From + " - " +threshold_To+" )", Id, Value, field_Limit_Form, field_Limit_To, threshold_From, threshold_To, validation_Type,SafeRange,calculationvalue));
                         }
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+                if (Field_Type.equals("branchingText")) {
+                    try {
+                        formLayout.addView(branchTextlinearlayout(Mandatory, Field_Label, Id, section,sid));
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+                if (Field_Type.equals("textwithcb")) {
+
+                    try {
+                        if (parameterCount==0) {
+                            formLayout.addView(checkboxlinearlayout(Mandatory, Field_Label, Id, Value, "", "", "", "", "", SafeRange,calculationvalue));
+                        } else {
+                            formLayout.addView(checkboxlinearlayout(Mandatory, Field_Label, Id, Value, field_Limit_Form, field_Limit_To, threshold_From, threshold_To, validation_Type, SafeRange,calculationvalue));
+                        }
+                        //formLayout.addView(checkboxlinearlayout(Mandatory, Field_Label, Id, ""));
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+                if (Field_Type.equals("textview")) {
+
+                    try {
+                        formLayout.addView(textViewLabel(Field_Label));
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
@@ -3307,11 +4261,32 @@ public class DynamicForm extends AppCompatActivity {
                         e.printStackTrace();
                     }
                 }
+                if (Field_Type.equals("textscore")){
+                    formLayout.addView(textViewScore("",Id));
+                }
+                if (Field_Type.equals("addReading")) {
+                    try {
+                        formLayout.addView(meterTextlinearlayout(Mandatory, Field_Label, Id, Value));
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+                if (Field_Type.equals("consumption")) {
+                    try {
+                        formLayout.addView(consumptionlinearlayout(Mandatory, Field_Label, Field_Options, Id, "", Value, Field_Id, calculationvalue));
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
                 if (Field_Type.equals("dropdown")) {
 
                     try {
                         formLayout.addView(SectiontextView(Field_Label));
-                        formLayout.addView(qualifiaction(Field_Options, Id, "", null, "", section));
+                        if (parameterCount==0) {
+                            formLayout.addView(qualifiaction(Field_Options, Id, Value, null,"",section));
+                        }else {
+                            formLayout.addView(qualifiaction(Field_Options, Id, Value, null, Field_Option_Id, section));
+                        }
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
@@ -3320,9 +4295,9 @@ public class DynamicForm extends AppCompatActivity {
                     try {
                         formLayout.addView(textView(Field_Label));
                         if (parameterCount==0) {
-                            formLayout.addView(radiogroup(Field_Options, Id, "", ""));
+                            formLayout.addView(radiogroup(Field_Options, Id, Value, ""));
                         }else {
-                            formLayout.addView(radiogroup(Field_Options, Id, "", Field_Option_Id));
+                            formLayout.addView(radiogroup(Field_Options, Id, Value, Field_Option_Id));
                         }
                         /*if (parameterCount==0) {
                             formLayout.addView(radiolinearlayout(Field_Label, Field_Options, Id, "", ""));
@@ -3334,22 +4309,52 @@ public class DynamicForm extends AppCompatActivity {
                         e.printStackTrace();
                     }
                 }
-
-                /*if (Field_Type.equals("radiowithimage")) {
+                if (Field_Type.equals("radioScore")) {
                     try {
-
-                        formLayout.addView(radioImagelinearlayout(Field_Label, Field_Options, Id, "", sid));
-
-
+                        if (parameterCount==0) {
+                            formLayout.addView(radioScorelinearlayout(Field_Label,Field_Id,Field_Options,Id,Value,""));
+                        } else {
+                            formLayout.addView(radioScorelinearlayout(Field_Label,Field_Id,Field_Options,Id,Value,Field_Option_Id));
+                        }
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
-                }*/
-              /*  if (Field_Type.equals("datetime")) {
+                }
+                if (Field_Type.equals("radiofeedback")) {
+                    try {
+                        formLayout.addView(radiofeedbacklinearlayout(Field_Label, Field_Options, Id, ""));
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+                if (Field_Type.equals("feedbackscore")) {
+                    try {
+                        formLayout.addView(textView(Field_Label));
+                        formLayout.addView(Score(Field_Label, Id, "", calculationvalue));
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+                if (Field_Type.equals("name")) {
+                    try {
+                        formLayout.addView(textView(Field_Label));
+                        formLayout.addView(editTextareaName(Field_Label, Id));
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+                if (Field_Type.equals("branching")) {
+                    try {
+                        formLayout.addView(sectionLinearLayout(Mandatory, Field_Label, Id, Field_Options, section, Value));
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+                if (Field_Type.equals("datetime")) {
 
                     try {
                         formLayout.addView(textView(Field_Label));
-                        formLayout.addView(editTextDateTime(Id, "",""));
+                        formLayout.addView(editTextDateTime(Id, "D"));
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
@@ -3357,27 +4362,58 @@ public class DynamicForm extends AppCompatActivity {
                 if (Field_Type.equals("dg")) {
 
                     try {
-                        formLayout.addView(dglinearlayout(Mandatory, Field_Label, Id,"",""));
+                        formLayout.addView(dglinearlayout(Mandatory, Field_Label, Id, "", Value));
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
-                }*/
-
-                if (Field_Type.equals("section")) {
+                }
+                if (Field_Type.equals("radiowithimageandremark")) {
                     try {
-                        formLayout.addView(SectiontextView(Field_Label));
-                        //formLayout.addView(sectionLinearLayout(Mandatory, Field_Label, Id, Field_Options, section, String.valueOf(sid), ""));
-                        formLayout.addView(qualifiactionBranching(Field_Options, Id, "", "", formLayout, section, sid));
+                        formLayout.addView(radiowithImageandRemarklinearlayout(Field_Label, Field_Options, Id, Value, sid));
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+                if (Field_Type.equals("radiowithimage")) {
+                    try {
+                        formLayout.addView(radiowithImagelinearlayout(Mandatory,Field_Label, Field_Options, Id, Value, sid));
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+                if (Field_Type.equals("radiowithremark")) {
+                    try {
+                        formLayout.addView(radiowithRemarklinearlayout( Field_Label, Field_Options, Id, Value, sid));
 
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
                 }
+                if (Field_Type.equals("radiowithradio")) {
 
+                    try {
+                        formLayout.addView(radiowithradiolinearlayout(Mandatory, Field_Label, Field_Options, Id, "", Value, Field_Id));
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+                if (Field_Type.equals("section")) {
+                    try {
+                        formLayout.addView(SectiontextView(Field_Label));
+                        //formLayout.addView(sectionLinearLayout(Mandatory, Field_Label, Id, Field_Options, section, String.valueOf(sid), ""));
+                        if (parameterCount==0) {
+                            formLayout.addView(qualifiactionBranching(Field_Options, Id, Value, "", formLayout, section, sid));
+                        } else {
+                            formLayout.addView(qualifiactionBranching(Field_Options, Id, Value, Field_Option_Id, formLayout, section, sid));
+                        }
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
                 if (Field_Type.equals("textarea")) {
                     try {
                         formLayout.addView(textView(Field_Label));
-                        formLayout.addView(editTextarea(Field_Label, Id, ""));
+                        formLayout.addView(editTextarea(Field_Label, Id, Value));
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
@@ -3385,7 +4421,7 @@ public class DynamicForm extends AppCompatActivity {
                 if (Field_Type.equals("remark")) {
                     try {
                         formLayout.addView(textView(Field_Label));
-                        formLayout.addView(editTextRemark(Field_Label, Id, Value));
+                        formLayout.addView(editTextRemark(Field_Label, Id, Remarks));
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
@@ -3399,6 +4435,7 @@ public class DynamicForm extends AppCompatActivity {
                         e.printStackTrace();
                     }
                 }
+
             }
             while (cursor.moveToNext());
         }
@@ -3433,9 +4470,9 @@ public class DynamicForm extends AppCompatActivity {
         for(RadioGroup radioSection :textRadioGroupBranchingList ){
             layout.removeView(radioSection);
         }
-       /* for(RadioGroup textView :textRadioGroupList ){
+        for (TextView textView : textViewListBranch) {
             layout.removeView(textView);
-        }*/
+        }
 
     }
 
@@ -3796,6 +4833,7 @@ public class DynamicForm extends AppCompatActivity {
                 contentValues.put("UOM", selectRB);
                 contentValues.put("updatedStatus", "no");
                 contentValues.put("Reading", slnew);
+                emaildata.put(myDb.getfieldId(fieldId-2),slnew+" "+selectRB);
                 db = myDb.getWritableDatabase();
                 db.insert("Meter_Reading", null, contentValues);
                 db.close();
@@ -3812,7 +4850,7 @@ public class DynamicForm extends AppCompatActivity {
 
                 String[] edittextSplit = slnew.split("\\s+");
 
-                Log.d("TestingValuesSplit",edittextSplit[0]+" "+edittextSplit[1]);
+                if(LOG)Log.d("TestingValuesSplit",edittextSplit[0]+" "+edittextSplit[1]);
                 editText.put(myDb.getfieldId(fieldId), slnew);
                 contentValues1.put("Task_Id", uuid);
                 contentValues1.put("Form_Id", myDb.getFormId(myDb.getfieldId(fieldId)));
@@ -3822,7 +4860,7 @@ public class DynamicForm extends AppCompatActivity {
                 contentValues1.put("Site_Location_Id", SiteId);
                 contentValues1.put("Parameter_Id", "");
                 contentValues1.put("UpdatedStatus", "no");
-               // emaildata.put(myDb.getfieldId(fieldId),edittextSplit[0]+" "+edittextSplit[1]);
+                emaildata.put(myDb.getfieldId(fieldId),edittextSplit[0]+" "+edittextSplit[1]);
                 db = myDb.getWritableDatabase();
                 db.insert("Data_Posting", null, contentValues1);
                 db.close();
@@ -3830,7 +4868,120 @@ public class DynamicForm extends AppCompatActivity {
                 e.printStackTrace();
             }
         }
+        for (EditText editTextRemarks : editTextaddition) {
+            try {
+                ContentValues contentValuesRemarks = new ContentValues();
+                int fieldIdRemarks = editTextRemarks.getId();
+                String Form_Structure_Id = myDb.getfieldId(fieldIdRemarks);
+                String formId = myDb.getFormId(Form_Structure_Id);
+                slnew = editTextRemarks.getText().toString();
+                if(LOG) Log.d("ValueAdded"," "+slnew);
+                editText.put(Form_Structure_Id, slnew);
+                contentValuesRemarks.put("Task_Id", uuid);
+                contentValuesRemarks.put("Form_Id", formId);
+                contentValuesRemarks.put("Form_Structure_Id", Form_Structure_Id);
+                contentValuesRemarks.put("Site_Location_Id", SiteId);
+                contentValuesRemarks.put("Value", slnew);
+                contentValuesRemarks.put("Parameter_Id", "");
+                contentValuesRemarks.put("UpdatedStatus", "no");
+                emaildata.put(myDb.getfieldId(fieldIdRemarks),slnew);
+                db = myDb.getWritableDatabase();
+                db.insert("Data_Posting", null, contentValuesRemarks);
+                db.close();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        for (EditText editTextList1 : editTextWithCbList) {
+            try {
+                ContentValues contentValues1 = new ContentValues();
+                int fieldId = editTextList1.getId();
+                slnew = editTextList1.getText().toString();
+                editText.put(myDb.getfieldId(fieldId), slnew);
+                contentValues1.put("Task_Id", uuid);
+                contentValues1.put("Form_Id", myDb.getFormId(myDb.getfieldId(fieldId)));
+                contentValues1.put("Form_Structure_Id", myDb.getfieldId(fieldId));
+                contentValues1.put("Value", slnew);
+                contentValues1.put("Site_Location_Id", SiteId);
+                contentValues1.put("Parameter_Id", "");
+                contentValues1.put("UpdatedStatus", "no");
+                emaildata.put(myDb.getfieldId(fieldId),slnew);
+                db = myDb.getWritableDatabase();
+                db.insert("Data_Posting", null, contentValues1);
+                db.close();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        for(int i = 0; i< textRadioGroupRadioRadio.size();i++){
+            String selectRB = "",selectRB2="";
+            RadioGroup radioGroup = textRadioGroupRadioRadio.get(i);
+            i= i+1;
+            RadioGroup radioGroup2 = textRadioGroupRadioRadio.get(i);
+            int cbid = radioGroup.getId();
 
+            try {
+                int selectedId = radioGroup.getCheckedRadioButtonId();
+                View rb1 = radioGroup.findViewById(selectedId);
+                int idx = radioGroup.indexOfChild(rb1);
+                RadioButton radioButton = (RadioButton) radioGroup.getChildAt(idx);
+                String Form_Structure_Id = myDb.getfieldId(cbid);
+
+                int selectedId2 = radioGroup2.getCheckedRadioButtonId();
+                View rb2 = radioGroup2.findViewById(selectedId2);
+                int idx2 = radioGroup2.indexOfChild(rb2);
+                RadioButton radioButton2 = (RadioButton) radioGroup2.getChildAt(idx2);
+
+                if (radioButton.isChecked()&& radioButton2.isChecked()) {
+                    selectRB = radioButton.getText().toString();
+                    selectRB2 = radioButton2.getText().toString();
+                    ContentValues contentValues2 = new ContentValues();
+                    contentValues2.put("Task_Id", uuid);
+                    contentValues2.put("Form_Id",  myDb.getFormId(myDb.getfieldId(cbid)));
+                    contentValues2.put("Form_Structure_Id", myDb.getfieldId(cbid));
+                    contentValues2.put("Site_Location_Id", SiteId);
+                    contentValues2.put("Parameter_Id", "");
+                    contentValues2.put("Value", selectRB+","+selectRB2);
+                    contentValues2.put("UpdatedStatus", "no");
+                    emaildata.put(myDb.getfieldId(cbid),selectRB+","+selectRB2);
+                    db=myDb.getWritableDatabase();
+                    db.insert("Data_Posting", null, contentValues2);
+                    db.close();
+                }
+            } catch (NullPointerException e) {
+                System.out.println("fbi540 ERROR==" + e);
+            } catch (Exception e) {
+                System.out.println("fd1303 ERROR==" + e);
+                Toast.makeText(getApplicationContext(), "Error code: fd1303", Toast.LENGTH_SHORT).show();
+                e.printStackTrace();
+                System.out.println("-------ee FD radio  " + "Id_" + cbid + " value " + selectRB);
+
+            }
+        }
+
+        for (TextView textView : CalculationList){
+            int fieldId = textView.getId();
+            try {
+                String Form_Structure_Id = myDb.getfieldId(fieldId);
+                String formId = myDb.getFormId(Form_Structure_Id);
+                slnew = textView.getText().toString();
+                editText.put(myDb.getfieldId(fieldId), slnew);
+                ContentValues contentValues1 = new ContentValues();
+                contentValues1.put("Task_Id", uuid);
+                contentValues1.put("Form_Id", formId);
+                contentValues1.put("Form_Structure_Id", Form_Structure_Id);
+                contentValues1.put("Site_Location_Id", SiteId);
+                contentValues1.put("Parameter_Id", "");
+                contentValues1.put("Value", TotalOfScore);
+                contentValues1.put("UpdatedStatus", "no");
+                emaildata.put(myDb.getfieldId(fieldId),String.valueOf(TotalOfScore));
+                db=myDb.getWritableDatabase();
+                db.insert("Data_Posting", null, contentValues1);
+                db.close();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
         for (EditText editTextList1 : editTextDGTimeList) {
             try {
                 ContentValues contentValues1 = new ContentValues();
@@ -3847,6 +4998,7 @@ public class DynamicForm extends AppCompatActivity {
                 contentValues1.put("Site_Location_Id", SiteId);
                 contentValues1.put("Parameter_Id", "");
                 contentValues1.put("UpdatedStatus", "no");
+                emaildata.put(myDb.getfieldId(fieldId),slnew);
                 db = myDb.getWritableDatabase();
                 db.insert("Data_Posting", null, contentValues1);
                 db.close();
@@ -3879,6 +5031,7 @@ public class DynamicForm extends AppCompatActivity {
                 contentValues1.put("Site_Location_Id", SiteId);
                 contentValues1.put("Parameter_Id", "");
                 contentValues1.put("UpdatedStatus", "no");
+                emaildata.put(myDb.getfieldId(fieldId),slnew);
                 db = myDb.getWritableDatabase();
                 db.insert("Data_Posting", null, contentValues1);
                 db.close();
@@ -3903,6 +5056,7 @@ public class DynamicForm extends AppCompatActivity {
                 contentValues1.put("Site_Location_Id", SiteId);
                 contentValues1.put("Parameter_Id", "");
                 contentValues1.put("UpdatedStatus", "no");
+                emaildata.put(myDb.getfieldId(fieldId),slnew);
                 db = myDb.getWritableDatabase();
                 db.insert("Data_Posting", null, contentValues1);
                 db.close();
@@ -3916,7 +5070,7 @@ public class DynamicForm extends AppCompatActivity {
                 ContentValues contentValues1 = new ContentValues();
                 int fieldId = editTextarea1.getId();
                 String Form_Structure_Id = myDb.getfieldId(fieldId);
-                Log.d("Field_Id",Form_Structure_Id);
+                if(LOG)Log.d("Field_Id",Form_Structure_Id);
                 String formId = myDb.getFormId(Form_Structure_Id);
                 slnew = editTextarea1.getText().toString();
                 editText.put(Form_Structure_Id, slnew);
@@ -3927,6 +5081,7 @@ public class DynamicForm extends AppCompatActivity {
                 contentValues1.put("Remark", slnew);
                 contentValues1.put("Parameter_Id", "");
                 contentValues1.put("UpdatedStatus", "no");
+                emaildata.put(myDb.getfieldId(fieldId),slnew);
                 db = myDb.getWritableDatabase();
                 db.insert("Data_Posting", null, contentValues1);
                 db.close();
@@ -3950,6 +5105,7 @@ public class DynamicForm extends AppCompatActivity {
                 contentValuesRemarks.put("Value", slnew);
                 contentValuesRemarks.put("Parameter_Id", "");
                 contentValuesRemarks.put("UpdatedStatus", "no");
+                emaildata.put(myDb.getfieldId(fieldIdRemarks),slnew);
                 db = myDb.getWritableDatabase();
                 db.insert("Data_Posting", null, contentValuesRemarks);
                 db.close();
@@ -3979,6 +5135,7 @@ public class DynamicForm extends AppCompatActivity {
                     contentValues2.put("Parameter_Id", "");
                     contentValues2.put("Value", selectRB);
                     contentValues2.put("UpdatedStatus", "no");
+                    emaildata.put(myDb.getfieldId(cbid),selectRB);
                     db=myDb.getWritableDatabase();
                     db.insert("Data_Posting", null, contentValues2);
                     String query = "Select * FROM Parameter" +
@@ -4030,7 +5187,7 @@ public class DynamicForm extends AppCompatActivity {
                 RadioButton radioButton = (RadioButton) rdgrp.getChildAt(idx);
                 String Form_Structure_Id = myDb.getfieldId(cbid);
                 String formId = myDb.getFormId(Form_Structure_Id);
-                Log.d("Field_Id",Form_Structure_Id);
+                if(LOG)Log.d("Field_Id",Form_Structure_Id);
                 if (radioButton.isChecked()) {
 
 
@@ -4043,6 +5200,7 @@ public class DynamicForm extends AppCompatActivity {
                     contentValues2.put("Parameter_Id", "");
                     contentValues2.put("Value", selectRB);
                     contentValues2.put("UpdatedStatus", "no");
+                    emaildata.put(myDb.getfieldId(cbid),selectRB);
                     db=myDb.getWritableDatabase();
                     db.insert("Data_Posting", null, contentValues2);
 
@@ -4086,6 +5244,80 @@ public class DynamicForm extends AppCompatActivity {
             }
         }
 
+        for (RadioGroup rdgrp : textRadioGroupScoreList) {
+            String selectRB = "";
+            int cbid = rdgrp.getId();
+            int i;
+
+            try {
+                int selectedId = rdgrp.getCheckedRadioButtonId();
+                View rb1 = rdgrp.findViewById(selectedId);
+                int idx = rdgrp.indexOfChild(rb1);
+                RadioButton radioButton = (RadioButton) rdgrp.getChildAt(idx);
+                String Form_Structure_Id = myDb.getfieldId(cbid);
+                String formId = myDb.getFormId(Form_Structure_Id);
+
+                if (radioButton.isChecked()) {
+                    scoringval = myDb.formScore(Form_Structure_Id,selectedId);
+                    if(LOG) Log.d("FinalValofScore", String.valueOf(scoringval));
+                    TotalOfScore = TotalOfScore+scoringval;
+                    if(LOG) Log.d("TotalOfScore:", String.valueOf(TotalOfScore));
+                    selectRB = radioButton.getText().toString();
+                    ContentValues contentValues2 = new ContentValues();
+                    contentValues2.put("Task_Id", uuid);
+                    contentValues2.put("Form_Id", formId);
+                    contentValues2.put("Form_Structure_Id", Form_Structure_Id);
+                    contentValues2.put("Site_Location_Id", SiteId);
+                    contentValues2.put("Parameter_Id", "");
+                    contentValues2.put("Value", selectRB);
+                    contentValues2.put("UpdatedStatus", "no");
+                    emaildata.put(myDb.getfieldId(cbid),selectRB);
+                    db=myDb.getWritableDatabase();
+                    db.insert("Data_Posting", null, contentValues2);
+
+                    String query = "Select * FROM Parameter" +
+                            " WHERE Activity_Frequency_Id = '"+frequencyId+"'" + "AND Form_Structure_Id = '"+Form_Structure_Id+"'";
+
+                    Cursor parameter =db.rawQuery(query, null);
+                    if (parameter.getCount() > 0) {
+                        try {
+                            if (parameter.moveToNext()) {
+                                do {
+                                    validation_Type1 = parameter.getString(parameter.getColumnIndex("Validation_Type"));
+                                    Critical1 = parameter.getString(parameter.getColumnIndex("Critical"));
+                                    Field_Option_Id = parameter.getString(parameter.getColumnIndex("Field_Option_Id"));
+                                } while (parameter.moveToNext());
+                            }
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                        try {
+                            String[] label = Field_Option_Id.split("\\|");
+                            for (i = 0; i < label.length; i++) {
+                                if (Integer.parseInt(label[i]) == selectedId) {
+                                    Toast.makeText(getApplicationContext(),"Alert Inserted",Toast.LENGTH_LONG).show();
+                                    InsertAlert(uuid,Form_Structure_Id);
+                                }
+                            }
+                        } catch (NumberFormatException e) {
+                            e.printStackTrace();
+                        }
+                    }
+
+                    db.close();
+                }
+
+            } catch (NullPointerException e) {
+                if(LOG) System.out.println("fbi540 ERROR==" + e);
+            } catch (Exception e) {
+                if(LOG) System.out.println("fd1303 ERROR==" + e);
+                Toast.makeText(getApplicationContext(), "Error code: fd1303", Toast.LENGTH_SHORT).show();
+                e.printStackTrace();
+                if(LOG) System.out.println("-------ee FD radio  " + "Id_" + cbid + " value " + selectRB);
+
+            }
+        }
+
         for (Spinner textSpinner : textSpinnerList) {
             try {
                 int id_sp = textSpinner.getId();
@@ -4101,6 +5333,7 @@ public class DynamicForm extends AppCompatActivity {
                 contentValues.put("Site_Location_Id", SiteId);
                 contentValues3.put("Value", sspinner);
                 contentValues3.put("UpdatedStatus", "no");
+                emaildata.put(myDb.getfieldId(id_sp),sspinner);
                 db=myDb.getWritableDatabase();
                 db.insert("Data_Posting", null, contentValues3);
                 String query = "Select * FROM Parameter" +
@@ -4188,10 +5421,108 @@ public class DynamicForm extends AppCompatActivity {
 
     }
 
+    public void emailAlert(String TaskID){
+        try {
+            StringBuilder sb =new StringBuilder();
+            sb.append("*** This is an automatically generated email, please do not reply ***");
+            sb.append('\n');
+            sb.append('\n');
+            sb.append("User : ");
+            sb.append(myDb.UserName(User_Id));
+            sb.append('\n');
+            sb.append("Group : ");
+            sb.append(myDb.UserGroupName(User_Group_Id));
+            sb.append('\n');
+            sb.append("Site Name : ");
+            sb.append(myDb.SiteName(User_Id));
+            sb.append('\n');
+            sb.append("Activity Name : ");
+            sb.append(Activity_Name);
+            sb.append('\n');
+            sb.append("Asset Name : ");
+            sb.append(Asset_Name);
+            sb.append('\n');
+
+            if (unplanned == null) {
+                sb.append("Task Scheduled Date : ");
+                sb.append(Task_Scheduled_Date);
+                sb.append('\n');
+                sb.append("Task Performance Date : ");
+                sb.append(new applicationClass().yymmddhhmm());
+                sb.append('\n');
+                sb.append("Task Type : ");
+                sb.append("Completed");
+            } else {
+                sb.append("Task Performance Date : ");
+                sb.append(new applicationClass().yymmddhhmm());
+                sb.append('\n');
+                sb.append("Task Type : ");
+                sb.append("Unplanned");
+            }
+            sb.append('\n');
+            sb.append('\n');
+
+            String formQuery = "SELECT td.Asset_Name,td.Activity_Name,fs.Field_Id,fs.Field_Label,fs.Form_Id,dp.Value,am.Alert_Type AS Validation_Type,am.Alert_Type,td.Task_Start_At,td.Task_Scheduled_Date,td.Task_Status,pv.Field_Limit_From  || ' - ' ||  pv.Field_Limit_To AS Range,pv.Threshold_From  || ' - ' ||  pv.Threshold_To AS Safe_Range FROM Task_Details td INNER JOIN Data_Posting dp ON dp.Task_Id=td.Auto_Id INNER JOIN AlertMaster am ON (am.Task_Id=td.Auto_Id AND am.Form_Structure_Id=dp.Form_Structure_Id) INNER JOIN Form_Structure fs ON dp.Form_Structure_Id = fs.Field_Id INNER JOIN Parameter pv ON (pv.Activity_Frequency_Id=td.Activity_Frequency_Id AND pv.Form_Structure_Id=dp.Form_Structure_Id) WHERE dp.Task_Id = '"+TaskID+"' GROUP BY dp.Task_Id,dp.Form_Structure_Id ORDER BY fs.Form_Id,fs.Display_Order";
+            db = myDb.getWritableDatabase();
+            Cursor cursorEmailAlert  = db.rawQuery(formQuery, null);
+
+            if(cursorEmailAlert.moveToFirst()){
+                int indx = 1;
+                do{
+                    emailvals = emaildata.entrySet().iterator();
+                    while (emailvals.hasNext()){
+                        emailPair = (Map.Entry)emailvals.next();
+                        String Field_IdEmail =cursorEmailAlert.getString(cursorEmailAlert.getColumnIndex("Field_Id"));
+                        String SafeRange = cursorEmailAlert.getString(cursorEmailAlert.getColumnIndex("Safe_Range"));
+
+
+                        if(Field_IdEmail.equals(emailPair.getKey())){
+                            sb.append(indx+". ");
+                            sb.append(cursorEmailAlert.getString(cursorEmailAlert.getColumnIndex("Field_Label")));
+                            sb.append(": "+emailPair.getValue());
+                            if(!SafeRange.trim().equals("-")) {
+                                sb.append("   Safe Range: " + SafeRange);
+                            }
+                            sb.append('\n');
+                        }
+                    }
+                    indx++;
+                }while (cursorEmailAlert.moveToNext());
+                emailBackgroundData(sb.toString());
+            }
+            cursorEmailAlert.close();
+            db.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void emailBackgroundData(final String value){
+        {
+            try{
+                final String id =  myDb.emailList(SiteId);
+                new Thread(new Runnable() {
+                    public void run() {
+                        try {
+                            com.example.google.template.emailfiles.GMailSender sender = new com.example.google.template.emailfiles.GMailSender(
+                                    emailId,
+                                    emailPwd);
+                            sender.sendMail(getResources().getString(R.string.application_name)+" "+myDb.SiteName(User_Id) + " Alert Report " + Task_Scheduled_Date, value,
+                                    emailId,
+                                    id);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                            Toast.makeText(getApplicationContext(),"Error",Toast.LENGTH_LONG).show();
+                        }
+                    }
+                }).start();
+            }catch (Exception e){
+                e.printStackTrace();
+            }
+        }
+    }
+
     public void InsertAlert(String uuid,String Form_Structure_Id){
-
-
-
         String formId = myDb.getFormId(Form_Structure_Id);
 
 

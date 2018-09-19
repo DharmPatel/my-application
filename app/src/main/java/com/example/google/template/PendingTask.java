@@ -520,7 +520,7 @@ public class PendingTask extends Fragment {
 
                         if (calenderCurrent.getTime().after(parseDate(EndDateTime))) {
                             // myDb.updatedTaskDetails(TaskId,"Missed",formatDate(calenderCurrent.getTime()),"",User_Id,"");
-                            myDb.updatedTaskDetails(TaskId, "Missed", "Pending", formatDate(calenderCurrent.getTime()), "", User_Id, "");
+                            myDb.updatedTaskDetails(TaskId, "Missed", "Pending", formatDate(calenderCurrent.getTime()), "", User_Id, "",0);
                         }else {
                             try {
                                 if(parseDate(StartDateTime).before(LimitTime) || parseDate(StartDateTime).equals(LimitTime)) {
