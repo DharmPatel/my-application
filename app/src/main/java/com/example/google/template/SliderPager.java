@@ -58,7 +58,6 @@ public class SliderPager extends PagerAdapter {
 
 
     public int imagesize(){
-        Log.d("ValueqasduserID",UserId+"");
         value = 1;
         try {
             myDb = new DatabaseHelper(new applicationClass().getContext());
@@ -68,9 +67,7 @@ public class SliderPager extends PagerAdapter {
 
 
             String UserGroupQuery = "Select COUNT(Site_Location_Id) from site_imagelist WHERE Site_Location_Id ='"+myDb.Site_IdUserSiteLinking(UserId)+"' AND Record_Status !='D'";
-            Log.d("ValueqasduserID123",UserGroupQuery);
             Cursor cursor1 = db.rawQuery(UserGroupQuery, null);
-            Log.d("ValueqasduserID123",""+cursor1.getCount());
             if (cursor1.moveToFirst()) {
                 do {
                     value=cursor1.getInt(0);
@@ -92,7 +89,6 @@ public class SliderPager extends PagerAdapter {
         }else {
             images = new Integer[value];
         }
-        Log.d("ValueqasduserID123",""+value);
         return value;
     }
 
@@ -124,7 +120,6 @@ try {
 
     }else {
         ImageView imageView = (ImageView) view.findViewById(R.id.imageView);
-        Log.d("Asdasdasdasd", "EnterValue"+bitmapImages.size()+":"+bitmapImages.get(position) + " "+position);
         imageView.setScaleType(ImageView.ScaleType.FIT_XY);
         imageView.setImageBitmap(bitmapImages.get(position));
     }

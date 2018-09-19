@@ -10,11 +10,29 @@ import android.util.Log;
 import com.example.google.template.ConstantList.Config;
 import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.firebase.iid.FirebaseInstanceIdService;
+import com.google.firebase.messaging.FirebaseMessagingService;
 
 
 public class MyFirebaseInstanceIDService extends FirebaseInstanceIdService {
     private static final String TAG = MyFirebaseInstanceIDService.class.getSimpleName();
 
+
+ /*   @Override
+    public void onNewToken(String s) {
+        super.onNewToken(s);
+        Log.d("NEW_TOKEN",s);
+        // Saving reg id to shared preferences
+        storeRegIdInPref(s);
+
+        // sending reg id to your server
+        sendRegistrationToServer(s);
+
+        Log.d("TeasdasdasdToken",s);
+        // Notify UI that registration has completed, so the progress indicator can be hidden.
+        Intent registrationComplete = new Intent(Config.REGISTRATION_COMPLETE);
+        registrationComplete.putExtra("token", s);
+        LocalBroadcastManager.getInstance(this).sendBroadcast(registrationComplete);
+    }*/
     @Override
     public void onTokenRefresh() {
         super.onTokenRefresh();
@@ -26,6 +44,7 @@ public class MyFirebaseInstanceIDService extends FirebaseInstanceIdService {
         // sending reg id to your server
         sendRegistrationToServer(refreshedToken);
 
+        Log.d("TeasdasdasdToken",refreshedToken);
         // Notify UI that registration has completed, so the progress indicator can be hidden.
         Intent registrationComplete = new Intent(Config.REGISTRATION_COMPLETE);
         registrationComplete.putExtra("token", refreshedToken);

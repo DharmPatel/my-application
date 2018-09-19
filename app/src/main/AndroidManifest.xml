@@ -3,7 +3,6 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.example.google.template">
 
-
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <uses-permission android:name="android.permission.INTERNET" />
@@ -92,8 +91,7 @@
         <activity
             android:name=".ppm_activity"
             android:screenOrientation="portrait"
-            android:theme="@style/AppThemeTaskDetails"/>
-
+            android:theme="@style/AppThemeTaskDetails" />
         <activity
             android:name=".PPMMultipuleTask"
             android:screenOrientation="portrait" />
@@ -112,19 +110,20 @@
             android:label="Settings"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme" />
-        <activity android:name=".PpmDemo"></activity>
+        <activity android:name=".PpmDemo" />
 
         <service android:name=".MyFirebaseMessagingService">
             <intent-filter>
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />
             </intent-filter>
         </service>
-
         <service android:name=".MyFirebaseInstanceIDService">
             <intent-filter>
                 <action android:name="com.google.firebase.INSTANCE_ID_EVENT" />
             </intent-filter>
         </service>
+
+        <activity android:name=".Notification"></activity>
     </application>
 
 </manifest>

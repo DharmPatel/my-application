@@ -298,7 +298,7 @@ public class HomePage extends AppCompatActivity {
         insertCancelledTask();
         //downloadAsset();
         Slider();
-
+        displayFirebaseRegId();
         //onNewIntent(getIntent());
 
         mRegistrationBroadcastReceiver = new BroadcastReceiver() {
@@ -531,7 +531,6 @@ public class HomePage extends AppCompatActivity {
         final Handler handler = new Handler();
         final Runnable Update = new Runnable() {
             public void run() {
-                Log.d("sdhsghdf",currentPage+":"+NUM_PAGES);
                 if (currentPage == NUM_PAGES) {
                     currentPage = 0;
                 }
@@ -681,7 +680,8 @@ public class HomePage extends AppCompatActivity {
         }*/
     }
     public void workpermitActivity(){
-        composeJSONPPM(myDb.Site_Location_Id(User_Id), User_Id);
+        Intent intent = new Intent(this,Notification.class);
+        startActivity(intent);
         Snackbar snackbar = Snackbar.make(linearLayout, "License not activated.", Snackbar.LENGTH_LONG);
         snackbar.show();
     }
