@@ -2224,6 +2224,44 @@ public class HomePage extends AppCompatActivity {
                     }
 
                     try {
+                        JSONArray FeedBackScore = jsonObj.getJSONArray("FeedBackScore");
+                        if (FeedBackScore != null) {
+                            db = myDb.getWritableDatabase();
+                            String sql = "insert into feedback_score (Feedbaack_Auto_Id,Score,FeedBackName)values(?,?,?);";
+                            db.beginTransaction();
+                            SQLiteStatement stmt = db.compileStatement(sql);
+                            for (int i = 0; i < FeedBackScore.length(); i++) {
+                                JSONObject c = FeedBackScore.getJSONObject(i);
+                                String Asset_Status_Id = c.getString("Auto_Id");
+                                String Status = c.getString("Score");
+                                String Task_State = c.getString("FeedBackName");
+
+                                stmt.bindString(1, Asset_Status_Id);
+                                stmt.bindString(2, Status);
+                                stmt.bindString(3, Task_State);
+                                long entryID = stmt.executeInsert();
+                                Log.d(TAG, "AssetStatus" + "AssetStatus Downloading...");
+                                stmt.clearBindings();
+                            }
+                            jumptime += 20;
+                            pDialog.setProgress(jumptime);
+                            String sqlquery = "DELETE FROM feedback_score WHERE Id NOT IN (SELECT MIN(Id) FROM feedback_score GROUP BY Feedbaack_Auto_Id)";
+                            db.rawQuery(sqlquery, null);
+                            db.execSQL(sqlquery);
+                            db.setTransactionSuccessful();
+                            db.endTransaction();
+                            db.close();
+                        }
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                        db.endTransaction();
+                    } catch (SQLException e) {
+                        e.printStackTrace();
+                        db.endTransaction();
+                    }
+
+
+                    try {
                         JSONArray AssetStatus = jsonObj.getJSONArray("AssetStatus");
                         if (AssetStatus != null) {
                             pDialog.setProgress(0);

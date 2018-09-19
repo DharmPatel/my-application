@@ -69,6 +69,10 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         sqLiteDatabase.execSQL("CREATE TABLE UserSiteLinking (Id INTEGER PRIMARY KEY,Linking_Auto_Id TEXT,User_Id TEXT,Site_Location_Id TEXT,User_Group_Id TEXT,User_Role_Id TEXT,User_Right_Id TEXT,Created_DateTime TEXT,Deleted_DateTime TEXT,Record_Status TEXT)");
         sqLiteDatabase.execSQL("CREATE TABLE site_imagelist (Id INTEGER PRIMARY KEY,Auto_Id TEXT,Site_Location_Id TEXT,Image_Name TEXT,Record_Status TEXT)");
         sqLiteDatabase.execSQL("CREATE TABLE PPM_Task (Id INTEGER PRIMARY KEY AUTOINCREMENT,Auto_Id TEXT,Site_Location_Id TEXT,Activity_Frequency TEXT, Task_Date TEXT,Task_End_Date TEXT,Task_Status TEXT,Task_Done_At TEXT,Scan_Type TEXT, Asset_Activity_Linking_Id TEXT,Assigned_To_User_Id TEXT,Assigned_To_User_Group_Id TEXT,Timestartson TEXT,Activity_Duration INTEGER,Grace_Duration_Before INTEGER,Grace_Duration_After INTEGER,Record_Status TEXT,UpdatedStatus TEXT)");
+        sqLiteDatabase.execSQL("CREATE TABLE pun_score (Id INTEGER PRIMARY KEY, Score_Auto_Id TEXT, Form_Structure_Id TEXT, Option_value TEXT, Option_Id TEXT, Score TEXT, Total TEXT)");
+        sqLiteDatabase.execSQL("CREATE TABLE Measurement_Conversion (Id INTEGER Primary key,Conversion_Auto_Id TEXT, Source_UOM TEXT, Multiplication_Factor TEXT, Add_Factor TEXT, Subtraction_Factor TEXT, Division_Factor TEXT, Target_UOM TEXT)");
+        sqLiteDatabase.execSQL("CREATE TABLE feedback_score(Id INTEGER PRIMARY KEY AUTOINCREMENT,Feedbaack_Auto_Id TEXT,Score TEXT,FeedBackName TEXT)");
+
     }
 
     @Override
@@ -97,6 +101,96 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return Score;
     }
 
+    public String emailList(String SiteId){
+        String emailquery = "Select Site_Location_Id, Employee_Email from EmailList where Site_Location_Id = '"+SiteId+"'";
+        SQLiteDatabase database = this.getWritableDatabase();
+
+        Cursor emailList = database.rawQuery(emailquery, null);
+        StringBuilder sb =new StringBuilder();
+
+        if(emailList.moveToFirst()){
+            do{
+                sb.append(emailList.getString(emailList.getColumnIndex("Employee_Email"))+",");
+            }while (emailList.moveToNext());
+        }
+
+        return sb.deleteCharAt(sb.lastIndexOf(",")).toString();
+    }
+
+    public String UserGroupName(String UserGroupId){
+        String Username="";
+        try {
+            String query = "SELECT Group_Name FROM User_Group Where User_Group_Id ='"+UserGroupId+"'";
+            SQLiteDatabase db = getWritableDatabase();
+            Cursor res =db.rawQuery(query, null);
+            if (res.moveToFirst()) {
+                do {
+                    Username=res.getString(0);
+                } while (res.moveToNext());
+            }
+            res.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return Username;
+    }
+
+    public String UserName(String User_Id){
+        String Username="";
+        try {
+            String query = "SELECT Employee_Name FROM Login_Details Where User_Id ='"+User_Id+"'";
+            SQLiteDatabase db = getWritableDatabase();
+            Cursor res =db.rawQuery(query, null);
+            if (res.moveToFirst()) {
+                do {
+                    Username=res.getString(0);
+                } while (res.moveToNext());
+            }
+            res.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return Username;
+    }
+
+    public String EmployeeName(String User_Id){
+        String EmployeeName="";
+        try {
+            String query = "SELECT Employee_Name FROM Login_Details Where User_Id ='"+User_Id+"'";
+            SQLiteDatabase db = getWritableDatabase();
+            Cursor res =db.rawQuery(query, null);
+            if (res.moveToFirst()) {
+                do {
+                    EmployeeName=res.getString(0);
+                } while (res.moveToNext());
+            }
+            res.close();
+            // db.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return EmployeeName;
+    }
+
+    public int formScore(String form_structure_id, int Option_id){
+        int Score=0;
+        try {
+            String query = "SELECT Score FROM pun_score Where Form_Structure_Id ='"+form_structure_id+"'and Option_Id = '"+Option_id+"'";
+            SQLiteDatabase db = getWritableDatabase();
+            Cursor res =db.rawQuery(query, null);
+            if (res.moveToFirst()) {
+                do {
+                    Score=res.getInt(res.getColumnIndex("Score"));
+                } while (res.moveToNext());
+            }
+            Log.d("scoreval", String.valueOf(Score));
+
+            res.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return Score;
+    }
 
     public String getPPMCount(String TaskStatus,String UserGroupId,String SiteLocationId){
         SQLiteDatabase database = this.getWritableDatabase();
@@ -777,7 +871,34 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     }
 
-    public boolean updatedTaskDetails(String Auto_Id,String Task_Status, String Conditional_Status,String Task_Start_At,String Scan_Type,String userId,String Remarks){
+    public Double Conversion(Double secondVal,String firstRadio, String secondRadio){
+        SQLiteDatabase db = this.getWritableDatabase();
+        String ConversionQuery = "Select * from Measurement_Conversion where Source_UOM='"+firstRadio+"' AND Target_UOM='"+secondRadio+"'";
+        Cursor conversion = db.rawQuery(ConversionQuery,null);
+        Double calc=0.0;
+        Double subFactor=0.0, addFactor=0.0, multiFactor=1.0, divFactor=1.0;
+
+        try{
+            if (conversion.moveToFirst()) {
+                do {
+                    subFactor = Double.parseDouble(conversion.getString(conversion.getColumnIndex("Subtraction_Factor")));
+                    divFactor = Double.parseDouble(conversion.getString(conversion.getColumnIndex("Division_Factor")));
+                    multiFactor = Double.parseDouble(conversion.getString(conversion.getColumnIndex("Multiplication_Factor")));
+                    addFactor = Double.parseDouble(conversion.getString(conversion.getColumnIndex("Add_Factor")));
+                } while (conversion.moveToNext());
+                conversion.close();
+                db.close();
+            }
+            calc  = (((secondVal - subFactor) / divFactor) * multiFactor) + addFactor;
+            if(LOG) Log.d("Convertor"," "+calc+" "+secondVal+" "+subFactor+" "+divFactor+" "+multiFactor+" "+addFactor);
+        } catch (Exception e){
+            e.printStackTrace();
+        }
+        return calc;
+    }
+
+
+    public boolean updatedTaskDetails(String Auto_Id,String Task_Status, String Conditional_Status,String Task_Start_At,String Scan_Type,String userId,String Remarks,int incident){
         SQLiteDatabase database = this.getWritableDatabase();
         ContentValues contentValues = new ContentValues();
         contentValues.put("Task_Status", Task_Status);
@@ -786,7 +907,27 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         contentValues.put("Assigned_To_User_Id",userId);
         contentValues.put("UpdatedStatus", "no");
         contentValues.put("Remarks", Remarks);
+        contentValues.put("Incident", incident);
         long resultset = database.update("Task_Details", contentValues, "Auto_Id ='" + Auto_Id + "' AND  Task_Status='"+Conditional_Status+"'", null);
+        database.close();
+        if(resultset == -1)
+            return false;
+        else
+            return true;
+
+    }
+
+    public boolean updatedTaskDetails(String Auto_Id,String Task_Status,String Task_Start_At,String Scan_Type,String userId,String Remarks,int incident){
+        SQLiteDatabase database = this.getWritableDatabase();
+        ContentValues contentValues = new ContentValues();
+        contentValues.put("Task_Status", Task_Status);
+        contentValues.put("Task_Start_At", Task_Start_At);
+        contentValues.put("Scan_Type", Scan_Type);
+        contentValues.put("Assigned_To_User_Id",userId);
+        contentValues.put("UpdatedStatus", "no");
+        contentValues.put("Remarks", Remarks);
+        contentValues.put("Incident", incident);
+        long resultset = database.update("Task_Details", contentValues, "Auto_Id ='" + Auto_Id + "' AND  Task_Status='Pending'", null);
         database.close();
         if(resultset == -1)
             return false;
