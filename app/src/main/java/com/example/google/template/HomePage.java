@@ -1743,13 +1743,13 @@ public class HomePage extends AppCompatActivity {
         @Override
         protected String doInBackground(String... URL) {
             HttpHandler handler = new HttpHandler();
-            publishProgress(0,100,8);
+            publishProgress(0,100,11);
             String jsonTaskDone = handler.getTaskDetailsServer(myDb.UserGroupId(User_Id), new applicationClass().yymmdd(), myDb.Site_Location_Id(User_Id));
-            publishProgress(33,100,8);
+            publishProgress(33,100,11);
             String jsonStrTask = handler.taskDataCall(myDb.UserGroupId(User_Id), myDb.Site_Location_Id(User_Id), myDb.SiteURL(User_Id));
-            publishProgress(66,100,8);
+            publishProgress(66,100,11);
             String PPMTaskjson = handler.getPPmTask(myDb.UserGroupId(User_Id), myDb.Site_Location_Id(User_Id));
-            publishProgress(100,100,8);
+            publishProgress(100,100,11);
             if (jsonTaskDone != null) {
                 try {
                     JSONObject jsonObj = new JSONObject(jsonTaskDone);
@@ -2266,11 +2266,13 @@ public class HomePage extends AppCompatActivity {
                     try {
                         JSONArray FeedBackScore = jsonObj.getJSONArray("FeedBackScore");
                         if (FeedBackScore != null) {
+                            pDialog.setProgress(0);
                             db = myDb.getWritableDatabase();
                             String sql = "insert into feedback_score (Feedbaack_Auto_Id,Score,FeedBackName)values(?,?,?);";
                             db.beginTransaction();
                             SQLiteStatement stmt = db.compileStatement(sql);
                             for (int i = 0; i < FeedBackScore.length(); i++) {
+                                publishProgress(i+1,FeedBackScore.length(),7);
                                 JSONObject c = FeedBackScore.getJSONObject(i);
                                 String Feedbaack_Auto_Id = c.getString("Auto_Id");
                                 String Score = c.getString("Score");
@@ -2303,11 +2305,13 @@ public class HomePage extends AppCompatActivity {
                     try {
                         JSONArray Score = jsonObj.getJSONArray("Score");
                         if (Score != null) {
+                            pDialog.setProgress(0);
                             db = myDb.getWritableDatabase();
                             String sql = "insert into pun_score (Score_Auto_Id,Form_Structure_Id,Option_value,Option_Id,Score)values(?,?,?,?,?);";
                             db.beginTransaction();
                             SQLiteStatement stmt = db.compileStatement(sql);
                             for (int i = 0; i < Score.length(); i++) {
+                                publishProgress(i+1,Score.length(),8);
                                 JSONObject c = Score.getJSONObject(i);
                                 String Score_Auto_Id = c.getString("Auto_Id");
                                 String Form_Struct_Id = c.getString("Form_Structure_Id");
@@ -2345,11 +2349,13 @@ public class HomePage extends AppCompatActivity {
                     try {
                         JSONArray Conversion = jsonObj.getJSONArray("Conversion");
                         if (Conversion != null) {
+                            pDialog.setProgress(0);
                             db = myDb.getWritableDatabase();
                             String sql = "insert into Measurement_Conversion (Conversion_Auto_Id, Source_UOM, Multiplication_Factor, Add_Factor, Subtraction_Factor, Division_Factor, Target_UOM)values(?,?,?,?,?,?,?);";
                             db.beginTransaction();
                             SQLiteStatement stmt = db.compileStatement(sql);
                             for (int i = 0; i < Conversion.length(); i++) {
+                                publishProgress(i+1,Conversion.length(),9);
                                 JSONObject c = Conversion.getJSONObject(i);
                                 String Conversion_Auto_Id = c.getString("Auto_Id");
                                 String Source_UOM = c.getString("Source_UOM");
@@ -2451,7 +2457,7 @@ public class HomePage extends AppCompatActivity {
                             SQLiteStatement PpmTaskstmt = db.compileStatement(PpmTasksql);
 
                             for (int i = 0; i < task.length(); i++) {
-                                publishProgress(i+1,task.length(),7);
+                                publishProgress(i+1,task.length(),10);
                                 pDialog.setProgress(i+1);
                                 JSONObject c = task.getJSONObject(i);
                                 Log.d("hbkjcnv",((i+1)*100)/task.length()+"");
