@@ -47,9 +47,14 @@ public class SliderPager extends PagerAdapter {
 
     }
 
-    public SliderPager(Context context,ArrayList<Bitmap> bitmapImages) {
+    public SliderPager(Context context,ArrayList<Bitmap> bitmapImages,int Countvalue) {
         this.context = context;
         this.bitmapImages = bitmapImages;
+        if(Countvalue== 0){
+            images = new Integer[1];
+        }else {
+            images = new Integer[Countvalue];
+        }
         //UserId = User_Id;
         //myDb = new DatabaseHelper(context);
 
@@ -57,7 +62,7 @@ public class SliderPager extends PagerAdapter {
     }
 
 
-    public int imagesize(){
+   /* public int imagesize(){
         value = 1;
         try {
             myDb = new DatabaseHelper(new applicationClass().getContext());
@@ -74,8 +79,8 @@ public class SliderPager extends PagerAdapter {
                 } while (cursor1.moveToNext());
             }
 
-           /* cursor1.moveToFirst();
-            value = cursor1.getInt(0);*/
+           *//* cursor1.moveToFirst();
+            value = cursor1.getInt(0);*//*
             cursor1.close();
             }
             db.close();
@@ -90,12 +95,12 @@ public class SliderPager extends PagerAdapter {
             images = new Integer[value];
         }
         return value;
-    }
+    }*/
 
     @Override
     public int getCount() {
 
-        imagesize();
+        //imagesize();
         return images.length;
 
     }

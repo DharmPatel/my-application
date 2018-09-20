@@ -521,8 +521,8 @@ public class HomePage extends AppCompatActivity {
     }
     public void Slider(){
         viewPager = (ViewPager) findViewById(R.id.viewpager);
-        SliderPager viewPagerAdapter = new SliderPager(this,getImageArray());
-        NUM_PAGES = new SliderPager().imagesize();
+        SliderPager viewPagerAdapter = new SliderPager(this,getImageArray(),imagesize());
+        NUM_PAGES = imagesize();
         viewPagerAdapter.notifyDataSetChanged();
         viewPager.setAdapter(viewPagerAdapter);
 
@@ -548,6 +548,36 @@ public class HomePage extends AppCompatActivity {
         }, 500, 3000);
     }
 
+
+    public int imagesize(){
+        int value = 1;
+        try {
+            myDb = new DatabaseHelper(new applicationClass().getContext());
+
+            db = myDb.getReadableDatabase();
+            if(!db.isDbLockedByCurrentThread()){
+
+
+                String UserGroupQuery = "Select COUNT(Site_Location_Id) from site_imagelist WHERE Site_Location_Id ='"+myDb.Site_IdUserSiteLinking(User_Id)+"' AND Record_Status !='D'";
+                Cursor cursor1 = db.rawQuery(UserGroupQuery, null);
+                if (cursor1.moveToFirst()) {
+                    do {
+                        value=cursor1.getInt(0);
+                    } while (cursor1.moveToNext());
+                }
+
+           /* cursor1.moveToFirst();
+            value = cursor1.getInt(0);*/
+                cursor1.close();
+            }
+            db.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+
+        return value;
+    }
     private ArrayList<Bitmap> getImageArray(){
         ArrayList<Bitmap> bitmapImages = new ArrayList();
 
