@@ -51,7 +51,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.telephony.PhoneStateListener;
 import android.telephony.SignalStrength;
 import android.telephony.TelephonyManager;
-import android.text.TextUtils;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -1677,11 +1676,23 @@ public class HomePage extends AppCompatActivity {
                     pDialog.setProgressPercentFormat(null);
                     break;
                 case 7:
+                    pDialog.setMessage("Downloading  FeedbackScore. Please Wait..");
+                    pDialog.setProgressPercentFormat(null);
+                    break;
+                case 8:
+                    pDialog.setMessage("Downloading  Score. Please Wait..");
+                    pDialog.setProgressPercentFormat(null);
+                    break;
+                case 9:
+                    pDialog.setMessage("Downloading  CoversionFactors. Please Wait..");
+                    pDialog.setProgressPercentFormat(null);
+                    break;
+                case 10:
                     pDialog.setMessage("Downloading  PPM Task. Please Wait..");
                     pDialog.setProgressPercentFormat(null);
                     break;
 
-                case 8:
+                case 11:
                     pDialog.setMessage("Getting Data From Server. Please Wait..");
 
 
@@ -1705,7 +1716,6 @@ public class HomePage extends AppCompatActivity {
             publishProgress(0,100,8);
             String jsonTaskDone = handler.getTaskDetailsServer(myDb.UserGroupId(User_Id), new applicationClass().yymmdd(), myDb.Site_Location_Id(User_Id));
             publishProgress(33,100,8);
-
             String jsonStrTask = handler.taskDataCall(myDb.UserGroupId(User_Id), myDb.Site_Location_Id(User_Id), myDb.SiteURL(User_Id));
             publishProgress(66,100,8);
             String PPMTaskjson = handler.getPPmTask(myDb.UserGroupId(User_Id), myDb.Site_Location_Id(User_Id));
@@ -2232,15 +2242,15 @@ public class HomePage extends AppCompatActivity {
                             SQLiteStatement stmt = db.compileStatement(sql);
                             for (int i = 0; i < FeedBackScore.length(); i++) {
                                 JSONObject c = FeedBackScore.getJSONObject(i);
-                                String Asset_Status_Id = c.getString("Auto_Id");
-                                String Status = c.getString("Score");
-                                String Task_State = c.getString("FeedBackName");
+                                String Feedbaack_Auto_Id = c.getString("Auto_Id");
+                                String Score = c.getString("Score");
+                                String FeedBackName = c.getString("FeedBackName");
 
-                                stmt.bindString(1, Asset_Status_Id);
-                                stmt.bindString(2, Status);
-                                stmt.bindString(3, Task_State);
+                                stmt.bindString(1, Feedbaack_Auto_Id);
+                                stmt.bindString(2, Score);
+                                stmt.bindString(3, FeedBackName);
                                 long entryID = stmt.executeInsert();
-                                Log.d(TAG, "AssetStatus" + "AssetStatus Downloading...");
+                                Log.d(TAG, "FeedBackScore" + "FeedBackScore Downloading...");
                                 stmt.clearBindings();
                             }
                             jumptime += 20;
@@ -2260,6 +2270,92 @@ public class HomePage extends AppCompatActivity {
                         db.endTransaction();
                     }
 
+                    try {
+                        JSONArray Score = jsonObj.getJSONArray("Score");
+                        if (Score != null) {
+                            db = myDb.getWritableDatabase();
+                            String sql = "insert into pun_score (Score_Auto_Id,Form_Structure_Id,Option_value,Option_Id,Score)values(?,?,?,?,?);";
+                            db.beginTransaction();
+                            SQLiteStatement stmt = db.compileStatement(sql);
+                            for (int i = 0; i < Score.length(); i++) {
+                                JSONObject c = Score.getJSONObject(i);
+                                String Score_Auto_Id = c.getString("Auto_Id");
+                                String Form_Struct_Id = c.getString("Form_Structure_Id");
+                                String Option = c.getString("Option_value");
+                                String Option_Id = c.getString("Option_Id");
+                                String Score_Value = c.getString("Score");
+
+                                stmt.bindString(1, Score_Auto_Id);
+                                stmt.bindString(2, Form_Struct_Id);
+                                stmt.bindString(3, Option);
+                                stmt.bindString(4, Option_Id);
+                                stmt.bindString(5, Score_Value);
+                                long entryID = stmt.executeInsert();
+                                Log.d(TAG, "Score" + "Score Downloading..."+entryID);
+                                stmt.clearBindings();
+                            }
+                            jumptime += 20;
+                            pDialog.setProgress(jumptime);
+                            String sqlquery = "DELETE FROM pun_score WHERE Id NOT IN (SELECT MIN(Id) FROM pun_score GROUP BY Score_Auto_Id)";
+                            db.rawQuery(sqlquery, null);
+                            db.execSQL(sqlquery);
+                            db.setTransactionSuccessful();
+                            db.endTransaction();
+                            db.close();
+                        }
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                        db.endTransaction();
+                    } catch (SQLException e) {
+                        e.printStackTrace();
+                        db.endTransaction();
+                    }
+
+
+                    try {
+                        JSONArray Conversion = jsonObj.getJSONArray("Conversion");
+                        if (Conversion != null) {
+                            db = myDb.getWritableDatabase();
+                            String sql = "insert into Measurement_Conversion (Conversion_Auto_Id, Source_UOM, Multiplication_Factor, Add_Factor, Subtraction_Factor, Division_Factor, Target_UOM)values(?,?,?,?,?,?,?);";
+                            db.beginTransaction();
+                            SQLiteStatement stmt = db.compileStatement(sql);
+                            for (int i = 0; i < Conversion.length(); i++) {
+                                JSONObject c = Conversion.getJSONObject(i);
+                                String Conversion_Auto_Id = c.getString("Auto_Id");
+                                String Source_UOM = c.getString("Source_UOM");
+                                String Multiplication_Factor = c.getString("Multiplication_Factor");
+                                String Add_Factor = c.getString("Add_Factor");
+                                String Subtraction_Factor = c.getString("Subtraction_Factor");
+                                String Division_Factor = c.getString("Division_Factor");
+                                String Target_UOM = c.getString("Target_UOM");
+
+                                stmt.bindString(1, Conversion_Auto_Id);
+                                stmt.bindString(2, Source_UOM);
+                                stmt.bindString(3, Multiplication_Factor);
+                                stmt.bindString(4, Add_Factor);
+                                stmt.bindString(5, Subtraction_Factor);
+                                stmt.bindString(6, Division_Factor);
+                                stmt.bindString(7, Target_UOM);
+                                long entryID = stmt.executeInsert();
+                                Log.d(TAG, "Conversion" + "Conversion Values Downloading..."+entryID);
+                                stmt.clearBindings();
+                            }
+                            jumptime += 20;
+                            pDialog.setProgress(jumptime);
+                            String sqlquery = "DELETE FROM Measurement_Conversion WHERE Id NOT IN (SELECT MIN(Id) FROM Measurement_Conversion GROUP BY Conversion_Auto_Id)";
+                            db.rawQuery(sqlquery, null);
+                            db.execSQL(sqlquery);
+                            db.setTransactionSuccessful();
+                            db.endTransaction();
+                            db.close();
+                        }
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                        db.endTransaction();
+                    } catch (SQLException e) {
+                        e.printStackTrace();
+                        db.endTransaction();
+                    }
 
                     try {
                         JSONArray AssetStatus = jsonObj.getJSONArray("AssetStatus");

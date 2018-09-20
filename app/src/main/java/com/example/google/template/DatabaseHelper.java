@@ -726,9 +726,14 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         String selectQuery = "SELECT Task_Status FROM Task_Details WHERE Asset_Code = '"+assetCode+"' AND Task_Scheduled_Date <='"+ applicationClass.yymmddhhmm()+"' AND EndDateTime >= '"+ applicationClass.yymmddhhmm()+"' AND Task_Status !='Unplanned' AND RecordStatus = 'I'";
         SQLiteDatabase database = this.getWritableDatabase();
         Cursor cursor = database.rawQuery(selectQuery, null);
-        if(cursor.getCount() !=0){
-            if(cursor.moveToNext()){
-                assetStatus = cursor.getString(0);
+        if(cursor.getCount() > 0){
+            if (cursor.moveToFirst()) {
+                do {
+                    assetStatus = cursor.getString(0);
+                    if(assetStatus.equalsIgnoreCase("Pending")){
+                        return assetStatus;
+                    }
+                } while (cursor.moveToNext());
             }
         }else {
             String Query = "SELECT Task_Status FROM Task_Details WHERE Asset_Code = '"+assetCode+"' AND Task_Status !='Unplanned'";
