@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+        <item
+            android:id="@+id/typesId"
+            android:title="Types" />
+        <item
+            android:id="@+id/locationId"
+            android:title="Location" />
+    <!--</group>
+    <item android:title="Filter">
+        <menu>
+            <item
+                android:id="@+id/typesid"
+                android:title="Types" />
+            <item
+                android:id="@+id/locationid"
+                android:title="Location" />
+        </menu>
+    </item>-->
+
+</menu>

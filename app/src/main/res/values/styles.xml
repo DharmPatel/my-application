@@ -35,8 +35,7 @@
         <item name="android:textAppearance">@style/CustomTabWidgetText</item>
     </style>
 
-    <style name="CustomTabWidgetText"
-        parent="@android:style/TextAppearance.Widget.TabWidget">
+    <style name="CustomTabWidgetText" parent="@android:style/TextAppearance.Widget.TabWidget">
         <item name="android:textSize">16sp</item>
     </style>
 
@@ -53,15 +52,18 @@
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/bg_main</item>
     </style>
+
     <style name="toolbarStyle" parent="@android:style/Theme.Holo.Light">
         <!-- Customize your theme here. -->
         <item name="colorPrimary">#337ab7</item>
-        <item name="colorPrimaryDark">#ffffff </item>
+        <item name="colorPrimaryDark">#ffffff</item>
         <item name="colorAccent">#337ab7</item>
     </style>
+
     <style name="DialogTheme" parent="Theme.AppCompat.Light.DarkActionBar">
         <item name="colorPrimary">@color/bg_main</item>
     </style>
+
     <style name="Internet" parent="android:Theme.DeviceDefault.Dialog">
         <item name="DialogTitleAppearance">@android:style/TextAppearance.Medium</item>
         <item name="DialogTitleText">Checking internet connectivity...</item>

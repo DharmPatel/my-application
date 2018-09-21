@@ -39,11 +39,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     @Override
     public void onCreate(SQLiteDatabase sqLiteDatabase) {
-        //sqLiteDatabase.execSQL(DatabaseColumn.CREATE_TABLE +" "+DatabaseColumn.Activity_Frequency+" ("+DatabaseColumn.Id +" "+DatabaseColumn.INTEGER +" " +DatabaseColumn.PRIMARY_KEY +","+
-                               // DatabaseColumn.Site_Location_Id +" "+DatabaseColumn.TEXT+","+DatabaseColumn.Auto_Id +" " +DatabaseColumn.TEXT+","+DatabaseColumn.YearStartson +" " +DatabaseColumn.TEXT+","+DatabaseColumn.TimeStartson +" " +DatabaseColumn.TEXT+","+DatabaseColumn.TimeEndson +" " +DatabaseColumn.TEXT+","+DatabaseColumn.Activity_Duration +" " +DatabaseColumn.TEXT+","+DatabaseColumn.Grace_Duration_Before +" " +DatabaseColumn.TEXT);
 
-        //sqLiteDatabase.execSQL("CREATE TABLE "+ DatabaseColumn.Activity_Frequency+" (Id INTEGER PRIMARY KEY AUTOINCREMENT,Site_Location_Id TEXT,Frequency_Auto_Id TEXT,YearStartson TEXT,TimeStartson TEXT,TimeEndson TEXT,Activity_Duration INTEGER,Grace_Duration_Before INTEGER,Grace_Duration_After INTEGER,RepeatEveryDay INTEGER,RepeatEveryMin INTEGER,RepeatEveryMonth TEXT,Verified INTEGER,Assign_Days TEXT,Asset_Activity_Linking_Id TEXT,RecordStatus TEXT,UpdatedStatus TEXT)");
-        //
         sqLiteDatabase.execSQL("CREATE TABLE Activity_Frequency (Id INTEGER PRIMARY KEY AUTOINCREMENT,Site_Location_Id TEXT,Frequency_Auto_Id TEXT,YearStartson TEXT,TimeStartson TEXT,TimeEndson TEXT,Activity_Duration INTEGER,Grace_Duration_Before INTEGER,Grace_Duration_After INTEGER,RepeatEveryDay INTEGER,RepeatEveryMin INTEGER,RepeatEveryMonth TEXT,Verified INTEGER,Assign_Days TEXT,Asset_Activity_Linking_Id TEXT,RecordStatus TEXT,UpdatedStatus TEXT)");
         sqLiteDatabase.execSQL("CREATE TABLE Asset_Activity_Linking (Id INTEGER PRIMARY KEY AUTOINCREMENT,Site_Location_Id TEXT,Auto_Id TEXT,Asset_Id TEXT,Activity_Id TEXT,RecordStatus TEXT,UpdatedStatus TEXT)");
         sqLiteDatabase.execSQL("CREATE TABLE Activity_Master (Id INTEGER PRIMARY KEY AUTOINCREMENT,Site_Location_Id TEXT,Auto_Id TEXT,Form_Id TEXT,Activity_Name TEXT,RecordStatus TEXT,UpdatedStatus TEXT)");
@@ -72,6 +68,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         sqLiteDatabase.execSQL("CREATE TABLE pun_score (Id INTEGER PRIMARY KEY, Score_Auto_Id TEXT, Form_Structure_Id TEXT, Option_value TEXT, Option_Id TEXT, Score TEXT, Total TEXT)");
         sqLiteDatabase.execSQL("CREATE TABLE Measurement_Conversion (Id INTEGER Primary key,Conversion_Auto_Id TEXT, Source_UOM TEXT, Multiplication_Factor TEXT, Add_Factor TEXT, Subtraction_Factor TEXT, Division_Factor TEXT, Target_UOM TEXT)");
         sqLiteDatabase.execSQL("CREATE TABLE feedback_score(Id INTEGER PRIMARY KEY AUTOINCREMENT,Feedbaack_Auto_Id TEXT,Score TEXT,FeedBackName TEXT)");
+        sqLiteDatabase.execSQL("CREATE TABLE Notification(Id INTEGER PRIMARY KEY AUTOINCREMENT,Notification_Auto_Id TEXT,Message TEXT,Update_Type TEXT)");
 
     }
 

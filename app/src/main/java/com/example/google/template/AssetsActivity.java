@@ -15,13 +15,17 @@ import android.nfc.NfcAdapter;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.preference.PreferenceManager;
+import android.support.annotation.NonNull;
+import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
+import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.AdapterView;
@@ -49,6 +53,8 @@ import java.util.List;
 import java.util.UUID;
 
 public class AssetsActivity extends AppCompatActivity {
+    DrawerLayout drawerLayout;
+    NavigationView navigationView;
     DatabaseHelper myDb;
     SQLiteDatabase db;
     ListView lvAssets;
@@ -86,7 +92,6 @@ public class AssetsActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         this.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
         setContentView(R.layout.activity_assets_listview);
-
 
         try{
             myDb = new DatabaseHelper(getApplicationContext());
@@ -158,6 +163,7 @@ public class AssetsActivity extends AppCompatActivity {
         imageViewFilter.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+               //drawerLayout.openDrawer(GravityCompat.START);
                 FilterDialog();
             }
         });
@@ -174,6 +180,22 @@ public class AssetsActivity extends AppCompatActivity {
                     Toast.makeText(getApplicationContext(), "Error code: aa171", Toast.LENGTH_SHORT).show();
                     e.printStackTrace();
                 }
+            }
+        });
+    }
+
+    public void FilterDrawer(){
+        LayoutInflater inflater = getLayoutInflater();
+        View layout = inflater.inflate(R.layout.activity_drawer, null);
+        drawerLayout = (DrawerLayout)layout.findViewById(R.id.drawer_layout);
+
+        navigationView = (NavigationView)layout.findViewById(R.id.drawer_view);
+        navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
+            @Override
+            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+                item.setChecked(true);
+                drawerLayout.closeDrawers();
+                return true;
             }
         });
     }

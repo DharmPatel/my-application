@@ -123,7 +123,8 @@
             </intent-filter>
         </service>
 
-        <activity android:name=".Notification"></activity>
+        <activity android:name=".Notification" />
+
     </application>
 
 </manifest>
