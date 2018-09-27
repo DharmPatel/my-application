@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:id="@+id/assetLinearLayout"
+    tools:context=".DataListActivity">
+
+    <include
+        android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+        layout="@layout/toolbar_asset"/>
+
+    <include
+        android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+        layout="@layout/assets_header"/>
+
+        <ListView
+            android:layout_width="match_parent"
+            android:id="@+id/lvAssets"
+            android:background="#EEEEEE"
+            android:elevation="4dp"
+            android:scrollbars="vertical"
+            android:layout_height="wrap_content"
+            android:verticalSpacing="3dp">
+        </ListView>
+
+            <Button
+                android:id="@+id/SubmitBtn"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignParentBottom="true"/>
+
+            <ExpandableListView
+                android:id="@+id/submenu"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_above="@id/SubmitBtn"/>
+
+
+</LinearLayout>

@@ -493,6 +493,57 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return spinnerArray;
     }
 
+    public List<String> getAssetLocation(String GroupId){
+        final List<String> spinnerArray = new ArrayList<String>();
+        try {
+            String query = "SELECT DISTINCT(Asset_Location) from Asset_Details asm Left Join Asset_Activity_Linking aal " +
+                    "on aal.Asset_Id =  asm.Asset_Id " +
+                    "Left Join Asset_Activity_AssignedTo aaa " +
+                    " on aal.Auto_Id = aaa.Asset_Activity_Linking_Id " +
+                    "where aaa.Assigned_To_User_Group_Id IN ("+GroupId+")";
+            SQLiteDatabase db = getWritableDatabase();
+            Log.d("getAssetLocationQuery",query);
+            Cursor res =db.rawQuery(query, null);
+            if (res.moveToFirst()) {
+                do {
+                    spinnerArray.add(res.getString(0));
+                } while (res.moveToNext());
+            }
+            res.close();
+            db.close();
+        }catch (Exception e) {
+            e.printStackTrace();
+        }
+        return spinnerArray;
+    }
+
+    public  List<String> getAssetType(String GroupId){
+        final List<String> spinnerArray = new ArrayList<String>();
+        String value="";
+        try {
+            String query = "SELECT DISTINCT(Asset_Type) from Asset_Details asm Left Join Asset_Activity_Linking aal " +
+                    "on aal.Asset_Id =  asm.Asset_Id " +
+                    "Left Join Asset_Activity_AssignedTo aaa " +
+                    " on aal.Auto_Id = aaa.Asset_Activity_Linking_Id " +
+                    "where aaa.Assigned_To_User_Group_Id IN ("+GroupId+")";
+            SQLiteDatabase db = getWritableDatabase();
+            Log.d("assetTypeQuery",query);
+            Cursor res =db.rawQuery(query, null);
+            if (res.moveToFirst()) {
+                do {
+                    //value=res.getString(0);
+                    spinnerArray.add(res.getString(0));
+                } while (res.moveToNext());
+            }
+            res.close();
+            db.close();
+            //Log.d(TAG,"assetView Type"+value);
+        }catch (Exception e) {
+            e.printStackTrace();
+        }
+        return spinnerArray;
+    }
+
     public  List<String> assetType(String GroupId, String AssetLocation){
         final List<String> spinnerArray = new ArrayList<String>();
         String value="";
