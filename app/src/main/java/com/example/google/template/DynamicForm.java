@@ -1137,6 +1137,7 @@ public class DynamicForm extends AppCompatActivity {
         submit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                AlertCheck();
                 if (checkSubmitEditTextAdd() == true && checkSubmitEditText() == true && checkSubmitEditTextMeter() == true && checkSubmitRadio() == true && checkSubmitRadioMeter() == true && checkSpinnerValue() == true && checkSubmitRemark() == true) {
                     if (checkSubmitLowerReading() == true) {
                         if (intentFromReset.equals("Closing")){
@@ -1495,6 +1496,49 @@ public class DynamicForm extends AppCompatActivity {
         }
         return editText;
     }
+
+    public void AlertCheck(){
+        for(EditText editText1:editTextList){
+            int fieldId = editText1.getId();
+            slnew = editText1.getText().toString();
+            String Form_Structure_Id = myDb.getfieldId(fieldId);
+            String query = "Select Activity_Frequency_Id, Form_Id,Form_Structure_Id, Field_Limit_From ,Field_Limit_To ," +
+                    "Threshold_From ,Threshold_To,Validation_Type,Critical FROM Parameter" +
+                    " WHERE Activity_Frequency_Id = '"+frequencyId+"'" + "AND Form_Structure_Id = '"+Form_Structure_Id+"'";
+            db= myDb.getWritableDatabase();
+            Cursor parameter =db.rawQuery(query, null);
+            if (parameter.getCount() > 0) {
+                try {
+                    if (parameter.moveToNext()) {
+                        do {
+                            field_Limit_Form1 = parameter.getString(parameter.getColumnIndex("Field_Limit_From"));
+                            field_Limit_To1 = parameter.getString(parameter.getColumnIndex("Field_Limit_To"));
+                            threshold_From1= parameter.getString(parameter.getColumnIndex("Threshold_From"));
+                            threshold_To1 = parameter.getString(parameter.getColumnIndex("Threshold_To"));
+                            validation_Type1 = parameter.getString(parameter.getColumnIndex("Validation_Type"));
+                            Critical1 = parameter.getString(parameter.getColumnIndex("Critical"));
+                        } while (parameter.moveToNext());
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                try {
+                    Double val = Double.parseDouble(slnew);
+                    if (val > Double.parseDouble(field_Limit_To1) || val < Double.parseDouble(field_Limit_Form1)) {
+                        editText1.setText("");
+                        editText1.setError("Invalid Reading.Please Enter valid Reading");
+                    } else if ((val < Double.parseDouble(threshold_From1) && (val >= Double.parseDouble(field_Limit_Form1))) || (val <= Double.parseDouble(field_Limit_To1)) && (val > Double.parseDouble(threshold_To1))) {
+                        editText1.setError("Alert will generate.");
+                    }
+                } catch (NumberFormatException e) {
+                    e.printStackTrace();
+                }
+            }
+            parameter.close();
+            db.close();
+        }
+    }
+
 
     private void editTextCalc(int id) {
         EditText addedValue = new EditText(this);

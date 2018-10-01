@@ -99,15 +99,15 @@ public class NotificationUtils {
         inboxStyle.addLine(message);
 
         Notification notification;
-        notification = mBuilder.setSmallIcon(icon).setTicker(title).setWhen(0)
+        notification = mBuilder.setSmallIcon(R.drawable.applogo).setTicker(title).setWhen(0)
                 .setAutoCancel(true)
                 .setContentTitle(title)
                 .setContentIntent(resultPendingIntent)
                 .setSound(alarmSound)
                 .setStyle(inboxStyle)
                 .setWhen(getTimeMilliSec(timeStamp))
-                .setSmallIcon(R.mipmap.ic_launcher)
-                .setLargeIcon(BitmapFactory.decodeResource(mContext.getResources(), icon))
+                .setSmallIcon(R.drawable.applogo)
+                .setLargeIcon(BitmapFactory.decodeResource(mContext.getResources(), R.drawable.applogo))
                 .setContentText(message)
                 .build();
 
@@ -121,14 +121,14 @@ public class NotificationUtils {
         bigPictureStyle.setSummaryText(Html.fromHtml(message).toString());
         bigPictureStyle.bigPicture(bitmap);
         Notification notification;
-        notification = mBuilder.setSmallIcon(icon).setTicker(title).setWhen(0)
+        notification = mBuilder.setSmallIcon(R.drawable.applogo).setTicker(title).setWhen(0)
                 .setAutoCancel(true)
                 .setContentTitle(title)
                 .setContentIntent(resultPendingIntent)
                 .setSound(alarmSound)
                 .setStyle(bigPictureStyle)
                 .setWhen(getTimeMilliSec(timeStamp))
-                .setSmallIcon(R.mipmap.ic_launcher)
+                .setSmallIcon(R.drawable.applogo)
                 .setLargeIcon(BitmapFactory.decodeResource(mContext.getResources(), icon))
                 .setContentText(message)
                 .build();
