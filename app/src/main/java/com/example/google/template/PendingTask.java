@@ -610,9 +610,9 @@ public class PendingTask extends Fragment {
             new TaskDetails().setPending(true);
             mListener.onPending(count+"");
             setPending(true);
-            for(int i = 0; i < taskDataAdapter.getCount(); i++){
+            /*for(int i = 0; i < taskDataAdapter.getCount(); i++){
                 taskDataAdapter.getItem(i);
-            }
+            }*/
         }
     }
     @Override
