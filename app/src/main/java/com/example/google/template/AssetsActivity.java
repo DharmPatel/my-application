@@ -18,6 +18,7 @@ import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
+import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -34,6 +35,7 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.DatePicker;
 import android.widget.EditText;
+import android.widget.ExpandableListView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
@@ -47,14 +49,23 @@ import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 public class AssetsActivity extends AppCompatActivity {
     DrawerLayout drawerLayout;
     NavigationView navigationView;
+    ExpandableListView expandableListView;
+    ExpandableListViewAdapter expandableListViewAdapter;
+    List<String> listTitle;
+    Map<String, List<String>> listChild;
+    Button OkButton;
+    List<String> LocationList = new ArrayList<String>();
+    List<String> TypeList = new ArrayList<String>();
     DatabaseHelper myDb;
     SQLiteDatabase db;
     ListView lvAssets;
@@ -92,6 +103,18 @@ public class AssetsActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         this.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
         setContentView(R.layout.activity_assets_listview);
+        drawerLayout = (DrawerLayout)findViewById(R.id.drawer_layout);
+        navigationView = (NavigationView)findViewById(R.id.drawer_view);
+        expandableListView = (ExpandableListView)findViewById(R.id.submenu);
+        OkButton = (Button)findViewById(R.id.SubmitBtn);
+        navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
+            @Override
+            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+                item.setChecked(true);
+                drawerLayout.closeDrawers();
+                return true;
+            }
+        });
 
         try{
             myDb = new DatabaseHelper(getApplicationContext());
@@ -101,7 +124,8 @@ public class AssetsActivity extends AppCompatActivity {
             site_id = myDb.Site_Location_Id(User_Id);
             User_Group_Id = myDb.UserGroupId(User_Id);
             Asset_View = myDb.assetView();
-
+            LocationList = myDb.getAssetLocation(User_Group_Id);
+            TypeList = myDb.getAssetType(User_Group_Id);
             if(LOG) Log.d(TAG,"PreferenseValue"+companyId+"\n"+site_id+"\n"+User_Id+"\n"+Scan_Type);
             assetLinearLayout= (LinearLayout) findViewById(R.id.assetLinearLayout);
             imageViewSync= (ImageView) findViewById(R.id.imageViewSync);
@@ -111,14 +135,20 @@ public class AssetsActivity extends AppCompatActivity {
             lvAssets.setAdapter(listDataAdapter);
             initToolBar();
             AddAssets();
-
-        }catch (Exception e)
-        {
+        }catch (Exception e) {
             if(LOG) Log.d(TAG,"aa118 ERROR=="+"" + e);
             Toast.makeText(getApplicationContext(), "Error code: aa118", Toast.LENGTH_SHORT).show();
         }
 
-
+        prepareMenuData();
+        populateExpandableList();
+        OkButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Log.d("shfgjhfg",expandableListViewAdapter.textViewChild.getText().toString());
+                drawerLayout.closeDrawers();
+            }
+        });
 
         try {
             if(LOG) Log.d(TAG,"Scan_Type"+Scan_Type);
@@ -163,8 +193,8 @@ public class AssetsActivity extends AppCompatActivity {
         imageViewFilter.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-               //drawerLayout.openDrawer(GravityCompat.START);
-                FilterDialog();
+               drawerLayout.openDrawer(GravityCompat.END);
+                //FilterDialog();
             }
         });
 
@@ -184,21 +214,35 @@ public class AssetsActivity extends AppCompatActivity {
         });
     }
 
-    public void FilterDrawer(){
-        LayoutInflater inflater = getLayoutInflater();
-        View layout = inflater.inflate(R.layout.activity_drawer, null);
-        drawerLayout = (DrawerLayout)layout.findViewById(R.id.drawer_layout);
+    private void populateExpandableList() {
 
-        navigationView = (NavigationView)layout.findViewById(R.id.drawer_view);
-        navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
+        expandableListViewAdapter = new ExpandableListViewAdapter(this,listTitle,listChild);
+        expandableListView.setAdapter(expandableListViewAdapter);
+        expandableListView.setOnGroupExpandListener(new ExpandableListView.OnGroupExpandListener() {
             @Override
-            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-                item.setChecked(true);
-                drawerLayout.closeDrawers();
-                return true;
+            public void onGroupExpand(int groupPosition) {
+                Log.d("GroupValues",groupPosition+"");
             }
         });
+        expandableListView.setOnChildClickListener(new ExpandableListView.OnChildClickListener() {
+            @Override
+            public boolean onChildClick(ExpandableListView parent, View v, int groupPosition, int childPosition, long id) {
+
+                return false;
+            }
+        });
+
     }
+
+    private void prepareMenuData() {
+        List<String> TitleList = Arrays.asList("Types","Locations");
+        listChild = new HashMap<>();
+        Log.d("ChildList",TypeList+" "+LocationList);
+        listChild.put(TitleList.get(0),TypeList);
+        listChild.put(TitleList.get(1), LocationList);
+        listTitle = new ArrayList<>(listChild.keySet());
+    }
+
 
     public void FilterData(){
         try {
@@ -290,7 +334,6 @@ public class AssetsActivity extends AppCompatActivity {
                     String Asset_Location = cursor.getString(cursor.getColumnIndex("Asset_Location"));
                     String Asset_Status_Id = cursor.getString(cursor.getColumnIndex("Asset_Status_Id"));
                     String Status = cursor.getString(cursor.getColumnIndex("Status"));
-
                     DataProvider assetDataProvider = new DataProvider(Asset_Id, Asset_Code, Asset_Name, Asset_Location, Status, null, null, null);
                     listDataAdapter.add(assetDataProvider);
                 }

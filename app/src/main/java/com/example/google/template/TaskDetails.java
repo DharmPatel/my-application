@@ -49,6 +49,10 @@ public class TaskDetails extends AppCompatActivity implements PendingTask.OnComp
     private static final String TAG = TaskDetails.class.getSimpleName();
     static final boolean LOG = new applicationClass().checkLog();
     BadgeView MissedBadge, PendingBadge, CompletedBadge, CancelledBadge;
+    SimpleDateFormat YDMDateFormat, YMDHMDateFormat;
+    Calendar calenderCurrent = Calendar.getInstance();
+    Calendar calenderEndon = Calendar.getInstance();
+    Calendar calenderStarton = Calendar.getInstance();
 
     private int[] tabIcons = {
             R.drawable.ic_clear,
@@ -142,8 +146,6 @@ public class TaskDetails extends AppCompatActivity implements PendingTask.OnComp
             }
 
             NFCConfiguration();
-
-
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -595,6 +597,11 @@ public class TaskDetails extends AppCompatActivity implements PendingTask.OnComp
 
         }
     }
+
+    public String formatDateDate(Date date) {
+        SimpleDateFormat inputParser = new SimpleDateFormat("yyyy-MM-dd");
+        return inputParser.format(date);
+    }
     public String formatDate(Date date) {
         SimpleDateFormat inputParser = new SimpleDateFormat("yyyy-MM-dd HH:mm");
         return inputParser.format(date);
@@ -615,6 +622,181 @@ public class TaskDetails extends AppCompatActivity implements PendingTask.OnComp
             return new Date(0);
         }
     }
+
+
+    private void multiTaskFreq(String Form_Id, String Asset_Code, String Asset_ID, String Asset_Location,
+                               String Asset_Name, String Activity_Name, String Assigned_To_User_Group_Id,
+                               String Status, int repeatEveryMin, String assign_Days, String FreqId,
+                               int Grace_DB, int Grace_DA, int Activity_Duration, String TimeStarts,
+                               String timeEndson,String YearStartsOn,String RepeatMonth){
+        try {
+            YDMDateFormat = new SimpleDateFormat("yyyy-MM-dd");
+            YMDHMDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+
+            String TaskStartDate = YearStartsOn +" "+ TimeStarts;
+            Calendar calenderTaskGenration = Calendar.getInstance();
+            calenderTaskGenration.setTime(parseDate(TaskStartDate));
+            calenderCurrent = Calendar.getInstance();
+            calenderEndon = Calendar.getInstance();
+            calenderStarton = Calendar.getInstance();
+
+            int i = 0;
+            do{
+                Date firstTaskDate = calenderTaskGenration.getTime();
+                Date taskEndDate= null;
+                //Log.d("TimeCheckerDataValue",Asset_Name +" Time StartValue:"+calenderTaskGenration.getTime()+" Time EndValue:" +Activity_Duration );
+                calenderTaskGenration.add(Calendar.MINUTE, Activity_Duration);
+                taskEndDate = calenderTaskGenration.getTime();
+
+                //Log.d("TimeCheckerDataValue", Asset_Name + " Time StartValue:" + firstTaskDate + " Time EndValue:" + taskEndDate);
+                calenderTaskGenration.setTime(taskEndDate);
+                //Log.d("ConditionCheck", calenderTaskGenration.getTime() + " " + calenderCurrent.getTime() + " " + calenderTaskGenration.getTime().after(calenderCurrent.getTime()));
+
+                i++;
+
+                if(calenderCurrent.getTime().equals(firstTaskDate)||calenderCurrent.getTime().after(firstTaskDate)&& calenderCurrent.getTime().before(taskEndDate)){
+
+                    String StartDate,EndDate;
+
+                    StartDate = formatDateDate(firstTaskDate) +" "+ TimeStarts;
+                    Calendar StartDateTask = Calendar.getInstance();
+                    StartDateTask.setTime(parseDate(StartDate));
+
+                    StartDate = YMDHMDateFormat.format(StartDateTask.getTime());
+                    //StartDateTaskCheck.setTime(parseDate(StartDate));
+                    StartDateTask.add(Calendar.MINUTE, Activity_Duration);
+                    EndDate = YMDHMDateFormat.format(StartDateTask.getTime());
+                    //Log.d("StartDateEnddate",StartDate +" "+EndDate);
+                    String[] RepeatEveryMonth_OptionList = RepeatMonth.split("\\|");
+                    for (int k = 0; k < RepeatEveryMonth_OptionList.length; k++) {
+                        Calendar StartDateTaskCheck = Calendar.getInstance();
+                        Calendar endTimeCalender = Calendar.getInstance();
+
+                        String[] timesplit = TimeStarts.split(":");
+                        int year=StartDateTask.get(Calendar.YEAR);
+                        int month=StartDateTask.get(Calendar.MONTH);
+                        StartDateTaskCheck.set(year, month, Integer.parseInt(RepeatEveryMonth_OptionList[k]),
+                                Integer.parseInt(timesplit[0]), Integer.parseInt(timesplit[1]));
+
+                        endTimeCalender.setTime(StartDateTaskCheck.getTime());
+                        endTimeCalender.add(Calendar.MINUTE, Activity_Duration);
+
+
+
+                      /*  if (StartDateTaskCheck.getTime().after(calenderCurrent.getTime()) || StartDateTaskCheck.getTime().equals(calenderCurrent.getTime())){
+
+                        }*/
+                        if (RepeatMonth.equals("null") ||calenderCurrent.getTime().equals(StartDateTaskCheck.getTime()) || (calenderCurrent.getTime().after(StartDateTaskCheck.getTime()) && calenderCurrent.getTime().before(endTimeCalender.getTime()))) {
+                            //if(StartDateTaskCheck.getTime().after(calenderCurrent.getTime())&& calenderCurrent.getTime().before(endTimeCalender.getTime())){
+                            //if(StartDateTaskCheck.getTime().equals(calenderCurrent.getTime())){
+                            //Log.d("TestRepeatEveryMonth", " StartDateTaskCheck:" + StartDateTaskCheck.getTime() + "CurrentTime:" + calenderCurrent.getTime() + " endTimeCalender:" + endTimeCalender.getTime());
+                            //Log.d("RepeatEveryMonth", " StartDateTaskCheckTrue:" + StartDateTaskCheck.getTime().equals(calenderCurrent.getTime()) + "CurrentTime:" + StartDateTaskCheck.getTime().after(calenderCurrent.getTime()) + " endTimeCalender:" + calenderCurrent.getTime().before(endTimeCalender.getTime()));
+
+                            // }
+
+                            //Log.d("TestRepeatEveryMonth12","AssetName:"+Asset_Name +" RepeatEveryMonth:"+RepeatEveryMonth_OptionList[k] +" Current:"+ StartDateTaskCheck.get(Calendar.DAY_OF_MONTH));
+
+                            String selectQuery = "SELECT  * FROM Task_Details WHERE Asset_Id='" + Asset_ID + "' AND Task_Scheduled_Date = '" + YMDHMDateFormat.format(StartDateTaskCheck.getTime()) + "' AND Activity_Frequency_Id='" + FreqId + "'";
+
+                            if (db.isOpen()) {
+
+                            } else {
+                                db = myDb.getWritableDatabase();
+                            }
+                            Cursor cursor = db.rawQuery(selectQuery, null);
+
+                            //Log.d("hfdsferasdasil", " " + cursor.getCount());
+
+                            // if (StartOn.after(parseDate(YDMDateFormat.format(previousDay.getTime()) + TimeStarts)) || StartOn.equals(parseDate(YDMDateFormat.format(previousDay.getTime()) + TimeStarts))) {
+                            if (cursor.getCount() == 0) {
+                                String uuid = UUID.randomUUID().toString();
+                                ContentValues contentValues1 = new ContentValues();
+                                contentValues1.put("Auto_Id", uuid);
+                                contentValues1.put("Company_Customer_Id", companyId);
+                                contentValues1.put("Site_Location_Id", SiteId);
+                                contentValues1.put("Activity_Frequency_Id", FreqId);
+                                contentValues1.put("Task_Scheduled_Date", YMDHMDateFormat.format(StartDateTaskCheck.getTime()));
+                                if (!Status.equals("WORKING"))
+                                    contentValues1.put("Task_Status", "Cancelled");
+                                else
+                                    contentValues1.put("Task_Status", "Pending");
+                                contentValues1.put("Task_Start_At", "");
+                                contentValues1.put("Assigned_To", "U");
+                                contentValues1.put("Assigned_To_User_Id", User_Id);
+                                contentValues1.put("Assigned_To_User_Group_Id", Assigned_To_User_Group_Id);
+                                contentValues1.put("Scan_Type", "");
+                                contentValues1.put("Asset_Id", Asset_ID);
+                                contentValues1.put("From_Id", Form_Id);
+                                contentValues1.put("EndDateTime", YMDHMDateFormat.format(endTimeCalender.getTime()));
+                                contentValues1.put("Asset_Code", Asset_Code);
+                                contentValues1.put("Asset_Name", Asset_Name);
+                                contentValues1.put("Asset_Location", Asset_Location);
+                                contentValues1.put("Asset_Status", Status);
+                                contentValues1.put("Activity_Name", Activity_Name);
+                                contentValues1.put("Remarks", "");
+                                db = myDb.getWritableDatabase();
+                                db.insert("Task_Details", null, contentValues1);
+                                Log.d(TAG, "TaskInerted123" + Asset_Name + "  " + Activity_Name + " " + Status + " \n ");
+                            }
+                        }
+                        // }
+                    }
+                }
+                // }
+            } while (calenderTaskGenration.getTime().before(calenderCurrent.getTime()));
+
+
+            try {
+                String taskServerquery = "SELECT * FROM  Task_Details_Server WHERE  Assigned_To_User_Group_Id IN (" + myDb.UserGroupId(User_Id) + ") AND UpdatedStatus ='no'";// AND Task_Scheduled_Date LIKE '%" + YDMDateFormat.format(calenderCurrent.getTime()) + "%'
+                Cursor cursor = db.rawQuery(taskServerquery, null);
+                if (cursor.getCount() != 0) {
+                    if (cursor.moveToFirst()) {
+                        do {
+                            String Task_Id = cursor.getString(cursor.getColumnIndex("Task_Id"));
+                            String Activity_Frequency_Id = cursor.getString(cursor.getColumnIndex("Activity_Frequency_Id"));
+                            String Task_Scheduled_Date = cursor.getString(cursor.getColumnIndex("Task_Scheduled_Date"));
+                            String Task_Status = cursor.getString(cursor.getColumnIndex("Task_Status"));
+                            String Task_Start_At = cursor.getString(cursor.getColumnIndex("Task_Start_At"));
+                            String Remarks = cursor.getString(cursor.getColumnIndex("Remarks"));
+                            String taskScheduled = Task_Scheduled_Date;
+                            Task_Scheduled_Date = formatDate(parseDate(Task_Scheduled_Date));
+                            ContentValues contentValues = new ContentValues();
+                            contentValues.put("Task_Status", Task_Status);
+                            contentValues.put("Auto_Id", Task_Id);
+                            if(Task_Status.equals("Completed")) {
+                                contentValues.put("Task_Start_At", formatDate(parseDate(Task_Start_At)));
+                            }
+                            else {
+                                contentValues.put("Task_Start_At", Task_Start_At);
+                            }
+                            contentValues.put("UpdatedStatus", "yes");
+                            contentValues.put("Remarks", Remarks);
+                            ContentValues contentValues1 = new ContentValues();
+                            contentValues1.put("UpdatedStatus", "yes");
+                            Log.d("Teasdasdasd", "Task_Status='" + Task_Status + "', Auto_Id='" + Task_Id + "', " +
+                                    "Task_Start_At='" + formatDate(parseDate(Task_Start_At)) + "',UpdatedStatus='yes' WHERE Activity_Frequency_Id ='" + Activity_Frequency_Id + "' AND  Task_Scheduled_Date ='" + Task_Scheduled_Date + "'AND Task_Status <> 'Completed'");
+
+                            long resultset = db.update("Task_Details", contentValues, "Activity_Frequency_Id ='" + Activity_Frequency_Id + "' AND  Task_Scheduled_Date ='" + Task_Scheduled_Date + "'AND Task_Status <> 'Completed'", null);
+                            if (resultset == -1)
+                                Log.d(TAG,"Task Details not updated ");
+                            else {
+                                db.update("Task_Details_Server", contentValues1, "Activity_Frequency_Id ='" + Activity_Frequency_Id + "' AND  Task_Scheduled_Date ='" + taskScheduled + "'", null);
+                            }
+                        } while (cursor.moveToNext());
+                    }
+                }
+                cursor.close();
+                db.close();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+
+        } catch (NumberFormatException e) {
+            e.printStackTrace();
+        }
+    }
+
 
     @Override
     public void onPending(String count) {

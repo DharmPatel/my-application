@@ -32,9 +32,11 @@ import android.preference.PreferenceManager;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.text.Editable;
 import android.text.InputFilter;
 import android.text.InputType;
 import android.text.Spanned;
+import android.text.TextWatcher;
 import android.text.method.ScrollingMovementMethod;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -111,6 +113,7 @@ public class DynamicForm extends AppCompatActivity {
     private List<EditText> editTextConsumption = new ArrayList<EditText>();
     private List<EditText> editTextRemarkList = new ArrayList<EditText>();
     private List<TextView> textViewList = new ArrayList<TextView>();
+    private List<CheckBox> checkBoxList = new ArrayList<CheckBox>();
     private List<Spinner> textSpinnerList = new ArrayList<Spinner>();
     private List<RadioButton> textRadioButtonList = new ArrayList<RadioButton>();
     private List<RadioGroup> textRadioGroupMeterList = new ArrayList<RadioGroup>();
@@ -156,7 +159,7 @@ public class DynamicForm extends AppCompatActivity {
     String previousReadingDatabase="";
     int textviewId;
     Button submit;
-    String field_Limit_Form1, field_Limit_To1, threshold_From1, threshold_To1, validation_Type1, Critical1,Field_Option_Id;
+    String Checklist,field_Limit_Form1, field_Limit_To1, threshold_From1, threshold_To1, validation_Type1, Critical1,Field_Option_Id;
     String activityFrequencyId,TaskId, Task_Scheduled_Date,assetCode, formStructureId, field_Limit_Form, field_Limit_To, threshold_From, threshold_To, validation_Type, Critical;
     Map<String,Bitmap> drawableBitmap = new HashMap<String,Bitmap>();
     Button mClear, mGetSign, mCancel;
@@ -210,7 +213,8 @@ public class DynamicForm extends AppCompatActivity {
         Scan_Type = myDb.ScanType(User_Id);
         applicationClass = new applicationClass();
         EmployeeName = myDb.EmployeeName(User_Id);
-
+        Checklist = getIntent().getStringExtra("IntentValue");
+        Log.d("ChecklistValue","1: "+Checklist);
         //createCutomActionBarTitle();
         try{
             /*if(Completed.equals("Completed") ){
@@ -901,6 +905,14 @@ public class DynamicForm extends AppCompatActivity {
                             e.printStackTrace();
                         }
                     }
+                    /*if (Field_Type.equals("checkbox")){
+                        try {
+                            formLayout.addView(textView(Field_Label));
+                            formLayout.addView(checkBox(Field_Options));
+                        }catch (Exception e){
+                            e.printStackTrace();
+                        }
+                    }*/
                     if (Field_Type.equals("fixedtext")) {
 
                         try {
@@ -1188,12 +1200,22 @@ public class DynamicForm extends AppCompatActivity {
                                                 startActivity(intent);
                                                 finish();
                                             }else {
+                                                Log.d("ChecklistValue",Checklist);
                                                 saveData(taskInsert(taskStatus));
-                                                Intent intent = new Intent(DynamicForm.this, TaskDetails.class);
-                                                intent.putExtra("TAB", "TAB3");
-                                                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                                                startActivity(intent);
-                                                finish();
+                                                if(Checklist == null){
+                                                    Intent intent = new Intent(DynamicForm.this, TaskDetails.class);
+                                                    intent.putExtra("TAB", "TAB3");
+                                                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                                                    startActivity(intent);
+                                                    finish();
+                                                }else {
+                                                    Intent intent = new Intent(DynamicForm.this, CheckList.class);
+                                                    intent.putExtra("TAB", "TAB2");
+                                                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                                                    startActivity(intent);
+                                                    finish();
+                                                }
+
                                             }
                                         }
                                     });
@@ -1249,11 +1271,20 @@ public class DynamicForm extends AppCompatActivity {
                                 finish();
                             }else {
                                 saveData(taskInsert(taskStatus));
-                                Intent intent = new Intent(DynamicForm.this, TaskDetails.class);
-                                intent.putExtra("TAB", "TAB3");
-                                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                                startActivity(intent);
-                                finish();
+                                if (Checklist == null){
+                                    Intent intent = new Intent(DynamicForm.this, TaskDetails.class);
+                                    intent.putExtra("TAB", "TAB3");
+                                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                                    startActivity(intent);
+                                    finish();
+                                }else {
+                                    Intent intent = new Intent(DynamicForm.this, CheckList.class);
+                                    intent.putExtra("TAB", "TAB2");
+                                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                                    startActivity(intent);
+                                    finish();
+                                }
+
                             }
                         }
                     }
@@ -1295,6 +1326,15 @@ public class DynamicForm extends AppCompatActivity {
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayShowTitleEnabled(false);
 
+    }
+
+    public CheckBox checkBox(String Value){
+        CheckBox checkBox = new CheckBox(this);
+        checkBox.setText(Value);
+        checkBox.setLayoutParams(fittype1);
+        checkBox.setLayoutParams(textLayout);
+        checkBoxList.add(checkBox);
+        return checkBox;
     }
 
     private TextView perviousReading(String reading,int id) {
@@ -2310,7 +2350,7 @@ public class DynamicForm extends AppCompatActivity {
         return editText;
     }
 
-    private EditText editText(final int mandatory, String name, int id, String setText, final String Field_Limit_From, final String Field_Limit_To, final String Threshold_From, final String Threshold_To, String Validation_Type,int SafeRange,final int calculationvalue) {
+    private EditText editText(final int mandatory, String name, final int id, String setText, final String Field_Limit_From, final String Field_Limit_To, final String Threshold_From, final String Threshold_To, String Validation_Type,int SafeRange,final int calculationvalue) {
         final EditText editText = new EditText(this);
         editText.setId(id);
         editText.setLayoutParams(textLayout);
@@ -2322,17 +2362,59 @@ public class DynamicForm extends AppCompatActivity {
         if(Completed.equals("Completed")){
             editText.setEnabled(false);
         }
+
+        editText.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                try {
+                    ID = id;
+                    /*Double val = Double.parseDouble(editText.getText().toString());
+                    if (!Field_Limit_From.equals("") && !Field_Limit_To.equals("")) {
+                        if (val > Double.parseDouble(Field_Limit_To) || val < Double.parseDouble(Field_Limit_From)) {
+                            editText.setText("");
+                            editText.setError("Invalid Reading.Please Enter valid Reading");
+                        } else if ((val < Double.parseDouble(Threshold_From) && (val >= Double.parseDouble(Field_Limit_From))) || (val <= Double.parseDouble(Field_Limit_To)) && (val > Double.parseDouble(Threshold_To))) {
+                            editText.setError("Alert will generate.");
+                        } else {
+                        }
+                    }*/
+
+                    /*if(s.length() == 9){
+                        editText.setFocusableInTouchMode(false);
+                        editText.setFocusable(false);
+                    }*/
+
+                } catch (NumberFormatException ex) {
+                    ex.printStackTrace();
+                }
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+            }
+        });
+
         editText.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
             public void onFocusChange(View view, boolean b) {
                 try {
                     Double val = Double.parseDouble(editText.getText().toString());
-                    if (val > Double.parseDouble(Field_Limit_To) || val < Double.parseDouble(Field_Limit_From)) {
-                        editText.setText("");
-                        editText.setError("Invalid Reading.Please Enter valid Reading");
-                    } else if ((val < Double.parseDouble(Threshold_From) && (val >= Double.parseDouble(Field_Limit_From))) || (val <= Double.parseDouble(Field_Limit_To)) && (val > Double.parseDouble(Threshold_To))) {
-                        editText.setError("Alert will generate.");
-                    } else {
+                    val=val*calculationvalue;
+                    if(ID == id) {
+                        editText.setText(val.toString());
+                        ID = 0;
+                    }
+                    if (!Field_Limit_From.equals("") && !Field_Limit_To.equals("")) {
+                        if (val > Double.parseDouble(Field_Limit_To) || val < Double.parseDouble(Field_Limit_From)) {
+                            editText.setText("");
+                            editText.setError("Invalid Reading.Please Enter valid Reading");
+                        } else if ((val < Double.parseDouble(Threshold_From) && (val >= Double.parseDouble(Field_Limit_From))) || (val <= Double.parseDouble(Field_Limit_To)) && (val > Double.parseDouble(Threshold_To))) {
+                            editText.setError("Alert will generate.");
+                        }
                     }
                 } catch (NumberFormatException ex) {
                     ex.printStackTrace();
@@ -5026,6 +5108,31 @@ public class DynamicForm extends AppCompatActivity {
                 e.printStackTrace();
             }
         }
+
+        for (CheckBox checkBox1 : checkBoxList){
+            int fieldId = checkBox1.getId();
+            try {
+                String Form_Structure_Id = myDb.getfieldId(fieldId);
+                String formId = myDb.getFormId(Form_Structure_Id);
+                slnew = checkBox1.getText().toString();
+                editText.put(myDb.getfieldId(fieldId), slnew);
+                ContentValues contentValues1 = new ContentValues();
+                contentValues1.put("Task_Id", uuid);
+                contentValues1.put("Form_Id", formId);
+                contentValues1.put("Form_Structure_Id", Form_Structure_Id);
+                contentValues1.put("Site_Location_Id", SiteId);
+                contentValues1.put("Parameter_Id", "");
+                contentValues1.put("Value", slnew);
+                contentValues1.put("UpdatedStatus", "no");
+                emaildata.put(myDb.getfieldId(fieldId),String.valueOf(slnew));
+                db=myDb.getWritableDatabase();
+                db.insert("Data_Posting", null, contentValues1);
+                db.close();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
         for (EditText editTextList1 : editTextDGTimeList) {
             try {
                 ContentValues contentValues1 = new ContentValues();
@@ -5612,11 +5719,20 @@ public class DynamicForm extends AppCompatActivity {
     @Override
     public void onBackPressed() {
         super.onBackPressed();
-        Intent intent = new Intent(DynamicForm.this, TaskDetails.class);
-        intent.putExtra("TAB","TAB2");
-        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        startActivity(intent);
-        finish();
+        if (Checklist == null){
+            Intent intent = new Intent(DynamicForm.this, TaskDetails.class);
+            intent.putExtra("TAB","TAB2");
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+            startActivity(intent);
+            finish();
+        }else {
+            Intent intent = new Intent(DynamicForm.this, CheckList.class);
+            intent.putExtra("TAB","TAB2");
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+            startActivity(intent);
+            finish();
+        }
+
 
     }
 
