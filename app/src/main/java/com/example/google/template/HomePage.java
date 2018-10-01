@@ -483,11 +483,72 @@ public class HomePage extends AppCompatActivity {
             Toast.makeText(getApplicationContext(), "Error code: hp181 " + e.toString(), Toast.LENGTH_SHORT).show();
         }
     }
+
     public void checklistActivity() {
         //SelectQuery();
-        Snackbar snackbar = Snackbar.make(linearLayout, "License not activated.", Snackbar.LENGTH_LONG);
-        snackbar.show();
+        /*Snackbar snackbar = Snackbar.make(linearLayout, "License not activated.", Snackbar.LENGTH_LONG);
+        snackbar.show();*/
+
+
+
+        try {
+            if (myDb.SiteName(User_Id) == null) {
+                Toast.makeText(getApplicationContext(), "Please Select Site", Toast.LENGTH_SHORT).show();
+            } else {
+
+
+                String Query = "Select * from Activity_Frequency where Site_Location_Id='" + myDb.Site_Location_Id(User_Id) + "'";
+                db = myDb.getWritableDatabase();
+                Cursor cursor = db.rawQuery(Query, null);
+                if (cursor.getCount() > 0) {
+                    if (myDb.ScanType(User_Id).equals("QR")) {
+                        Intent intent = new Intent(HomePage.this, CheckList.class);
+                        intent.putExtra("TAB", "TAB2");
+                        startActivity(intent);
+                        finish();
+                    } else if (myDb.ScanType(User_Id).equals("NFC")) {
+                        if (mNfcAdapter == null) {
+                            Snackbar snackbar = Snackbar.make(linearLayout, " This device doesn't support NFC!!", Snackbar.LENGTH_LONG);
+                            snackbar.show();
+                        } else {
+                            Intent intent = new Intent(HomePage.this, CheckList.class);
+                            intent.putExtra("TAB", "TAB2");
+                            startActivity(intent);
+                            finish();
+                        }
+                    }
+                } else {
+
+                   /* if(taskProvider.getNoTaskAssigned() == false){
+
+                        final Snackbar snackbar = Snackbar.make(linearLayout, "No Task Available For This Site", Snackbar.LENGTH_LONG);
+
+                        snackbar.show();
+                    }
+                    else {*/
+                    final Snackbar snackbar = Snackbar
+                            .make(linearLayout, "Data not available.", Snackbar.LENGTH_LONG)
+                            .setAction("Please Synchronize", new View.OnClickListener() {
+                                @Override
+                                public void onClick(View view) {
+                                    new CheckingInternetConnectivity().execute();
+                                }
+                            });
+
+                    snackbar.setDuration(20000);
+                    snackbar.show();
+                    // }
+                }
+
+
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            Log.d("hp181", "ERROR==" + e);
+            Toast.makeText(getApplicationContext(), "Error code: hp181 " + e.toString(), Toast.LENGTH_SHORT).show();
+        }
     }
+
     public void SelectQuery(){
        /*db = myDb.getWritableDatabase();
         db.delete("RefrenseTable",null, null);
@@ -1928,7 +1989,7 @@ public class HomePage extends AppCompatActivity {
                             db = myDb.getWritableDatabase();
                             String Frequencysql = "insert into Activity_Frequency (Site_Location_Id ,Frequency_Auto_Id ,YearStartson ,TimeStartson ,TimeEndson ,Activity_Duration ,Grace_Duration_Before ,Grace_Duration_After ,RepeatEveryDay ,RepeatEveryMin ,RepeatEveryMonth ,Assign_Days ,Asset_Activity_Linking_Id,RecordStatus ,UpdatedStatus )values(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?);";
                             String AssetActivityLinkingsql = "insert into Asset_Activity_Linking (Site_Location_Id ,Auto_Id ,Asset_Id ,Activity_Id,RecordStatus ,UpdatedStatus )values(?,?,?,?,?,?);";
-                            String ActivityMastersql = "insert into Activity_Master (Site_Location_Id ,Auto_Id ,Form_Id ,Activity_Name ,RecordStatus ,UpdatedStatus )values(?,?,?,?,?,?);";
+                            String ActivityMastersql = "insert into Activity_Master (Site_Location_Id ,Auto_Id ,Form_Id ,Activity_Name,Activity_Type,RecordStatus ,UpdatedStatus )values(?,?,?,?,?,?,?);";
                             String AssetActivityAssignedTosql = "insert into Asset_Activity_AssignedTo (Site_Location_Id ,Auto_Id ,Assigned_To_User_Id ,Assigned_To_User_Group_Id ,Asset_Activity_Linking_Id,RecordStatus ,UpdatedStatus )values(?,?,?,?,?,?,?);";
                             String PpmTasksql = "insert into PPM_Task (Auto_Id, Site_Location_Id, Activity_Frequency, Task_Date,Task_End_Date, Task_Status, Asset_Activity_Linking_Id,  Assigned_To_User_Id, Assigned_To_User_Group_Id, TimeStartson, Activity_Duration, Grace_Duration_Before, Grace_Duration_After, Record_Status, UpdatedStatus)values(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?);";
                             db.beginTransaction();
@@ -2007,14 +2068,16 @@ public class HomePage extends AppCompatActivity {
                                 String ActivityMasterAutoId = c.getString("ActivityMasterAutoId");
                                 String ActivityMasterFormId = c.getString("ActivityMasterFormId");
                                 String ActivityMasterActivityName = c.getString("ActivityMasterActivityName");
+                                String ActivityMasterActivityType = c.getString("ActivityMasterActivityType");
                                 String ActivityMasterRecordStatus = c.getString("ActivityMasterRecordStatus");
 
                                 ActivityMasterstmt.bindString(1, Site_Location_Id);
                                 ActivityMasterstmt.bindString(2, ActivityMasterAutoId);
                                 ActivityMasterstmt.bindString(3, ActivityMasterFormId);
                                 ActivityMasterstmt.bindString(4, ActivityMasterActivityName);
-                                ActivityMasterstmt.bindString(5, ActivityMasterRecordStatus);
-                                ActivityMasterstmt.bindString(6, "no");
+                                ActivityMasterstmt.bindString(5, ActivityMasterActivityType);
+                                ActivityMasterstmt.bindString(6, ActivityMasterRecordStatus);
+                                ActivityMasterstmt.bindString(7, "no");
 
                                 long ActivityMasterentryID = ActivityMasterstmt.executeInsert();
                                 ActivityMasterstmt.clearBindings();
@@ -2398,15 +2461,17 @@ public class HomePage extends AppCompatActivity {
                         if (AssetStatus != null) {
                             pDialog.setProgress(0);
                             db = myDb.getWritableDatabase();
-                            String sql = "insert into Asset_Status (Asset_Status_Id,Status)values(?,?);";
+                            String sql = "insert into Asset_Status (Asset_Status_Id,Status,Task_State)values(?,?,?);";
                             db.beginTransaction();
                             SQLiteStatement stmt = db.compileStatement(sql);
                             for (int i = 0; i < AssetStatus.length(); i++) {
                                 JSONObject c = AssetStatus.getJSONObject(i);
                                 String Asset_Status_Id = c.getString("Asset_Status_Id");
                                 String Status = c.getString("Status");
+                                String Task_State = c.getString("Task_State");
                                 stmt.bindString(1, Asset_Status_Id);
                                 stmt.bindString(2, Status);
+                                stmt.bindString(3,Task_State);
                                 long entryID = stmt.executeInsert();
                                 stmt.clearBindings();
                             }

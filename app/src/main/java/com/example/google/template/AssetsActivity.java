@@ -54,7 +54,6 @@ import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.TreeMap;
 import java.util.UUID;
 
 public class AssetsActivity extends AppCompatActivity {
@@ -146,6 +145,7 @@ public class AssetsActivity extends AppCompatActivity {
         OkButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                Log.d("shfgjhfg",expandableListViewAdapter.textViewChild.getText().toString());
                 drawerLayout.closeDrawers();
             }
         });
@@ -236,7 +236,7 @@ public class AssetsActivity extends AppCompatActivity {
 
     private void prepareMenuData() {
         List<String> TitleList = Arrays.asList("Types","Locations");
-        listChild = new TreeMap<>();
+        listChild = new HashMap<>();
         Log.d("ChildList",TypeList+" "+LocationList);
         listChild.put(TitleList.get(0),TypeList);
         listChild.put(TitleList.get(1), LocationList);

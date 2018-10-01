@@ -1,14 +1,11 @@
 package com.example.google.template;
 
 import android.content.Context;
-import android.util.Log;
-import android.util.SparseBooleanArray;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseExpandableListAdapter;
 import android.widget.CheckBox;
-import android.widget.CompoundButton;
 import android.widget.TextView;
 
 import java.util.ArrayList;
@@ -19,19 +16,24 @@ public class ExpandableListViewAdapter extends BaseExpandableListAdapter {
     private Context context;
     private List<String> listTitle;
     private Map<String,List<String>> listItems;
-    ArrayList<Boolean> positionArray;
-    SparseBooleanArray sparseBooleanArray = new SparseBooleanArray();
+    private ArrayList<ArrayList<Boolean>> checkboxStatus = new ArrayList<ArrayList<Boolean>>();
+    TextView textViewChild;
+    CheckBox checkBox;
+    Boolean [] CheckSelected;
 
     public ExpandableListViewAdapter(Context context, List<String> listTitle, Map<String, List<String>> listItems) {
         this.context = context;
         this.listTitle = listTitle;
         this.listItems = listItems;
 
-        positionArray = new ArrayList<Boolean>(listItems.size());
-        for(int i =0;i<listItems.size();i++){
-            positionArray.add(false);
-        }
-
+        /*for (int i = 0; i<listTitle.size(); i++){
+            ArrayList<Boolean> childStatus = new ArrayList<Boolean>();
+            for (int j = 0; j <listItems.get(listTitle.get(i)).size(); j++){
+                childStatus.add(false);
+            }
+            checkboxStatus.add(childStatus);
+        }*/
+        //CheckSelected = new boolean[listItems.get(listTitle.get(groupPosition)).size()];
     }
 
     @Override
@@ -52,11 +54,6 @@ public class ExpandableListViewAdapter extends BaseExpandableListAdapter {
     @Override
     public Object getChild(int groupPosition, int childPosition) {
         return listItems.get(listTitle.get(groupPosition)).get(childPosition);
-    }
-
-    class ExpanableValue {
-        String title;
-        boolean isChecked;
     }
 
     @Override
@@ -95,26 +92,32 @@ public class ExpandableListViewAdapter extends BaseExpandableListAdapter {
         if (convertView == null){
             convertView = LayoutInflater.from(context).inflate(R.layout.list_group_child,null);
         }
-        final TextView textViewChild = (TextView)convertView.findViewById(R.id.listItem);
+         textViewChild = (TextView)convertView.findViewById(R.id.listItem);
         textViewChild.setText(Child);
-        final CheckBox checkBox = (CheckBox)convertView.findViewById(R.id.CheckedChild);
-        checkBox.setTag(groupPosition);
+
+
+        //Log.d("sdfsdf","1: "+checkboxStatus+"");
+
+        checkBox = (CheckBox)convertView.findViewById(R.id.CheckedChild);
+        //Log.d("sdfsdf","2: "+checkboxStatus.get(groupPosition).get(childPosition)+"");
+       /* checkBox.setChecked(checkboxStatus.get(groupPosition).get(childPosition));
         checkBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                int position = (Integer)buttonView.getTag();
-                Log.d("Jfnkjsdfkjsd",position+"");
-                positionArray.add(position,isChecked);
+                    checkboxStatus.get(groupPosition).set(childPosition,isChecked);
+                    Log.d("sdfsdf","3: "+textViewChild.getText().toString()+"");
+                    Log.d("sdfsdf","4: "+checkboxStatus.get(groupPosition).get(childPosition)+" "+groupPosition);
 
             }
-        });
+        });*/
+
 
         return convertView;
     }
 
     @Override
     public boolean isChildSelectable(int groupPosition, int childPosition) {
-        return true;
+        return false;
     }
 
 
