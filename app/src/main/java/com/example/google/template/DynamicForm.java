@@ -903,14 +903,18 @@ public class DynamicForm extends AppCompatActivity {
                             e.printStackTrace();
                         }
                     }
-                    /*if (Field_Type.equals("checkbox")){
+                    if (Field_Type.equals("checkbox")){
                         try {
                             formLayout.addView(textView(Field_Label));
-                            formLayout.addView(checkBox(Field_Options));
+                            String[] optionList = Field_Options.split(",");
+                            for (int i = 0; i < optionList.length; i++) {
+                                formLayout.addView(checkBox(optionList[i]));
+                            }
+
                         }catch (Exception e){
                             e.printStackTrace();
                         }
-                    }*/
+                    }
                     if (Field_Type.equals("fixedtext")) {
 
                         try {
@@ -1189,7 +1193,7 @@ public class DynamicForm extends AppCompatActivity {
                                         @Override
                                         public void onClick(DialogInterface dialog, int which) {
                                             if(LOG) Log.d("taskStatusVal","1:"+taskStatus);
-                                            if (PPM_Intent.equals("PPMPending")){
+                                            if (PPM_Intent != null){
                                                 saveData(taskInsert(taskStatus));
                                                 Intent intent = new Intent(DynamicForm.this, ppm_activity.class);
                                                 intent.putExtra("TAB", "TAB3");
@@ -1259,7 +1263,7 @@ public class DynamicForm extends AppCompatActivity {
                             startActivity(intent);
                             finish();
                         }else {
-                            if (PPM_Intent.equals("PPMPending")){
+                            if (PPM_Intent != null){
                                 saveData(taskInsert(taskStatus));
                                 Intent intent = new Intent(DynamicForm.this, ppm_activity.class);
                                 intent.putExtra("TAB", "TAB3");
@@ -1325,11 +1329,17 @@ public class DynamicForm extends AppCompatActivity {
 
     }
 
-    public CheckBox checkBox(String Value){
-        CheckBox checkBox = new CheckBox(this);
-        checkBox.setText(Value);
+    public CheckBox checkBox(String value){
+        final CheckBox checkBox = new CheckBox(this);
+        checkBox.setText(value);
         checkBox.setLayoutParams(fittype1);
         checkBox.setLayoutParams(textLayout);
+        checkBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                //Log.d("selectValues",checkBox.getText().toString());
+            }
+        });
         checkBoxList.add(checkBox);
         return checkBox;
     }
@@ -3881,14 +3891,12 @@ public class DynamicForm extends AppCompatActivity {
 
         ContentValues contentValues1 = new ContentValues();
         if (unplanned == null) {
-            if(LOG)Log.d("PPMIntent",PPM_Intent);
-            if (PPM_Intent.equals("PPMPending")){
+            //if(LOG)Log.d("PPMIntent",PPM_Intent);
+            if (PPM_Intent != null){
                 myDb.updatedPPMTaskDetails(TaskId,taskStatus,Completed, applicationClass.yymmddhhmmss(), Scan_Type, User_Id, User_Group_Id, Remarks);
             }else {
                 myDb.updatedTaskDetails(TaskId, taskStatus, Completed, applicationClass.yymmddhhmmss(), Scan_Type, User_Id, Remarks,0);
             }
-
-
         } else {
             contentValues1.put("Auto_Id", TaskId);
             contentValues1.put("Company_Customer_Id", companyId);
@@ -5026,7 +5034,10 @@ public class DynamicForm extends AppCompatActivity {
             try {
                 String Form_Structure_Id = myDb.getfieldId(fieldId);
                 String formId = myDb.getFormId(Form_Structure_Id);
-                slnew = checkBox1.getText().toString();
+                if (checkBox1.isChecked()){
+                    slnew = checkBox1.getText().toString();
+                    Log.d("SelectedChecked",slnew);
+                }
                 editText.put(myDb.getfieldId(fieldId), slnew);
                 ContentValues contentValues1 = new ContentValues();
                 contentValues1.put("Task_Id", uuid);

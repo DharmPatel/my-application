@@ -77,8 +77,23 @@ public class CheckList extends AppCompatActivity {
             viewPagerAdapter.addfragment(new CheckListPending(), "Pending Task");
             viewPagerAdapter.addfragment(new CheckListCompleted(), "Completed Task");
             viewPager.setAdapter(viewPagerAdapter);
-            viewPager.setCurrentItem(0);
+            /*viewPager.setCurrentItem(0);
             viewPager.setOffscreenPageLimit(1);
+            tablayout.setupWithViewPager(viewPager);*/
+            try {
+                String tabCurrentItem = getIntent().getStringExtra("TAB");
+                if(LOG) Log.d(TAG,"tabCurrentItem"+tabCurrentItem);
+                if(tabCurrentItem.equalsIgnoreCase("TAB2")){
+                    viewPager.setCurrentItem(1);
+                    viewPager.setOffscreenPageLimit(1);
+                }
+                else{
+                    viewPager.setCurrentItem(0);
+                    viewPager.setOffscreenPageLimit(1);
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
             tablayout.setupWithViewPager(viewPager);
             setupTabIcons();
 
