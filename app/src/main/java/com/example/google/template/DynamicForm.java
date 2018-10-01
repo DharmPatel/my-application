@@ -32,9 +32,11 @@ import android.preference.PreferenceManager;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.text.Editable;
 import android.text.InputFilter;
 import android.text.InputType;
 import android.text.Spanned;
+import android.text.TextWatcher;
 import android.text.method.ScrollingMovementMethod;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -2266,7 +2268,7 @@ public class DynamicForm extends AppCompatActivity {
         return editText;
     }
 
-    private EditText editText(final int mandatory, String name, int id, String setText, final String Field_Limit_From, final String Field_Limit_To, final String Threshold_From, final String Threshold_To, String Validation_Type,int SafeRange,final int calculationvalue) {
+    private EditText editText(final int mandatory, String name, final int id, String setText, final String Field_Limit_From, final String Field_Limit_To, final String Threshold_From, final String Threshold_To, String Validation_Type,int SafeRange,final int calculationvalue) {
         final EditText editText = new EditText(this);
         editText.setId(id);
         editText.setLayoutParams(textLayout);
@@ -2278,17 +2280,59 @@ public class DynamicForm extends AppCompatActivity {
         if(Completed.equals("Completed")){
             editText.setEnabled(false);
         }
+
+        editText.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                try {
+                    ID = id;
+                    /*Double val = Double.parseDouble(editText.getText().toString());
+                    if (!Field_Limit_From.equals("") && !Field_Limit_To.equals("")) {
+                        if (val > Double.parseDouble(Field_Limit_To) || val < Double.parseDouble(Field_Limit_From)) {
+                            editText.setText("");
+                            editText.setError("Invalid Reading.Please Enter valid Reading");
+                        } else if ((val < Double.parseDouble(Threshold_From) && (val >= Double.parseDouble(Field_Limit_From))) || (val <= Double.parseDouble(Field_Limit_To)) && (val > Double.parseDouble(Threshold_To))) {
+                            editText.setError("Alert will generate.");
+                        } else {
+                        }
+                    }*/
+
+                    /*if(s.length() == 9){
+                        editText.setFocusableInTouchMode(false);
+                        editText.setFocusable(false);
+                    }*/
+
+                } catch (NumberFormatException ex) {
+                    ex.printStackTrace();
+                }
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+            }
+        });
+
         editText.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
             public void onFocusChange(View view, boolean b) {
                 try {
                     Double val = Double.parseDouble(editText.getText().toString());
-                    if (val > Double.parseDouble(Field_Limit_To) || val < Double.parseDouble(Field_Limit_From)) {
-                        editText.setText("");
-                        editText.setError("Invalid Reading.Please Enter valid Reading");
-                    } else if ((val < Double.parseDouble(Threshold_From) && (val >= Double.parseDouble(Field_Limit_From))) || (val <= Double.parseDouble(Field_Limit_To)) && (val > Double.parseDouble(Threshold_To))) {
-                        editText.setError("Alert will generate.");
-                    } else {
+                    val=val*calculationvalue;
+                    if(ID == id) {
+                        editText.setText(val.toString());
+                        ID = 0;
+                    }
+                    if (!Field_Limit_From.equals("") && !Field_Limit_To.equals("")) {
+                        if (val > Double.parseDouble(Field_Limit_To) || val < Double.parseDouble(Field_Limit_From)) {
+                            editText.setText("");
+                            editText.setError("Invalid Reading.Please Enter valid Reading");
+                        } else if ((val < Double.parseDouble(Threshold_From) && (val >= Double.parseDouble(Field_Limit_From))) || (val <= Double.parseDouble(Field_Limit_To)) && (val > Double.parseDouble(Threshold_To))) {
+                            editText.setError("Alert will generate.");
+                        }
                     }
                 } catch (NumberFormatException ex) {
                     ex.printStackTrace();
