@@ -276,7 +276,7 @@ public class HomePage extends AppCompatActivity {
         imageViewPPM.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-               ppmActivity();
+               //ppmActivity();
                 //getPPMTask();
                 /*Intent intent = new Intent(getApplicationContext(), ppm_activity.class);
                 intent.putExtra("TAB", "TAB2");
@@ -503,7 +503,7 @@ public class HomePage extends AppCompatActivity {
                 if (cursor.getCount() > 0) {
                     if (myDb.ScanType(User_Id).equals("QR")) {
                         Intent intent = new Intent(HomePage.this, CheckList.class);
-                        intent.putExtra("TAB", "TAB2");
+                        intent.putExtra("TAB", "TAB1");
                         startActivity(intent);
                         finish();
                     } else if (myDb.ScanType(User_Id).equals("NFC")) {
@@ -512,7 +512,7 @@ public class HomePage extends AppCompatActivity {
                             snackbar.show();
                         } else {
                             Intent intent = new Intent(HomePage.this, CheckList.class);
-                            intent.putExtra("TAB", "TAB2");
+                            intent.putExtra("TAB", "TAB1");
                             startActivity(intent);
                             finish();
                         }

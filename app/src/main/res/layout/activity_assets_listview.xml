@@ -5,7 +5,8 @@
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
-    android:id="@+id/assetLinearLayout">
+    android:id="@+id/assetLinearLayout"
+    >
 
     <include
         android:layout_height="wrap_content"
@@ -47,9 +48,8 @@
                 <ExpandableListView
                     android:id="@+id/submenu"
                     android:layout_width="match_parent"
-                    android:layout_height="0dp"
-                    android:layout_weight="1"
-                    >
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1">
 
                 </ExpandableListView>
 

@@ -116,7 +116,7 @@ public class CheckListPending extends Fragment {
                         assetId = taskDataAdapter.getItem(position).getAsset_Id();
                         TaskIdList = taskDataAdapter.getItem(position).getTaskId();
 
-                        String selectQuery = "SELECT Task_Scheduled_Date,EndDateTime FROM Task_Details WHERE Auto_Id = '"+TaskIdList+"'";
+                       /* String selectQuery = "SELECT Task_Scheduled_Date,EndDateTime FROM Task_Details WHERE Auto_Id = '"+TaskIdList+"'";
                         db = myDb.getWritableDatabase();
                         Cursor cursor = db.rawQuery(selectQuery, null);
                         if(cursor.moveToNext()){
@@ -124,7 +124,7 @@ public class CheckListPending extends Fragment {
                             EndDate = cursor.getString(cursor.getColumnIndex("EndDateTime"));
                         }
                         cursor.close();
-                        db.close();
+                        db.close();*/
                         Log.d("DatetIMEvALUE",parseDate(StartDate)+"    StartDate: " +StartDate +" "+ parseDate(EndDate) + " EndDate:"+EndDate);
                         Log.d("fsdafsdf","  "+calenderCurrent.getTime()+"    "+parseDate(StartDate)+"   "+parseDate(EndDate));
                         //if (calenderCurrent.getTime().after(parseDate(StartDate)) && calenderCurrent.getTime().before(parseDate(EndDate))) {
@@ -141,10 +141,10 @@ public class CheckListPending extends Fragment {
                             intent.putExtra("AssetCode", assetCode);
                             intent.putExtra("User_Group_Id",User_Group_Id);
                             intent.putExtra("Completed", "Pending");
+                            intent.putExtra("Status","Completed");
                             intent.putExtra("IntentValue", "CheckList");
                             startActivity(intent);
                             getActivity().finish();
-
                         } catch (Exception e) {
                             Log.d("pt364","ERROR==" + e);
                             Toast.makeText(getContext(), "Error code: pt364", Toast.LENGTH_SHORT).show();
@@ -247,7 +247,7 @@ public class CheckListPending extends Fragment {
 
             }else {
                 assetName = taskDataAdapter.getItem(taskId.get(0)).getAsset_Name();
-                StartDate = taskDataAdapter.getItem(taskId.get(0)).getStartDateTime();
+                //StartDate = taskDataAdapter.getItem(taskId.get(0)).getStartDateTime();
                 EndDate = taskDataAdapter.getItem(taskId.get(0)).getEndDateTime();
                 listFrequnecyId = taskDataAdapter.getItem(taskId.get(0)).getFrequency_Id();
                 User_Group_Id = taskDataAdapter.getItem(taskId.get(0)).getAssigned_To_User_Group_Id();
@@ -263,7 +263,7 @@ public class CheckListPending extends Fragment {
                 intent.putExtra("ActivityName", activityName);
                 intent.putExtra("AssetId", assetId);
                 intent.putExtra("FrequencyId", listFrequnecyId);
-                intent.putExtra("StartDate",StartDate);
+                //intent.putExtra("StartDate",StartDate);
                 intent.putExtra("AssetCode", assetCode);
                 intent.putExtra("User_Group_Id",User_Group_Id);
                 intent.putExtra("Completed", "Pending");
@@ -365,7 +365,7 @@ public class CheckListPending extends Fragment {
                 myDb=new DatabaseHelper(getActivity());
                 db= myDb.getWritableDatabase();
 
-                String pendingQuery = " SELECT a.Group_Name,b.* FROM User_Group a,Task_Details b,Asset_Status c WHERE a.User_Group_Id=b.Assigned_To_User_Group_Id and b.Assigned_To_User_Group_Id IN ("+myDb.UserGroupId(User_Id)+") AND b.Site_Location_Id='"+SiteId+"' AND b.Asset_Status=c.Status  AND b.Task_Status='Pending' AND b.Activity_Type ='CheckList'";//AND c.Task_State='A'
+                String pendingQuery = " SELECT a.Group_Name,b.* FROM User_Group a,Task_Details b,Asset_Status c WHERE a.User_Group_Id=b.Assigned_To_User_Group_Id and b.Assigned_To_User_Group_Id IN ("+myDb.UserGroupId(User_Id)+") AND b.Site_Location_Id='"+SiteId+"' AND b.Asset_Status=c.Status  AND b.Task_Status='Pending' AND b.Activity_Type ='CheckList' group by Activity_Frequency_Id";//AND c.Task_State='A'
 
                 Cursor cursor= db.rawQuery(pendingQuery, null);
                 Log.d(TAG,"PendingTask"+pendingQuery+" "+cursor.getCount());
@@ -388,7 +388,12 @@ public class CheckListPending extends Fragment {
                         Task_Status = cursor.getString(cursor.getColumnIndex("Task_Status"));
                         Group_Name = cursor.getString(cursor.getColumnIndex("Group_Name"));
 
-                        if (calenderCurrent.getTime().after(parseDate(EndDateTime))) {
+                        Log.d("sdfgsdfgsdfg",StartDateTime+" "+EndDateTime);
+
+                            taskProvider = new TaskProvider(TaskId, Frequency_Id, Site_Location_Id, Assigned_To_User_Id, Asset_Id, From_Id, formatDateTask(parseDate(StartDateTime)), formatDateTask(parseDate(EndDateTime)), Asset_Code, Asset_Name, Asset_Location, Asset_Status, Activity_Name, Task_Status,Group_Name,Assigned_To_User_Group_Id,null);
+                            taskProviders.add(taskProvider);
+
+                        /*if (calenderCurrent.getTime().after(parseDate(EndDateTime))) {
                             myDb.updatedTaskDetails(TaskId,"Missed",formatDate(calenderCurrent.getTime()),"",User_Id,"",0);
                         }else {
                             try {
@@ -399,7 +404,7 @@ public class CheckListPending extends Fragment {
                             } catch (Exception e) {
                                 e.printStackTrace();
                             }
-                        }
+                        }*/
                     }
                     while (cursor.moveToNext());
                 }
@@ -758,7 +763,7 @@ public class CheckListPending extends Fragment {
         return inputParser.format(date);
     }
     public String formatDateTask(Date date) {
-        SimpleDateFormat inputParser = new SimpleDateFormat("EEE MMM dd HH:mm");
+        SimpleDateFormat inputParser = new SimpleDateFormat("yyyy-MM-dd HH:mm");
         return inputParser.format(date);
     }
 }

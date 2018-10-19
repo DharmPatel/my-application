@@ -134,7 +134,7 @@ public class CheckListCompleted extends Fragment {
         protected String doInBackground(String... params) {
             db = myDb.getWritableDatabase();
 
-            String completedQuery = " SELECT a.Group_Name,b.* FROM User_Group a,Task_Details b WHERE a.User_Group_Id=b.Assigned_To_User_Group_Id and b.Assigned_To_User_Group_Id IN ("+myDb.UserGroupId(User_Id)+") AND b.Site_Location_Id='" + SiteId + "'  AND b.Task_Status IN ('Completed','Unplanned')AND b.Activity_Type ='CheckList" +
+            String completedQuery = " SELECT a.Group_Name,b.* FROM User_Group a,Task_Details b WHERE a.User_Group_Id=b.Assigned_To_User_Group_Id and b.Assigned_To_User_Group_Id IN ("+myDb.UserGroupId(User_Id)+") AND b.Site_Location_Id='" + SiteId + "'  AND b.Task_Status IN ('Completed')AND b.Activity_Type ='CheckList" +
                     "'";
 
             Cursor cursor = db.rawQuery(completedQuery, null);

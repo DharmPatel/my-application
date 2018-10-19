@@ -109,6 +109,7 @@ public class DynamicForm extends AppCompatActivity {
     private List<EditText> editTextDateTimeList = new ArrayList<EditText>();
     private List<EditText> editTextListMeter = new ArrayList<EditText>();
     private List<EditText> editTextareaList = new ArrayList<EditText>();
+    private List<EditText> editTextareaRemarkList = new ArrayList<EditText>();
     private List<ImageView> imageSignature = new ArrayList<ImageView>();
     private List<EditText> editTextConsumption = new ArrayList<EditText>();
     private List<EditText> editTextRemarkList = new ArrayList<EditText>();
@@ -120,6 +121,7 @@ public class DynamicForm extends AppCompatActivity {
     private List<RadioGroup> textRadioGroupBranchingList = new ArrayList<RadioGroup>();
     private List<RadioGroup> textRadioGroupConsumption = new ArrayList<RadioGroup>();
     private List<RadioGroup> textRadioGroupList = new ArrayList<RadioGroup>();
+    private List<RadioGroup> textRadioList = new ArrayList<RadioGroup>();
     private List<RadioGroup> textRadioGroupScoreList = new ArrayList<RadioGroup>();
     private List<RadioGroup> textRadioFeedbackList = new ArrayList<RadioGroup>();
     ArrayList<String> previoudReadings = new ArrayList<>();
@@ -275,8 +277,7 @@ public class DynamicForm extends AppCompatActivity {
         mActionBar.setCustomView(mCustomView);
         mActionBar.setDisplayShowCustomEnabled(true);
     }
-    public void getData()
-    {
+    public void getData() {
         fittype1 = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
         fittype1.setMargins(10, 30, 10, 0);
 
@@ -320,7 +321,7 @@ public class DynamicForm extends AppCompatActivity {
                     FixedValue = cursor.getString(cursor.getColumnIndex("FixedValue"));
                     sid = cursor.getInt(cursor.getColumnIndex("sid"));
                     section = cursor.getString(cursor.getColumnIndex("sections"));
-                    FormType = cursor.getString(cursor.getColumnIndex("FormType"));
+                    //FormType = cursor.getString(cursor.getColumnIndex("FormType"));
                     Field_Id =cursor.getString(cursor.getColumnIndex("Field_Id"));
                     SafeRange =cursor.getInt(cursor.getColumnIndex("Field_Id"));
                     calculationvalue =cursor.getInt(cursor.getColumnIndex("Calculation"));
@@ -362,6 +363,7 @@ public class DynamicForm extends AppCompatActivity {
                                 do {
 
                                     Value =DataPosting.getString(DataPosting.getColumnIndex("Value"));
+                                    Log.d("sdjkfhjksdfhk",Value);
 
                                 } while (DataPosting.moveToNext());
                             }
@@ -449,6 +451,19 @@ public class DynamicForm extends AppCompatActivity {
 
                         try {
                             formLayout.addView(textViewLabel(Field_Label));
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
+                    if (Field_Type.equals("checkbox")) {
+                        try {
+                            formLayout.addView(textView(Field_Label));
+                            String[] optionList = Value.split("\\r?\\n");
+                            for (int i = 0; i < optionList.length; i++) {
+                                formLayout.addView(checkBox(optionList[i],Id));
+                                Log.d("CheckedValues",optionList[i]);
+                            }
+                            //formLayout.addView(checkBox(Value,Id));
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
@@ -574,6 +589,14 @@ public class DynamicForm extends AppCompatActivity {
                             e.printStackTrace();
                         }
                     }
+                    if (Field_Type.equals("radiogroupwithremark")) {
+                        try {
+                            formLayout.addView(radiogroupwithRemarklinearlayout( Field_Label, Field_Options, Id, Value, sid));
+
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
 
                     if (Field_Type.equals("fixedtext")) {
 
@@ -623,7 +646,8 @@ public class DynamicForm extends AppCompatActivity {
                     if (Field_Type.equals("textarea")) {
                         try {
                             formLayout.addView(textView(Field_Label));
-                            formLayout.addView(editTextarea(Field_Label, Id, Value));
+                            //Log.d("Valuessss",Value);
+                            formLayout.addView(editTextarea1(Field_Label, Id, Value));
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
@@ -910,7 +934,7 @@ public class DynamicForm extends AppCompatActivity {
                             formLayout.addView(textView(Field_Label));
                             String[] optionList = Field_Options.split(",");
                             for (int i = 0; i < optionList.length; i++) {
-                                formLayout.addView(checkBox(optionList[i]));
+                                formLayout.addView(checkBox(optionList[i],Id));
                             }
 
                         }catch (Exception e){
@@ -1010,7 +1034,7 @@ public class DynamicForm extends AppCompatActivity {
                     if (Field_Type.equals("textarea")) {
                         try {
                             formLayout.addView(textView(Field_Label));
-                            formLayout.addView(editTextarea(Field_Label, Id, ""));
+                            formLayout.addView(editTextarea1(Field_Label, Id, Value));
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
@@ -1040,6 +1064,14 @@ public class DynamicForm extends AppCompatActivity {
                     if (Field_Type.equals("radiowithremark")) {
                         try {
                             formLayout.addView(radiowithRemarklinearlayout( Field_Label, Field_Options, Id, "", sid));
+
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
+                    if (Field_Type.equals("radiogroupwithremark")) {
+                        try {
+                            formLayout.addView(radiogroupwithRemarklinearlayout( Field_Label, Field_Options, Id, "", sid));
 
                         } catch (Exception e) {
                             e.printStackTrace();
@@ -1332,17 +1364,15 @@ public class DynamicForm extends AppCompatActivity {
 
     }
 
-    public CheckBox checkBox(String value){
+    public CheckBox checkBox(String optionValue, int id){
         final CheckBox checkBox = new CheckBox(this);
-        checkBox.setText(value);
+        checkBox.setId(id);
+        if(Completed.equals("Completed")){
+            checkBox.setEnabled(false);
+        }
+        checkBox.setText(optionValue);
         checkBox.setLayoutParams(fittype1);
         checkBox.setLayoutParams(textLayout);
-        checkBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                //Log.d("selectValues",checkBox.getText().toString());
-            }
-        });
         checkBoxList.add(checkBox);
         return checkBox;
     }
@@ -1774,15 +1804,20 @@ public class DynamicForm extends AppCompatActivity {
     }
 
     private void removeEditTextWithCb(LinearLayout layout,String cbLabel,int id) {
-
         for(EditText editTextCb : editTextWithCbList){
             if(editTextCb.getId()==id){
                 editTextCb.setText(cbLabel);
                 layout.removeView(editTextCb);
             }
-
         }
+    }
 
+    private void removeEditTextWithradio(LinearLayout linearLayout, int id){
+        for (EditText editTextRB : editTextareaRemarkList){
+            if (editTextRB.getId()==id){
+                linearLayout.removeView(editTextRB);
+            }
+        }
     }
 
     private EditText editTextWithCb(final int mandatory, String name, int id, String setText,final String Field_Limit_To,final String Field_Limit_From,final String Threshold_To,final String Threshold_From,final int SafeRange,final int calculationvalue) {
@@ -2508,7 +2543,7 @@ public class DynamicForm extends AppCompatActivity {
         for (int i = 0; i < optionRadioList.length; i++) {
             radioGroup.addView(radioButton(optionRadioList[i], i, setText));
         }
-
+        //radioLayout.addView(editTextarea("Remark", id, ""));
         radioGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
 
             @Override
@@ -2517,13 +2552,58 @@ public class DynamicForm extends AppCompatActivity {
                 if (Field_Option_Id == selectedId) {
                     radioLayout.addView(editTextarea("Remark", id, ""));
                 } else {
-                    radioLayout.removeView(editTextarea("Remark",id,""));
+                    removeEditTextWithradio(radioLayout,id);
                 }
+                //removeEditTextWithradio(radioLayout,id);
             }
         });
         textRadioGroupList.add(radioGroup);
         return radioLayout;
     }
+
+    private LinearLayout radiogroupwithRemarklinearlayout( String field_Label,String field_option,final int id,String setText,final int Field_Option_Id) {
+        final LinearLayout radioLayout = new LinearLayout(getApplicationContext());
+        radioLayout.setOrientation(LinearLayout.VERTICAL);
+        radioLayout.setLayoutParams(textLayout);
+        radioLayout.addView(textView(field_Label));
+        final RadioGroup radioGroup = new RadioGroup(getApplicationContext());
+        radioGroup.setId(id);
+        radioGroup.setOrientation(RadioGroup.HORIZONTAL);
+        radioGroup.setLayoutParams(textLayout);
+        radioLayout.addView(radioGroup);
+        String[] optionRadioList = field_option.split(",");
+
+        /*textView.setText("[ Warning ]");
+        textView.setTextColor(Color.RED);
+        textView.setTextSize(9);
+        LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        layoutParams.setMargins(15, 0, 0, 0);
+        textView.setLayoutParams(layoutParams);
+        linearLayout.addView(textView);*/
+
+        Log.d("dfkvdfv",radioGroup.getCheckedRadioButtonId()+"");
+
+        for (int i = 0; i < optionRadioList.length; i++) {
+            radioGroup.addView(radioButton(optionRadioList[i], i, setText));
+        }
+        radioLayout.addView(editTextarea("Remark", id, ""));
+        radioGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+
+            @Override
+            public void onCheckedChanged(RadioGroup arg0, int arg1) {
+                int selectedId = radioGroup.getCheckedRadioButtonId();
+               /* if (Field_Option_Id == selectedId) {
+                    radioLayout.addView(editTextarea("Remark", id, ""));
+                } else {
+                    removeEditTextWithradio(radioLayout,id);
+                }*/
+                removeEditTextWithradio(radioLayout,id);
+            }
+        });
+        textRadioList.add(radioGroup);
+        return radioLayout;
+    }
+
 
     private LinearLayout radiowithImageandRemarklinearlayout(String field_Label,String field_option,final int id,String setText,final int Field_Option_Id) {
         final LinearLayout radioLayout = new LinearLayout(getApplicationContext());
@@ -2818,8 +2898,11 @@ public class DynamicForm extends AppCompatActivity {
         if(Completed.equals("Completed")||Completed.equals("Delayed")) {
            radioButton.setEnabled(false);
         }
-        if (matchvalue.equals(strvalue)) {
-            radioButton.setChecked(true);
+
+        if (matchvalue!=null){
+            if (matchvalue.equals(strvalue)) {
+                radioButton.setChecked(true);
+            }
         }
         textRadioButtonList.add(radioButton);
         return radioButton;
@@ -3200,6 +3283,33 @@ public class DynamicForm extends AppCompatActivity {
         }
     }
     private EditText editTextarea(String name, int id, String setText) {
+        final EditText editText = new EditText(this);
+        editText.setId(id);
+
+        editText.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_MULTI_LINE);
+        editText.setLayoutParams(fittype2);
+        if(Completed.equals("Completed")||Completed.equals("Delayed")){
+            editText.setEnabled(false);
+        }
+        if (FormType.equalsIgnoreCase("Meter")) {
+            editText.setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_FLAG_DECIMAL);
+        }
+        editText.setSingleLine(false);
+        editText.setImeOptions(EditorInfo.IME_FLAG_NO_ENTER_ACTION);
+        editText.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_MULTI_LINE);
+        editText.setLines(3);
+        editText.setMaxLines(5);
+        editText.setVerticalScrollBarEnabled(true);
+        editText.setMovementMethod(ScrollingMovementMethod.getInstance());
+        editText.setScrollBarStyle(View.SCROLLBARS_INSIDE_INSET);
+        editText.setHint(name);
+        editText.setFilters(new InputFilter[]{filter});
+        editText.setText(setText);
+        editTextareaRemarkList.add(editText);
+        return editText;
+    }
+
+    private EditText editTextarea1(String name, int id, String setText) {
         final EditText editText = new EditText(this);
         editText.setId(id);
 
@@ -3687,14 +3797,15 @@ public class DynamicForm extends AppCompatActivity {
     public boolean checkSubmitRadio() {
         boolean checkRadio = false;
         try {
+            Log.d("jfhvjkdfhkv",textRadioGroupList.size()+"  "+ editTextareaRemarkList.size());
             if (textRadioGroupList.size() == 0) {
                 checkRadio = true;
             }else {
                 for (RadioGroup rdgrp : textRadioGroupList) {
+                    Log.d("sdf", rdgrp.getCheckedRadioButtonId() + "");
 
-                    try {
                         if (rdgrp.getCheckedRadioButtonId() == -1) {
-                            Snackbar snackbar = Snackbar.make(formLayout, "Please select value !!", Snackbar.LENGTH_SHORT);
+                            Snackbar snackbar = Snackbar.make(formLayout, "Please select radio value !!", Snackbar.LENGTH_SHORT);
                             snackbar.show();
                             checkRadio = false;
                             break;
@@ -3702,12 +3813,51 @@ public class DynamicForm extends AppCompatActivity {
                             checkRadio = true;
                         }
 
-                    } catch (NullPointerException e) {
-                        System.out.println("fbi540 ERROR==" + e);
-                    }
                 }
             }
         } catch (Exception e) {
+            e.printStackTrace();
+        }
+        if(checkRadio==true){
+            return  true;
+        }else return false;
+    }
+
+    public boolean checkradioEditText(){
+        boolean checkRadio = false;
+        try {
+            if (textRadioList.size() == 0){
+                checkRadio = true;
+            }else {
+                for (RadioGroup radioGroup : textRadioList){
+                    if (radioGroup.getCheckedRadioButtonId() == -1) {
+                        if (editTextareaRemarkList.size() == 0){
+                            checkRadio = true;
+                        }else {
+                            for (EditText editText : editTextareaRemarkList){
+                                if (editText.getText().toString().equals("") && radioGroup.getCheckedRadioButtonId() == -1) {
+                                    Snackbar snackbar = Snackbar.make(formLayout, "Please select edit11 value !!", Snackbar.LENGTH_SHORT);
+                                    snackbar.show();
+                                    checkRadio = false;
+                                    break;
+                                }else {
+                                    if (radioGroup.getCheckedRadioButtonId() == -1){
+                                        Snackbar snackbar = Snackbar.make(formLayout, "Please select radio11 value !!", Snackbar.LENGTH_SHORT);
+                                        snackbar.show();
+                                        checkRadio = false;
+                                        break;
+                                    }else {
+                                        checkRadio = true;
+                                    }
+                                }
+                            }
+                        }
+                    } else {
+                        checkRadio = true;
+                    }
+                }
+            }
+        }catch (Exception e) {
             e.printStackTrace();
         }
         if(checkRadio==true){
@@ -3983,7 +4133,11 @@ public class DynamicForm extends AppCompatActivity {
             if (PPM_Intent != null){
                 myDb.updatedPPMTaskDetails(TaskId,taskStatus,Completed, applicationClass.yymmddhhmmss(), Scan_Type, User_Id, User_Group_Id, Remarks);
             }else {
-                myDb.updatedTaskDetails(TaskId, taskStatus, Completed, applicationClass.yymmddhhmmss(), Scan_Type, User_Id, Remarks,0);
+                if (Checklist != null){
+                    myDb.insertTaskDetails(TaskId, companyId,SiteId,frequencyId,taskStatus, Completed,applicationClass.yymmddhhmmss(),Asset_Name, AssetId,Form_IdIntent,assetCode,Asset_Location,Asset_Status,Activity_Name, Scan_Type, User_Id,User_Group_Id, Checklist,Remarks);
+                }else {
+                    myDb.updatedTaskDetails(TaskId, taskStatus, Completed, applicationClass.yymmddhhmmss(), Scan_Type, User_Id, Remarks,0);
+                }
             }
         } else {
             contentValues1.put("Auto_Id", TaskId);
@@ -4592,7 +4746,7 @@ public class DynamicForm extends AppCompatActivity {
         for (EditText editTextDGTime : editTextDGTimeList) {
             layout.removeView(editTextDGTime);
         }
-        for(EditText textView :editTextareaList ){
+        for(EditText textView :editTextareaRemarkList ){
             layout.removeView(textView);
         }
         for(Spinner textView :textSpinnerList ){
@@ -5123,22 +5277,26 @@ public class DynamicForm extends AppCompatActivity {
                 String Form_Structure_Id = myDb.getfieldId(fieldId);
                 String formId = myDb.getFormId(Form_Structure_Id);
                 if (checkBox1.isChecked()){
+                    String list[] = slnew.split("\n");
+                    for (int i =0; i<list.length; i++){
+                        Log.d("sfbhdfngbmf",list[i]+"");
+                    }
                     slnew = checkBox1.getText().toString();
-                    Log.d("SelectedChecked",slnew);
+                    editText.put(myDb.getfieldId(fieldId), slnew);
+                    ContentValues contentValues1 = new ContentValues();
+                    contentValues1.put("Task_Id", uuid);
+                    contentValues1.put("Form_Id", formId);
+                    contentValues1.put("Form_Structure_Id", Form_Structure_Id);
+                    contentValues1.put("Site_Location_Id", SiteId);
+                    contentValues1.put("Parameter_Id", "");
+                    contentValues1.put("Value", slnew);
+                    contentValues1.put("UpdatedStatus", "no");
+                    emaildata.put(myDb.getfieldId(fieldId),String.valueOf(slnew));
+                    db=myDb.getWritableDatabase();
+                    db.insert("Data_Posting", null, contentValues1);
+                    db.close();
                 }
-                editText.put(myDb.getfieldId(fieldId), slnew);
-                ContentValues contentValues1 = new ContentValues();
-                contentValues1.put("Task_Id", uuid);
-                contentValues1.put("Form_Id", formId);
-                contentValues1.put("Form_Structure_Id", Form_Structure_Id);
-                contentValues1.put("Site_Location_Id", SiteId);
-                contentValues1.put("Parameter_Id", "");
-                contentValues1.put("Value", slnew);
-                contentValues1.put("UpdatedStatus", "no");
-                emaildata.put(myDb.getfieldId(fieldId),String.valueOf(slnew));
-                db=myDb.getWritableDatabase();
-                db.insert("Data_Posting", null, contentValues1);
-                db.close();
+
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -5232,20 +5390,45 @@ public class DynamicForm extends AppCompatActivity {
                 ContentValues contentValues1 = new ContentValues();
                 int fieldId = editTextarea1.getId();
                 String Form_Structure_Id = myDb.getfieldId(fieldId);
-                if(LOG)Log.d("Field_Id",Form_Structure_Id);
                 String formId = myDb.getFormId(Form_Structure_Id);
                 slnew = editTextarea1.getText().toString();
+                Log.d("sdcfsdfv",slnew);
                 editText.put(Form_Structure_Id, slnew);
                 contentValues1.put("Task_Id", uuid);
                 contentValues1.put("Form_Id", formId);
                 contentValues1.put("Form_Structure_Id", Form_Structure_Id);
                 contentValues1.put("Site_Location_Id", SiteId);
-                contentValues1.put("Remark", slnew);
+                contentValues1.put("Value", slnew);
                 contentValues1.put("Parameter_Id", "");
                 contentValues1.put("UpdatedStatus", "no");
                 emaildata.put(myDb.getfieldId(fieldId),slnew);
                 db = myDb.getWritableDatabase();
                 db.insert("Data_Posting", null, contentValues1);
+                db.close();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
+        for (EditText editTextarea1 : editTextareaRemarkList) {
+            try {
+                ContentValues contentValues1 = new ContentValues();
+                int fieldId = editTextarea1.getId();
+                String Form_Structure_Id = myDb.getfieldId(fieldId);
+                String formId = myDb.getFormId(Form_Structure_Id);
+                slnew = editTextarea1.getText().toString();
+                editText.put(Form_Structure_Id, slnew);
+                Log.d("sadfgdfg",Form_Structure_Id+" "+slnew);
+                /*contentValues1.put("Task_Id", uuid);
+                contentValues1.put("Form_Id", formId);
+                contentValues1.put("Form_Structure_Id", Form_Structure_Id);
+                contentValues1.put("Site_Location_Id", SiteId);*/
+                contentValues1.put("Remark", slnew);
+                /*contentValues1.put("Parameter_Id", "");
+                contentValues1.put("UpdatedStatus", "no");*/
+                emaildata.put(myDb.getfieldId(fieldId),slnew);
+                db = myDb.getWritableDatabase();
+                db.update("Data_Posting", contentValues1,"Form_Structure_Id = '"+Form_Structure_Id+"' AND Task_Id = '"+uuid+"'",null);
                 db.close();
             } catch (Exception e) {
                 e.printStackTrace();
@@ -5338,7 +5521,7 @@ public class DynamicForm extends AppCompatActivity {
             }
         }
 
-        for (RadioGroup rdgrp : textRadioGroupList) {
+        for (RadioGroup rdgrp : textRadioList) {
             String selectRB = "";
             int cbid = rdgrp.getId();
 
@@ -5351,8 +5534,71 @@ public class DynamicForm extends AppCompatActivity {
                 String formId = myDb.getFormId(Form_Structure_Id);
                 if(LOG)Log.d("Field_Id",Form_Structure_Id);
                 if (radioButton.isChecked()) {
+                    selectRB = radioButton.getText().toString();
+                    ContentValues contentValues2 = new ContentValues();
+                    contentValues2.put("Task_Id", uuid);
+                    contentValues2.put("Form_Id", formId);
+                    contentValues2.put("Form_Structure_Id", Form_Structure_Id);
+                    contentValues2.put("Site_Location_Id", SiteId);
+                    contentValues2.put("Parameter_Id", "");
+                    contentValues2.put("Value", selectRB);
+                    contentValues2.put("UpdatedStatus", "no");
+                    emaildata.put(myDb.getfieldId(cbid),selectRB);
+                    db=myDb.getWritableDatabase();
+                    db.insert("Data_Posting", null, contentValues2);
 
+                    String query = "Select * FROM Parameter" +
+                            " WHERE Activity_Frequency_Id = '"+frequencyId+"'" + "AND Form_Structure_Id = '"+Form_Structure_Id+"'";
 
+                    Cursor parameter =db.rawQuery(query, null);
+                    if (parameter.getCount() > 0) {
+                        try {
+                            if (parameter.moveToNext()) {
+                                do {
+                                    validation_Type1 = parameter.getString(parameter.getColumnIndex("Validation_Type"));
+                                    Critical1 = parameter.getString(parameter.getColumnIndex("Critical"));
+                                    Field_Option_Id = parameter.getString(parameter.getColumnIndex("Field_Option_Id"));
+                                } while (parameter.moveToNext());
+                            }
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                        try {
+                            if(selectedId == Integer.parseInt(Field_Option_Id)){
+                                Toast.makeText(getApplicationContext(),"Alert Inserted",Toast.LENGTH_LONG).show();
+                                InsertAlert(uuid,Form_Structure_Id);
+                            }
+                        } catch (NumberFormatException e) {
+                            e.printStackTrace();
+                        }
+                    }
+
+                    db.close();
+                }
+            } catch (NullPointerException e) {
+                System.out.println("fbi540 ERROR==" + e);
+            } catch (Exception e) {
+                System.out.println("fd1303 ERROR==" + e);
+                Toast.makeText(getApplicationContext(), "Error code: fd1303", Toast.LENGTH_SHORT).show();
+                e.printStackTrace();
+                System.out.println("-------ee FD radio  " + "Id_" + cbid + " value " + selectRB);
+
+            }
+        }
+
+        for (RadioGroup rdgrp : textRadioGroupList) {
+            String selectRB = "";
+            int cbid = rdgrp.getId();
+
+            try {
+                int selectedId = rdgrp.getCheckedRadioButtonId();
+                View rb1 = rdgrp.findViewById(selectedId);
+                int idx = rdgrp.indexOfChild(rb1);
+                RadioButton radioButton = (RadioButton) rdgrp.getChildAt(idx);
+                String Form_Structure_Id = myDb.getfieldId(cbid);
+                String formId = myDb.getFormId(Form_Structure_Id);
+                if(LOG)Log.d("Field_Id",Form_Structure_Id+" "+radioButton.isChecked());
+                if (radioButton.isChecked()) {
                     selectRB = radioButton.getText().toString();
                     ContentValues contentValues2 = new ContentValues();
                     contentValues2.put("Task_Id", uuid);

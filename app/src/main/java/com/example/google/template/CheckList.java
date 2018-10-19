@@ -50,7 +50,6 @@ public class CheckList extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_check_list);
-
         try {
             myDb=new DatabaseHelper(getApplicationContext());
             settings = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
@@ -98,9 +97,6 @@ public class CheckList extends AppCompatActivity {
             setupTabIcons();
 
             new insertTask().execute();
-
-
-
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -319,7 +315,7 @@ public class CheckList extends AppCompatActivity {
                                                            /* if (!Task_State.equalsIgnoreCase("A"))
                                                                 contentValues1.put("Task_Status", "Cancelled");
                                                             else*/
-                                                                contentValues1.put("Task_Status", "Pending");
+                                                            contentValues1.put("Task_Status", "Pending");
                                                             contentValues1.put("Task_Start_At", "");
                                                             contentValues1.put("Assigned_To", "U");
                                                             contentValues1.put("Assigned_To_User_Id", User_Id);
