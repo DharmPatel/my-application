@@ -276,7 +276,7 @@ public class HomePage extends AppCompatActivity {
         imageViewPPM.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-               //ppmActivity();
+               ppmActivity();
                 //getPPMTask();
                 /*Intent intent = new Intent(getApplicationContext(), ppm_activity.class);
                 intent.putExtra("TAB", "TAB2");
@@ -295,9 +295,12 @@ public class HomePage extends AppCompatActivity {
         deletePreviousData();
         insertMissedTask();
         insertCancelledTask();
-        //downloadAsset();
         Slider();
-        displayFirebaseRegId();
+        //downloadAsset();
+
+
+
+
         //onNewIntent(getIntent());
 
         mRegistrationBroadcastReceiver = new BroadcastReceiver() {
@@ -388,7 +391,10 @@ public class HomePage extends AppCompatActivity {
     }
 
     public void ppmActivity(){
-        try {
+        Snackbar snackbar = Snackbar.make(linearLayout, "License not activated.", Snackbar.LENGTH_LONG);
+        snackbar.show();
+
+        /*try {
             if (myDb.SiteName(User_Id) == null) {
                 Toast.makeText(getApplicationContext(), "Please Select Site", Toast.LENGTH_SHORT).show();
             }else {
@@ -429,7 +435,7 @@ public class HomePage extends AppCompatActivity {
             }
         }catch (Exception e){
             e.printStackTrace();
-        }
+        }*/
     }
 
     public void taskdetailsActivity() {
@@ -486,12 +492,12 @@ public class HomePage extends AppCompatActivity {
 
     public void checklistActivity() {
         //SelectQuery();
-        /*Snackbar snackbar = Snackbar.make(linearLayout, "License not activated.", Snackbar.LENGTH_LONG);
-        snackbar.show();*/
+        Snackbar snackbar = Snackbar.make(linearLayout, "License not activated.", Snackbar.LENGTH_LONG);
+        snackbar.show();
 
 
 
-        try {
+        /*try {
             if (myDb.SiteName(User_Id) == null) {
                 Toast.makeText(getApplicationContext(), "Please Select Site", Toast.LENGTH_SHORT).show();
             } else {
@@ -519,13 +525,13 @@ public class HomePage extends AppCompatActivity {
                     }
                 } else {
 
-                   /* if(taskProvider.getNoTaskAssigned() == false){
+                   *//* if(taskProvider.getNoTaskAssigned() == false){
 
                         final Snackbar snackbar = Snackbar.make(linearLayout, "No Task Available For This Site", Snackbar.LENGTH_LONG);
 
                         snackbar.show();
                     }
-                    else {*/
+                    else {*//*
                     final Snackbar snackbar = Snackbar
                             .make(linearLayout, "Data not available.", Snackbar.LENGTH_LONG)
                             .setAction("Please Synchronize", new View.OnClickListener() {
@@ -546,7 +552,7 @@ public class HomePage extends AppCompatActivity {
             e.printStackTrace();
             Log.d("hp181", "ERROR==" + e);
             Toast.makeText(getApplicationContext(), "Error code: hp181 " + e.toString(), Toast.LENGTH_SHORT).show();
-        }
+        }*/
     }
 
     public void SelectQuery(){
@@ -618,7 +624,8 @@ public class HomePage extends AppCompatActivity {
             if(!db.isDbLockedByCurrentThread()){
 
 
-                String UserGroupQuery = "Select COUNT(Site_Location_Id) from site_imagelist WHERE Site_Location_Id ='"+myDb.Site_IdUserSiteLinking(User_Id)+"' AND Record_Status !='D'";
+                String UserGroupQuery = "Select COUNT(Site_Locat" +
+                        "ion_Id) from site_imagelist WHERE Site_Location_Id ='"+myDb.Site_IdUserSiteLinking(User_Id)+"' AND Record_Status !='D'";
                 Cursor cursor1 = db.rawQuery(UserGroupQuery, null);
                 if (cursor1.moveToFirst()) {
                     do {
@@ -1926,7 +1933,7 @@ public class HomePage extends AppCompatActivity {
                         if (!dataPosting.toString().equals("")) {
                             pDialog.setProgress(0);
                             db = myDb.getWritableDatabase();
-                            String sql = "insert into Data_Posting(Task_Id,Site_Location_Id,Form_Id ,Form_Structure_Id ,Parameter_Id ,Value ,UpdatedStatus )values(?,?,?, ?, ?, ?, ?);";
+                            String sql = "insert into Data_Posting(Task_Id,Site_Location_Id,Form_Id ,Form_Structure_Id ,Parameter_Id ,Value ,UOM,UpdatedStatus )values(?,?,?,?, ?, ?, ?, ?);";
                             db.beginTransaction();
                             SQLiteStatement stmt = db.compileStatement(sql);
 
@@ -1941,13 +1948,15 @@ public class HomePage extends AppCompatActivity {
                                 String Form_Structure_Id = c1.getString("Form_Structure_Id");
                                 String Parameter_Id = c1.getString("Parameter_Id");
                                 String Value = c1.getString("Value");
+                                String UOM = c1.getString("UOM");
                                 stmt.bindString(1, Task_Id);
                                 stmt.bindString(2, myDb.Site_Location_Id(User_Id));
                                 stmt.bindString(3, Form_Id);
                                 stmt.bindString(4, Form_Structure_Id);
                                 stmt.bindString(5, Parameter_Id);
                                 stmt.bindString(6, Value);
-                                stmt.bindString(7, "yes");
+                                stmt.bindString(7, UOM);
+                                stmt.bindString(8, "yes");
                                 long entryID = stmt.executeInsert();
                                 stmt.clearBindings();
                             }
@@ -3921,7 +3930,7 @@ public class HomePage extends AppCompatActivity {
             writer.append(sBody);
             writer.flush();
             writer.close();
-            Toast.makeText(getApplicationContext(),"FileCreated",Toast.LENGTH_SHORT).show();
+            //Toast.makeText(getApplicationContext(),"FileCreated",Toast.LENGTH_SHORT).show();
         } catch (IOException e) {
             e.printStackTrace();
         }

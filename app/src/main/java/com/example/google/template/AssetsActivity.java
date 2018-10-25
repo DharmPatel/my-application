@@ -929,7 +929,7 @@ public class AssetsActivity extends AppCompatActivity {
         try {
             int count= 0;
             db= myDb.getWritableDatabase();
-            String query= "SELECT a.*, b.Field_Type FROM Task_Details a,Form_Structure b WHERE a.Assigned_To_User_Id = '"+User_Id+"' AND a.Site_Location_Id='"+site_id+"' AND a.Asset_Code='"+AssetCode+"' AND a.From_Id=b.Form_Id  AND b.Field_Type='meter'  GROUP BY From_Id";
+            String query= "SELECT a.*, b.Field_Type FROM Task_Details a,Form_Structure b WHERE a.Assigned_To_User_Id = '"+User_Id+"' AND a.Site_Location_Id='"+site_id+"' AND a.Asset_Code='"+AssetCode+"' AND a.From_Id=b.Form_Id  AND b.Field_Type IN ('consumption','meter')  GROUP BY From_Id"; //b.Field_Type='meter'
             Cursor cursor= db.rawQuery(query, null);
 
             if(cursor.getCount() >0){

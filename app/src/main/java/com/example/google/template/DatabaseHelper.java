@@ -52,7 +52,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         sqLiteDatabase.execSQL("CREATE TABLE Asset_Status (Id INTEGER PRIMARY KEY,Asset_Status_Id TEXT,Status TEXT,Task_State TEXT)");
         sqLiteDatabase.execSQL("CREATE TABLE Parameter (Id INTEGER PRIMARY KEY,Site_Location_Id TEXT,Activity_Frequency_Id TEXT, Form_Id TEXT,Form_Structure_Id TEXT, Field_Limit_From TEXT,Field_Limit_To TEXT,Threshold_From TEXT,Threshold_To TEXT,Validation_Type TEXT,Critical INTEGER,Field_Option_Id TEXT)");
         sqLiteDatabase.execSQL("CREATE TABLE Meter_Reading(Id INTEGER PRIMARY KEY,Site_Location_Id TEXT,Task_Id TEXT,Asset_Id TEXT,Form_Structure_Id TEXT,Reading TEXT,UOM TEXT,Reset INTEGER,Activity_Frequency_Id TEXT,Task_Start_At TEXT,UpdatedStatus TEXT)");
-        sqLiteDatabase.execSQL("CREATE TABLE Data_Posting(Id INTEGER PRIMARY KEY,Site_Location_Id TEXT,Task_Id TEXT,Form_Id TEXT,Form_Structure_Id TEXT,Parameter_Id TEXT,Value TEXT,Remark TEXT,UpdatedStatus TEXT)");
+        sqLiteDatabase.execSQL("CREATE TABLE Data_Posting(Id INTEGER PRIMARY KEY,Site_Location_Id TEXT,Task_Id TEXT,Form_Id TEXT,Form_Structure_Id TEXT,Parameter_Id TEXT,Value TEXT,UOM Text,Remark TEXT,UpdatedStatus TEXT)");
         sqLiteDatabase.execSQL("CREATE TABLE Task_Details (Id INTEGER PRIMARY KEY,Auto_Id TEXT,Company_Customer_Id TEXT,Site_Location_Id TEXT,Activity_Frequency_Id TEXT,Asset_Activity_Linking_Auto_Id TEXT,Activity_Master_Auto_Id TEXT,Asset_Activity_AssignedTo_Auto_Id TEXT,Task_Start_At TEXT,Task_Scheduled_Date TEXT,Task_Status TEXT,Scan_Type TEXT,Assigned_To TEXT,Assigned_To_User_Id TEXT,Incident TEXT,Assigned_To_User_Group_Id TEXT,Asset_Id TEXT,From_Id TEXT,EndDateTime TEXT,Asset_Code TEXT,Asset_Name TEXT,Asset_Location TEXT,Asset_Status TEXT, Activity_Name TEXT,Activity_Type TEXT,Remarks Text,Verified INTEGER,RecordStatus TEXT,UpdatedStatus TEXT)");
         sqLiteDatabase.execSQL("CREATE TABLE Ticket_Master (ID INTEGER PRIMARY KEY ,Site_Location_Id TEXT,Company_Customer_Id TEXT,Created_Source TEXT,Created_At TEXT,ticket_Subject TEXT,ticket_Content TEXT,ticket_Priority TEXT,ticket_Type TEXT,Task_Type TEXT,Ticket_Raise_By TEXT,UpdatedStatus TEXT)");
         sqLiteDatabase.execSQL("CREATE TABLE AlertMaster (ID INTEGER PRIMARY KEY ,Site_Location_Id TEXT,Task_Id TEXT,Form_Id TEXT,Form_Structure_Id TEXT,Alert_Type TEXT,Asset_Name TEXT,Activity_Name TEXT,Activity_Frequency_Id TEXT,Task_Status TEXT,Task_Start_At TEXT,Task_Scheduled_Date TEXT,Created_By_Id TEXT,Assigned_To_User_Group_Id TEXT,Critical TEXT,TaskType TEXT,ViewFlag TEXT,UpdatedStatus TEXT)");
@@ -1126,12 +1126,13 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             return true;
     }
 
-    public boolean updateRemarkValue(String TaskId, String remark){
+    public boolean updateRemarkValue(String TaskId,String StartTime, String EndTime, String remark){
         Log.d("InUpdatedValue","11"+TaskId+":"+remark);
         SQLiteDatabase database = this.getWritableDatabase();
         ContentValues contentValues = new ContentValues();
         contentValues.put("Remarks",remark);
-        long resultset = database.update("Task_Details", contentValues, "Auto_Id ='" + TaskId+"' AND Task_Status='Cancelled'", null);
+        long resultset = database.update("Task_Details", contentValues, "Auto_Id ='" + TaskId+"' AND Task_Scheduled_Date = '"+StartTime+"' AND EndDateTime = '"+EndTime+"' AND Task_Status='Cancelled'", null);
+        Log.d("resultRemark",resultset+"");
         database.close();
         if(resultset == -1)
             return false;
