@@ -10,7 +10,7 @@
     <include
         android:layout_height="wrap_content"
         android:layout_width="match_parent"
-        layout="@layout/header"/>
+        layout="@layout/header_without_filter"/>
     <ListView
         android:layout_width="match_parent"
         android:id="@+id/list_Missed"

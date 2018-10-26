@@ -15,7 +15,11 @@ import android.nfc.NfcAdapter;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.annotation.NonNull;
+import android.support.design.widget.NavigationView;
 import android.support.v4.app.Fragment;
+import android.support.v4.view.GravityCompat;
+import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -27,11 +31,11 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.ExpandableListView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.ProgressBar;
-import android.widget.Spinner;
 import android.widget.Toast;
 
 import com.google.zxing.integration.android.IntentIntegrator;
@@ -40,22 +44,31 @@ import com.google.zxing.integration.android.IntentResult;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
-import java.util.LinkedHashSet;
+import java.util.HashMap;
 import java.util.List;
-import java.util.Set;
+import java.util.Map;
 
 /**
  * A simple {@link Fragment} subclass.
  */
 public class PendingTask extends Fragment {
+    DrawerLayout drawerLayout;
+    NavigationView navigationView;
+    ExpandableListView expandableListView;
+    ExpandableListViewAdapter expandableListViewAdapter;
+    List<String> listTitle;
+    Map<String, List<String>> listChild;
+    Button OkButton;
+    List<String> LocationList = new ArrayList<String>();
     DatabaseHelper myDb;
     SQLiteDatabase db;
     private ListView lv;
-    String FloorValue,id,assetName,activityName,assetId,date,listFrequnecyId,User_Group_Id,activityId,assetStatusId,formId,activityCode;
+    String FloorValue,id,assetName,UserGroupId,activityName,assetId,date,listFrequnecyId,User_Group_Id,activityId,assetStatusId,formId,activityCode;
     TaskDataAdapter taskDataAdapter;
     private String assetCode;
     String companyId,SiteId,User_Id,Scan_Type = " ";
@@ -72,6 +85,7 @@ public class PendingTask extends Fragment {
     Calendar calenderCurrent;
     NfcAdapter mNfcAdapter;
     NFC nfc;
+    String CheckedValue = "";
     static String dataABC = "";
     boolean running = true;
     int ScanValue=0;
@@ -92,24 +106,51 @@ public class PendingTask extends Fragment {
         //companyId = settings.getString("SCompany_Customer_Id", null);
         myDb = new DatabaseHelper(getActivity());
         User_Id = settings.getString("userId", null);
+        UserGroupId = myDb.UserGroupId(User_Id);
         SiteId = myDb.Site_Location_Id(User_Id);
         Scan_Type = myDb.ScanType(User_Id);
-
+        LocationList = myDb.getTaskLocation(UserGroupId,SiteId);
         taskProviders = new ArrayList<TaskProvider>();
         View view = inflater.inflate(R.layout.fragment_pending_task, container, false);
         pDialog = new ProgressDialog(getContext());
         mProgress = (ProgressBar)view.findViewById(R.id.pbHeaderProgress);
         linlaHeaderProgress = (LinearLayout) view.findViewById(R.id.linlaHeaderProgress);
         calenderCurrent = Calendar.getInstance();
-
+        drawerLayout = (DrawerLayout)view.findViewById(R.id.drawer_layout);
+        navigationView = (NavigationView)view.findViewById(R.id.drawer_view);
+        expandableListView = (ExpandableListView)view.findViewById(R.id.submenu);
+        OkButton = (Button)view.findViewById(R.id.SubmitBtn);
+        navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
+            @Override
+            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+                item.setChecked(true);
+                drawerLayout.closeDrawers();
+                return true;
+            }
+        });
+        prepareMenuData();
+        populateExpandableList();
+        OkButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Log.d("checkedval"," InJobCard: "+expandableListViewAdapter.getValue());
+                CheckedValue = expandableListViewAdapter.getValue();
+                if (CheckedValue == null){
+                    new AsyncTaskRunner().doInBackground();
+                }
+                floorData();
+                drawerLayout.closeDrawers();
+            }
+        })
+        ;
         imageViewFilter = (ImageView)view.findViewById(R.id.imageViewFilter1);
         imageViewFilter.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //filterData();
-                floorFilter();
+                drawerLayout.openDrawer(GravityCompat.END);
             }
         });
+
 
         lv = (ListView)view.findViewById(R.id.list_Missed);
         taskDataAdapter = new TaskDataAdapter(getContext(), R.layout.list_item);
@@ -185,83 +226,34 @@ public class PendingTask extends Fragment {
         return view;
     }
 
-    private void floorFilter() {
-        LayoutInflater inflater = getActivity().getLayoutInflater();
-        View alertLayout = inflater.inflate(R.layout.jc_filter_header, null);
-        android.app.AlertDialog.Builder alert = new android.app.AlertDialog.Builder(getContext());
-        alert.setView(alertLayout);
-        final android.app.AlertDialog dialog = alert.create();
-        dialog.show();
-        Button Ok = (Button) alertLayout.findViewById(R.id.OkId);
-        final Spinner FloorSP = (Spinner) alertLayout.findViewById(R.id.spinnerFloor);
-        FloorAdapter = new ArrayAdapter<String>(getActivity(), R.layout.spinner_item_value, FloorArray);
-        FloorAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        try {
-            db = myDb.getReadableDatabase();
-            String Query = "  SELECT DISTINCT td.Asset_Location\n" +
-                    "  FROM Task_Details td \n" +
-                    "  LEFT JOIN User_Group ug ON \n" +
-                    "  ug.User_Group_Id=td.Assigned_To_User_Group_Id \n" +
-                    "  WHERE td.Assigned_To_User_Group_Id IN ("+myDb.UserGroupId(User_Id)+") \n" +
-                    "  AND td.Site_Location_Id='"+myDb.Site_Location_Id(User_Id)+"' AND td.Asset_Status= 'WORKING'  AND td.Task_Status='Pending' AND td.RecordStatus != 'D'";
-            Cursor cursor = db.rawQuery(Query,null);
-            Log.d("cursorCount",cursor.getCount()+"");
-            Log.d("FloorFilterQuery",Query);
-            if (cursor.getCount() != 0){
-                FloorArray.add("Select Floor");
-                if (cursor.moveToFirst()){
-                    do {
-                        String FloorData = cursor.getString(cursor.getColumnIndex("Asset_Location"));
+    private void populateExpandableList() {
 
-                        FloorArray.add(FloorData);
-                    }while (cursor.moveToNext());
-                }
-            }/*else {
-                FloorArray.add("Select Floor");
-                if (cursor.moveToFirst()){
-                    do {
-                        String FloorData = cursor.getString(cursor.getColumnIndex("Asset_Location"));
-                        FloorArray.add(FloorData);
-                    }while (cursor.moveToNext());
-                }
-            }*/
-            cursor.close();
-            db.close();
-        }catch (Exception e){
-            e.printStackTrace();
-        }
-        FloorSP.setAdapter(FloorAdapter);
-
-        Set<String> hashSet = new LinkedHashSet<>(FloorArray);
-        hashSet.addAll(FloorArray);
-        FloorArray.clear();
-        FloorArray.addAll(hashSet);
-        FloorSP.setSelection(FloorAdapter.getPosition(FloorValue));
-        FloorSP.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+        expandableListViewAdapter = new ExpandableListViewAdapter(getContext(),listTitle,listChild);
+        expandableListView.setAdapter(expandableListViewAdapter);
+        expandableListView.setOnGroupExpandListener(new ExpandableListView.OnGroupExpandListener() {
             @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                String item = parent.getItemAtPosition(position).toString();
-                FloorValue = item.toString();
-                Log.d("FloorValue",FloorValue);
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
+            public void onGroupExpand(int groupPosition) {
+                Log.d("GroupValues",groupPosition+"");
+                String Query ="";
 
             }
         });
-        Ok.setOnClickListener(new View.OnClickListener() {
+        expandableListView.setOnChildClickListener(new ExpandableListView.OnChildClickListener() {
             @Override
-            public void onClick(View v) {
-                dialog.dismiss();
-
-                if (FloorSP.getSelectedItem() == null || FloorSP.getSelectedItem().equals("Select Floor")){
-                    Toast.makeText(getActivity(),"Please select floors",Toast.LENGTH_SHORT).show();
-                }else {
-                    floorData();
-                }
+            public boolean onChildClick(ExpandableListView parent, View v, int groupPosition, int childPosition, long id) {
+                Log.d("ChildValues",groupPosition+" "+childPosition);
+                return true;
             }
         });
+        //
+    }
+
+    private void prepareMenuData() {
+        List<String> TitleList = Arrays.asList("Locations");
+        listChild = new HashMap<>();
+        Log.d("TaskLocationList",LocationList+"");
+        listChild.put(TitleList.get(0),LocationList);
+        listTitle = new ArrayList<>(listChild.keySet());
     }
 
     private void floorData() {
@@ -276,7 +268,7 @@ public class PendingTask extends Fragment {
                     " LEFT JOIN User_Group ug ON \n" +
                     " ug.User_Group_Id=td.Assigned_To_User_Group_Id \n" +
                     " WHERE td.Assigned_To_User_Group_Id IN ("+myDb.UserGroupId(User_Id)+") \n" +
-                    " AND td.Site_Location_Id='"+myDb.Site_Location_Id(User_Id)+"' AND td.Asset_Status= 'WORKING'  AND td.Task_Status='Pending' AND  td.Asset_Location = '"+FloorValue+"' AND td.RecordStatus != 'D'";
+                    " AND td.Site_Location_Id='"+myDb.Site_Location_Id(User_Id)+"' AND td.Asset_Status= 'WORKING'  AND td.Task_Status='Pending' AND  td.Asset_Location IN('"+CheckedValue+"')  AND td.RecordStatus != 'D'";
         }
         Cursor cursor = db.rawQuery(Query, null);
         Log.d("floorDataQuery",Query);
@@ -311,6 +303,8 @@ public class PendingTask extends Fragment {
 
                 }while (cursor.moveToNext());
             }
+        }else {
+            new AsyncTaskRunner().execute();
         }
         cursor.close();
         db.close();

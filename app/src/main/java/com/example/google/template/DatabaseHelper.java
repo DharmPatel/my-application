@@ -52,7 +52,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         sqLiteDatabase.execSQL("CREATE TABLE Asset_Status (Id INTEGER PRIMARY KEY,Asset_Status_Id TEXT,Status TEXT,Task_State TEXT)");
         sqLiteDatabase.execSQL("CREATE TABLE Parameter (Id INTEGER PRIMARY KEY,Site_Location_Id TEXT,Activity_Frequency_Id TEXT, Form_Id TEXT,Form_Structure_Id TEXT, Field_Limit_From TEXT,Field_Limit_To TEXT,Threshold_From TEXT,Threshold_To TEXT,Validation_Type TEXT,Critical INTEGER,Field_Option_Id TEXT)");
         sqLiteDatabase.execSQL("CREATE TABLE Meter_Reading(Id INTEGER PRIMARY KEY,Site_Location_Id TEXT,Task_Id TEXT,Asset_Id TEXT,Form_Structure_Id TEXT,Reading TEXT,UOM TEXT,Reset INTEGER,Activity_Frequency_Id TEXT,Task_Start_At TEXT,UpdatedStatus TEXT)");
-        sqLiteDatabase.execSQL("CREATE TABLE Data_Posting(Id INTEGER PRIMARY KEY,Site_Location_Id TEXT,Task_Id TEXT,Form_Id TEXT,Form_Structure_Id TEXT,Parameter_Id TEXT,Value TEXT,Remark TEXT,UpdatedStatus TEXT)");
+        sqLiteDatabase.execSQL("CREATE TABLE Data_Posting(Id INTEGER PRIMARY KEY,Site_Location_Id TEXT,Task_Id TEXT,Form_Id TEXT,Form_Structure_Id TEXT,Parameter_Id TEXT,Value TEXT,UOM Text,Remark TEXT,UpdatedStatus TEXT)");
         sqLiteDatabase.execSQL("CREATE TABLE Task_Details (Id INTEGER PRIMARY KEY,Auto_Id TEXT,Company_Customer_Id TEXT,Site_Location_Id TEXT,Activity_Frequency_Id TEXT,Asset_Activity_Linking_Auto_Id TEXT,Activity_Master_Auto_Id TEXT,Asset_Activity_AssignedTo_Auto_Id TEXT,Task_Start_At TEXT,Task_Scheduled_Date TEXT,Task_Status TEXT,Scan_Type TEXT,Assigned_To TEXT,Assigned_To_User_Id TEXT,Incident TEXT,Assigned_To_User_Group_Id TEXT,Asset_Id TEXT,From_Id TEXT,EndDateTime TEXT,Asset_Code TEXT,Asset_Name TEXT,Asset_Location TEXT,Asset_Status TEXT, Activity_Name TEXT,Activity_Type TEXT,Remarks Text,Verified INTEGER,RecordStatus TEXT,UpdatedStatus TEXT)");
         sqLiteDatabase.execSQL("CREATE TABLE Ticket_Master (ID INTEGER PRIMARY KEY ,Site_Location_Id TEXT,Company_Customer_Id TEXT,Created_Source TEXT,Created_At TEXT,ticket_Subject TEXT,ticket_Content TEXT,ticket_Priority TEXT,ticket_Type TEXT,Task_Type TEXT,Ticket_Raise_By TEXT,UpdatedStatus TEXT)");
         sqLiteDatabase.execSQL("CREATE TABLE AlertMaster (ID INTEGER PRIMARY KEY ,Site_Location_Id TEXT,Task_Id TEXT,Form_Id TEXT,Form_Structure_Id TEXT,Alert_Type TEXT,Asset_Name TEXT,Activity_Name TEXT,Activity_Frequency_Id TEXT,Task_Status TEXT,Task_Start_At TEXT,Task_Scheduled_Date TEXT,Created_By_Id TEXT,Assigned_To_User_Group_Id TEXT,Critical TEXT,TaskType TEXT,ViewFlag TEXT,UpdatedStatus TEXT)");
@@ -469,7 +469,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return value;
     }
 
-    public List<String> assetLocation(String GroupId,String AssetType){
+    public List<String> assetType(String GroupId,String AssetType){
         final List<String> spinnerArray = new ArrayList<String>();
         try {
             String query = "SELECT DISTINCT(Asset_Location) from Asset_Details asm Left Join Asset_Activity_Linking aal " +
@@ -517,6 +517,31 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return spinnerArray;
     }
 
+    public List<String> getTaskLocation(String GroupId, String SiteId){
+        final List<String> spinnerArray = new ArrayList<String>();
+        try {
+            String query = "  SELECT DISTINCT td.Asset_Location\n" +
+                    "  FROM Task_Details td \n" +
+                    "  LEFT JOIN User_Group ug ON \n" +
+                    "  ug.User_Group_Id=td.Assigned_To_User_Group_Id \n" +
+                    "  WHERE td.Assigned_To_User_Group_Id IN ("+GroupId+") \n" +
+                    "  AND td.Site_Location_Id='"+SiteId+"' AND td.Asset_Status= 'WORKING'  AND td.Task_Status='Pending' AND td.RecordStatus != 'D'";
+            SQLiteDatabase db = getWritableDatabase();
+            Log.d("getTaskLocationQuery",query);
+            Cursor res =db.rawQuery(query, null);
+            if (res.moveToFirst()) {
+                do {
+                    spinnerArray.add(res.getString(0));
+                } while (res.moveToNext());
+            }
+            res.close();
+            db.close();
+        }catch (Exception e) {
+            e.printStackTrace();
+        }
+        return spinnerArray;
+    }
+
     public  List<String> getAssetType(String GroupId){
         final List<String> spinnerArray = new ArrayList<String>();
         String value="";
@@ -544,7 +569,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return spinnerArray;
     }
 
-    public  List<String> assetType(String GroupId, String AssetLocation){
+    public  List<String> assetLocation(String GroupId, String AssetLocation){
         final List<String> spinnerArray = new ArrayList<String>();
         String value="";
         try {
@@ -970,6 +995,39 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     }
 
+    public boolean insertTaskDetails(String Auto_Id,String companyId,String SiteId,String frequencyId,String Task_Status, String Conditional_Status,String Task_Start_At,String Asset_Name,String AssetId, String Form_IdIntent, String assetCode, String Asset_Location, String Asset_Status, String Activity_Name, String Scan_Type,String userId,String User_Group_Id,String type,String Remarks){
+        SQLiteDatabase database = this.getWritableDatabase();
+        ContentValues contentValues = new ContentValues();
+        contentValues.put("Auto_Id", Auto_Id);
+        contentValues.put("Company_Customer_Id", companyId);
+        contentValues.put("Site_Location_Id", SiteId);
+        contentValues.put("Activity_Frequency_Id", frequencyId);
+        contentValues.put("Task_Scheduled_Date", "0000-00-00 00:00:00");
+        contentValues.put("Task_Status", Task_Status);
+        contentValues.put("Task_Start_At", Task_Start_At);
+        contentValues.put("Assigned_To", "U");
+        contentValues.put("Asset_Name", Asset_Name);
+        contentValues.put("Asset_Id",AssetId);
+        contentValues.put("From_Id",Form_IdIntent);
+        contentValues.put("Asset_Code",assetCode);
+        contentValues.put("Asset_Location", Asset_Location);
+        contentValues.put("Asset_Status", Asset_Status);
+        contentValues.put("Activity_Name", Activity_Name);
+        contentValues.put("Activity_Type", type);
+        contentValues.put("Assigned_To_User_Id", userId);
+        contentValues.put("Assigned_To_User_Group_Id",User_Group_Id);
+        contentValues.put("Scan_Type", Scan_Type);
+        contentValues.put("UpdatedStatus", "no");
+        contentValues.put("Remarks", Remarks);
+        long resultset = database.insert("Task_Details", null, contentValues);
+        database.close();
+        if(resultset == -1)
+            return false;
+        else
+            return true;
+
+    }
+
     public boolean updatedTaskDetails(String Auto_Id,String Task_Status,String Task_Start_At,String Scan_Type,String userId,String Remarks,int incident){
         SQLiteDatabase database = this.getWritableDatabase();
         ContentValues contentValues = new ContentValues();
@@ -1068,12 +1126,13 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             return true;
     }
 
-    public boolean updateRemarkValue(String TaskId, String remark){
+    public boolean updateRemarkValue(String TaskId,String StartTime, String EndTime, String remark){
         Log.d("InUpdatedValue","11"+TaskId+":"+remark);
         SQLiteDatabase database = this.getWritableDatabase();
         ContentValues contentValues = new ContentValues();
         contentValues.put("Remarks",remark);
-        long resultset = database.update("Task_Details", contentValues, "Auto_Id ='" + TaskId+"' AND Task_Status='Cancelled'", null);
+        long resultset = database.update("Task_Details", contentValues, "Auto_Id ='" + TaskId+"' AND Task_Scheduled_Date = '"+StartTime+"' AND EndDateTime = '"+EndTime+"' AND Task_Status='Cancelled'", null);
+        Log.d("resultRemark",resultset+"");
         database.close();
         if(resultset == -1)
             return false;

@@ -55,7 +55,7 @@ public class CancelledTask extends Fragment {
     EditText remark;
     String remarkET;
     TextView assetNote, assetnameValue;
-    String UpdatedStatus1 = "";
+    String UpdatedStatus1 = "", TaskID, StartTime, EndTime;
     public CancelledTask() {
         // Required empty public constructor
     }
@@ -83,12 +83,16 @@ public class CancelledTask extends Fragment {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 try {
+                    TaskID = taskDataAdapter.getItem(position).getTaskId();
+                    StartTime = taskDataAdapter.getItem(position).getStartDateTime();
+                    EndTime = taskDataAdapter.getItem(position).getEndDateTime();
                     if (taskDataAdapter.getItem(position).getUpdateStatus()!= null){
                     UpdatedStatus1 = taskDataAdapter.getItem(position).getUpdateStatus();
                     }else {
                         UpdatedStatus1 = "";
                     }
-                    if (!UpdatedStatus1.equals("yes")) {
+                    Log.d("jksdfkjsdf",UpdatedStatus1+"  "+taskDataAdapter.getItem(position).getTaskId()+" "+taskDataAdapter.getItem(position).getStartDateTime()+" "+taskDataAdapter.getItem(position).getEndDateTime());
+                    if (!UpdatedStatus1.equalsIgnoreCase("yes")) {
                         String AssetStatus = taskDataAdapter.getItem(position).getAsset_Status();
                         String AssetName = taskDataAdapter.getItem(position).getAsset_Name();
                         View alertLayout = inflater.inflate(R.layout.cancelled_alert, null);
@@ -103,7 +107,8 @@ public class CancelledTask extends Fragment {
                             @Override
                             public void onClick(View v) {
                                 remarkET = remark.getText().toString();
-                                myDb.updateRemarkValue(TaskId, remarkET);
+                                Log.d("jksdfkjsdf","11  "+TaskID+" "+StartTime+" "+EndTime);
+                                myDb.updateRemarkValue(TaskID,StartTime,EndTime, remarkET);
                                 dialog.dismiss();
                             }
                         });

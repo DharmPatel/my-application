@@ -150,7 +150,7 @@ public class CompletedTask extends Fragment {
                     "LEFT JOIN User_Group ug ON " +
                     "ug.User_Group_Id=td.Assigned_To_User_Group_Id " +
                     "WHERE td.Assigned_To_User_Group_Id IN ("+myDb.UserGroupId(User_Id)+") " +
-                    "AND td.Site_Location_Id='"+SiteId+"' AND td.Asset_Status= 'WORKING'  AND td.Task_Status IN ('Completed','Unplanned','Delayed')";
+                    "AND td.Site_Location_Id='"+SiteId+"' AND td.Asset_Status= 'WORKING'  AND td.Task_Status IN ('Completed','Unplanned','Delayed')"; // AND td.Activity_Type = 'JobCard'
             //}
 
 

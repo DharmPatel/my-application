@@ -41,7 +41,6 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
-import android.widget.Spinner;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
@@ -66,6 +65,8 @@ public class AssetsActivity extends AppCompatActivity {
     Button OkButton;
     List<String> LocationList = new ArrayList<String>();
     List<String> TypeList = new ArrayList<String>();
+    String CheckedValue = "";
+    int GroupValue;
     DatabaseHelper myDb;
     SQLiteDatabase db;
     ListView lvAssets;
@@ -145,10 +146,16 @@ public class AssetsActivity extends AppCompatActivity {
         OkButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Log.d("shfgjhfg",expandableListViewAdapter.textViewChild.getText().toString());
+                Log.d("checkedval"," InAssetActivity: "+expandableListViewAdapter.getValue());
+                CheckedValue = expandableListViewAdapter.getValue();
+                if (CheckedValue == null){
+                    AddAssets();
+                }
+                getFilterList();
                 drawerLayout.closeDrawers();
             }
         });
+
 
         try {
             if(LOG) Log.d(TAG,"Scan_Type"+Scan_Type);
@@ -216,23 +223,26 @@ public class AssetsActivity extends AppCompatActivity {
 
     private void populateExpandableList() {
 
-        expandableListViewAdapter = new ExpandableListViewAdapter(this,listTitle,listChild);
+    expandableListViewAdapter = new ExpandableListViewAdapter(this,listTitle,listChild);
         expandableListView.setAdapter(expandableListViewAdapter);
         expandableListView.setOnGroupExpandListener(new ExpandableListView.OnGroupExpandListener() {
-            @Override
-            public void onGroupExpand(int groupPosition) {
-                Log.d("GroupValues",groupPosition+"");
-            }
-        });
+        @Override
+        public void onGroupExpand(int groupPosition) {
+            Log.d("GroupValues",groupPosition+"");
+            GroupValue = groupPosition;
+            String Query ="";
+
+        }
+    });
         expandableListView.setOnChildClickListener(new ExpandableListView.OnChildClickListener() {
-            @Override
-            public boolean onChildClick(ExpandableListView parent, View v, int groupPosition, int childPosition, long id) {
-
-                return false;
-            }
-        });
-
-    }
+        @Override
+        public boolean onChildClick(ExpandableListView parent, View v, int groupPosition, int childPosition, long id) {
+            Log.d("ChildValues",groupPosition+" "+childPosition);
+            return true;
+        }
+    });
+    //
+}
 
     private void prepareMenuData() {
         List<String> TitleList = Arrays.asList("Types","Locations");
@@ -241,6 +251,62 @@ public class AssetsActivity extends AppCompatActivity {
         listChild.put(TitleList.get(0),TypeList);
         listChild.put(TitleList.get(1), LocationList);
         listTitle = new ArrayList<>(listChild.keySet());
+    }
+
+    public void updateMenuData(List<String> TypeList, List<String> LocationList) {
+        List<String> TitleList = Arrays.asList("Types","Locations");
+        listChild = new HashMap<>();
+        Log.d("ChildList1",TypeList+" "+LocationList);
+        listChild.put(TitleList.get(0),TypeList);
+        listChild.put(TitleList.get(1), LocationList);
+        listTitle = new ArrayList<>(listChild.keySet());
+        //expandableListViewAdapter.notifyDataSetChanged();
+    }
+
+    public void getFilterList(){
+        String Query ="";
+        db = myDb.getReadableDatabase();
+        listDataAdapter = new ListDataAdapter(getApplicationContext(), R.layout.asset_list_item);
+        lvAssets.setAdapter(listDataAdapter);
+        Log.d("hereGroupVal",GroupValue+"");
+        if (GroupValue == 0) {
+            Query = "SELECT asm.* from Asset_Details asm Left Join Asset_Activity_Linking aal " +
+                    "on aal.Asset_Id =  asm.Asset_Id " +
+                    "Left Join Asset_Activity_AssignedTo aaa " +
+                    " on aal.Auto_Id = aaa.Asset_Activity_Linking_Id " +
+                    "where aaa.Assigned_To_User_Group_Id IN (" + User_Group_Id + ")and asm.Asset_Location = '" + CheckedValue + "'";
+        }else {
+            Query = "SELECT asm.* from Asset_Details asm Left Join Asset_Activity_Linking aal " +
+                    "on aal.Asset_Id =  asm.Asset_Id " +
+                    "Left Join Asset_Activity_AssignedTo aaa " +
+                    " on aal.Auto_Id = aaa.Asset_Activity_Linking_Id " +
+                    "where aaa.Assigned_To_User_Group_Id IN (" + User_Group_Id + ")and asm.Asset_Type = '" + CheckedValue + "'";
+        }
+        Cursor cursor = db.rawQuery(Query, null);
+        Log.d("cursorAssetCount", String.valueOf(cursor.getCount()));
+        if (cursor.getCount() == 0){
+            //Toast.makeText(getApplicationContext(),"No value found for selected assets",Toast.LENGTH_SHORT).show();
+            AddAssets();
+        }
+            if (cursor.moveToFirst()) {
+                do {
+                    String Asset_Id = cursor.getString(cursor.getColumnIndex("Asset_Id"));
+                    String Site_Location_Id = cursor.getString(cursor.getColumnIndex("Site_Location_Id"));
+                    String Asset_Code = cursor.getString(cursor.getColumnIndex("Asset_Code"));
+                    String Asset_Name = cursor.getString(cursor.getColumnIndex("Asset_Name"));
+                    String Asset_Location = cursor.getString(cursor.getColumnIndex("Asset_Location"));
+                    String Asset_Status_Id = cursor.getString(cursor.getColumnIndex("Asset_Status_Id"));
+                    String Status = cursor.getString(cursor.getColumnIndex("Status"));
+
+                    DataProvider assetDataProvider = new DataProvider(Asset_Id, Asset_Code, Asset_Name, Asset_Location, Status, null, null, null);
+                    listDataAdapter.add(assetDataProvider);
+                }
+                while (cursor.moveToNext());
+            }
+
+
+        cursor.close();
+        db.close();
     }
 
 
@@ -406,7 +472,7 @@ public class AssetsActivity extends AppCompatActivity {
         final EditText TextViewRemark = (EditText)alertLayout.findViewById(R.id.etAssetRemark);
         TextViewRemark.setVisibility(View.GONE);
         try{
-            date = new applicationClass().yymmddhhmmss();
+            date = new applicationClass().ddmmyyyyhhmmss();
             radioGroup = (RadioGroup)alertLayout.findViewById(R.id.radioStatusGroup);
             db= myDb.getReadableDatabase();
             Cursor cursor1 = db.rawQuery("select * from asset_Details where Asset_Code ='" + Asset_Code + "'", null);
@@ -438,7 +504,7 @@ public class AssetsActivity extends AppCompatActivity {
             imageView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    datePicker();
+                    timePicker();
                 }
             });
 
@@ -566,6 +632,7 @@ public class AssetsActivity extends AppCompatActivity {
         }
     }
 
+/*
     public void FilterDialog(){
         LayoutInflater inflater = getLayoutInflater();
         View alertLayout = inflater.inflate(R.layout.filter_alert, null);
@@ -631,10 +698,11 @@ public class AssetsActivity extends AppCompatActivity {
                 String item = parent.getItemAtPosition(position).toString();
                 LocationValue = item.toString();
                 Log.d("spinnerVal","1: "+LocationValue+":"+item);
-               /* for(String Value: myDb.assetType(User_Group_Id,LocationValue)){
+               */
+/* for(String Value: myDb.assetType(User_Group_Id,LocationValue)){
                     Log.d("spinnerValqwed","1: "+Value);
                     adapter2.getFilter().filter(Value);
-                }*/
+                }*//*
 
 
                 if (myDb.assetType(User_Group_Id,LocationValue) != null){
@@ -643,18 +711,19 @@ public class AssetsActivity extends AppCompatActivity {
                         spinnerArray1.clear();
                         adapter2.insert("Select Category", adapter2.getCount());
                     }
-                    for (String object : myDb.assetType(User_Group_Id,LocationValue)) {
+                    for (String object : myDb.assetType(User_Group_Id,LocationValue)){
                         adapter2.insert(object, adapter2.getCount());
 
                     }
                 }
-
                 adapter2.notifyDataSetChanged();
 
                 //adapter2.getFilter().filter(myDb.assetType(User_Group_Id,LocationValue));
-                /*adapter2 = new ArrayAdapter<String>(getApplicationContext(), R.layout.spinner_item_value, myDb.assetType(User_Group_Id,LocationValue));
+                */
+/*adapter2 = new ArrayAdapter<String>(getApplicationContext(), R.layout.spinner_item_value, myDb.assetType(User_Group_Id,LocationValue));
                 adapter2.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-                adapter2.notifyDataSetInvalidated();*/
+                adapter2.notifyDataSetInvalidated();*//*
+
                // adapter2.add(myDb.assetType(User_Group_Id,LocationValue));
             }
 
@@ -708,7 +777,8 @@ public class AssetsActivity extends AppCompatActivity {
         try {
             //site_name = settings1.getString("siteName", null);
 
-            /*Iterator it = spinnerArrayHash1.entrySet().iterator();
+            */
+/*Iterator it = spinnerArrayHash1.entrySet().iterator();
             while (it.hasNext()) {
                 Map.Entry<String, String> pair = (Map.Entry) it.next();
                 System.out.println(pair.getKey() + " = " + pair.getValue());
@@ -717,7 +787,8 @@ public class AssetsActivity extends AppCompatActivity {
                     int i = adapter2.getPosition(pair.getValue());
                     CategorySP.setSelection(i);
                 }
-            }*/
+            }*//*
+
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -729,10 +800,12 @@ public class AssetsActivity extends AppCompatActivity {
                 String item = parent.getItemAtPosition(position).toString();
                 Categoryvalue = item.toString();
                 Log.d("spinnerVal","2: "+Categoryvalue+":"+item);
-                /*for(String Value: myDb.assetLocation(User_Group_Id,Categoryvalue)){
+                */
+/*for(String Value: myDb.assetLocation(User_Group_Id,Categoryvalue)){
                     Log.d("spinnerValqwed","2: "+Value+":"+item);
                     adapter1.getFilter().filter(Value);
-                }*/
+                }*//*
+
 
 
                 if (myDb.assetLocation(User_Group_Id,Categoryvalue) != null){
@@ -759,7 +832,7 @@ public class AssetsActivity extends AppCompatActivity {
         });
         ///////////Ok Button///////////////////
 
-        Ok.setOnClickListener(new View.OnClickListener() {
+        //Ok.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 FilterData();
@@ -769,6 +842,7 @@ public class AssetsActivity extends AppCompatActivity {
         });
 
     }
+*/
 
     private RadioButton radioButton(final String assetId,String strvalue,int statusID) {
         RadioButton radioButton = new RadioButton(this);
@@ -855,7 +929,7 @@ public class AssetsActivity extends AppCompatActivity {
         try {
             int count= 0;
             db= myDb.getWritableDatabase();
-            String query= "SELECT a.*, b.Field_Type FROM Task_Details a,Form_Structure b WHERE a.Assigned_To_User_Id = '"+User_Id+"' AND a.Site_Location_Id='"+site_id+"' AND a.Asset_Code='"+AssetCode+"' AND a.From_Id=b.Form_Id  AND b.Field_Type='meter'  GROUP BY From_Id";
+            String query= "SELECT a.*, b.Field_Type FROM Task_Details a,Form_Structure b WHERE a.Assigned_To_User_Id = '"+User_Id+"' AND a.Site_Location_Id='"+site_id+"' AND a.Asset_Code='"+AssetCode+"' AND a.From_Id=b.Form_Id  AND b.Field_Type IN ('consumption','meter')  GROUP BY From_Id"; //b.Field_Type='meter'
             Cursor cursor= db.rawQuery(query, null);
 
             if(cursor.getCount() >0){
@@ -1005,13 +1079,16 @@ public class AssetsActivity extends AppCompatActivity {
 
                 @Override
                 public void onDateSet(DatePicker view, int year,int monthOfYear, int dayOfMonth) {
-
-                    //date_time = dayOfMonth + "-" + (monthOfYear + 1) + "-" + year;
-                    date_time = year + "-" + (monthOfYear + 1) + "-" + dayOfMonth;
+                    date_time = dayOfMonth + "-" + (monthOfYear + 1) + "-" + year;
+                    etTime.setText(date_time + " " + mHour + ":" + mMinute+ ":00" );
+                    updatedtime = date_time+" "+mHour+":"+mMinute+ ":00";
+                   // date_time = year + "-" + (monthOfYear + 1) + "-" + dayOfMonth;
                     //*************Call Time Picker Here ********************
-                    timePicker();
+                    //timePicker();
                 }
             }, mYear, mMonth, mDay);
+            datePickerDialog.getDatePicker().setMinDate(System.currentTimeMillis() - (1000*24*60*60));
+            datePickerDialog.getDatePicker().setMaxDate(System.currentTimeMillis() + (1000*24*60*60));
             datePickerDialog.show();
         } catch (Exception e) {
             Log.d("ua611 ","ERROR==" + e);
@@ -1032,8 +1109,8 @@ public class AssetsActivity extends AppCompatActivity {
                         public void onTimeSet(TimePicker view, int hourOfDay,int minute) {
                             mHour = hourOfDay;
                             mMinute = minute;
-                            etTime.setText(date_time + " " + hourOfDay + ":" + minute+ ":00" );
-                            updatedtime = date_time+" "+hourOfDay+":"+minute+ ":00";
+                            datePicker();
+
                         }
                     }, mHour, mMinute, false);
             timePickerDialog.show();

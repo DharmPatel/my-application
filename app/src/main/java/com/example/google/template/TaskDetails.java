@@ -102,6 +102,7 @@ public class TaskDetails extends AppCompatActivity implements PendingTask.OnComp
             relativeLayout = (RelativeLayout) findViewById(R.id.relativeLayoutTaskDetails);
             viewPager = (ViewPager) findViewById(R.id.viewPager);
             toolbar.setTitle("Task Details" + BuildConfig.VERSION_NAME);
+            //toolbar.setTitle("Tasks");
             setSupportActionBar(toolbar);
             viewPagerAdapter = new ViewPagerAdapter(getSupportFragmentManager());
             viewPagerAdapter.addfragment(new MissedTask(), "Missed");
@@ -112,7 +113,7 @@ public class TaskDetails extends AppCompatActivity implements PendingTask.OnComp
 
             try {
                 String tabCurrentItem = getIntent().getStringExtra("TAB");
-                if(LOG) Log.d(TAG,"tabCurrentItem"+tabCurrentItem);
+                if(LOG) Log.d(TAG,"tabCurrentItem11"+tabCurrentItem);
                 if(tabCurrentItem.equalsIgnoreCase("TAB3")){
                     viewPager.setCurrentItem(2);
                     viewPager.setOffscreenPageLimit(3);

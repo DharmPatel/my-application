@@ -1,16 +1,67 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layoutDirection="rtl"
+    >
     <item
         android:id="@+id/unplanned"
         android:title="Unplanned"
         app:showAsAction="always">
     </item>
+
     <item
         android:id="@+id/qrcode"
         android:title="Scan QR CODE"
         android:icon="@drawable/qr"
         app:showAsAction="always">
     </item>
+
+    <!--<group android:menuCategory="alternative"
+        android:layout_gravity="start"
+        android:gravity="start">
+
+        <item
+            android:id="@+id/planned"
+            android:title="Planned"
+            app:showAsAction="always">
+        </item>
+
+        <item
+            android:id="@+id/qrcode1"
+            android:title="Scan QR CODE"
+            android:icon="@drawable/qr"
+            app:showAsAction="always">
+        </item>
+
+    </group>
+
+    <item
+        android:id="@+id/title"
+        android:title="Tasks"
+        app:showAsAction="always"
+        android:gravity="center"
+        android:layout_gravity="center">
+
+    </item>
+
+    <group
+        android:layout_gravity="end"
+        android:gravity="end">
+
+        <item
+            android:id="@+id/unplanned"
+            android:title="Unplanned"
+            app:showAsAction="always">
+        </item>
+
+        <item
+            android:id="@+id/qrcode"
+            android:title="Scan QR CODE"
+            android:icon="@drawable/qr"
+            app:showAsAction="always">
+        </item>
+
+    </group>-->
+
 
 </menu>

@@ -95,6 +95,13 @@ public class applicationClass extends Application {
         String date = simpleDateFormat.format(calendar.getTime());
         return date;
     }
+    public String ddmmyyyyhhmmss()
+    {
+        Calendar calendar = Calendar.getInstance();
+        final SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
+        String date = simpleDateFormat.format(calendar.getTime());
+        return date;
+    }
     public String imageVariable(){
         return "yes";
     }
@@ -110,8 +117,11 @@ public class applicationClass extends Application {
     public String defaultNFC(){return "QR";}
     public String insertTask(){return "insertTask.php";}
     public String insertPPMTask(){return "ppmTaskUpload.php";}
-    public String urlString(){
+    /*public String urlString(){
         return "http://192.168.0.56/PunNewTemplate/";
+    }*/
+    public String urlString(){
+        return "http://punctualiti.net/iss_new/";
     }
 }
 
