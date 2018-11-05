@@ -334,7 +334,7 @@ public class HttpHandler {
             String data = URLEncoder.encode("User_Group_Id", "UTF-8") + "=" + URLEncoder.encode(User_Group_Id, "UTF-8")+"&"+
                     URLEncoder.encode("Site_Location_Id", "UTF-8") + "=" + URLEncoder.encode(SiteID, "UTF-8");
 
-            if(LOG)Log.d("PPMURLData", "" + UrlList.PPMTASKURL + "?" + data);
+            if(LOG)Log.d("PPMURLData", "" + UrlList.PPMTASKURL +  data);
             bufferedWriter.write(data);
             bufferedWriter.flush();
             bufferedWriter.close();

@@ -903,8 +903,6 @@ public class IncidentForm extends AppCompatActivity {
         checkboxLayout.addView(textView(field_Label));
         String[] checkboxList = field_option.split(",");
 
-
-
         for(int i = 0; i<checkboxList.length;i++){
             checkboxLayout.addView(createCheckBox(checkboxList[i], i, setText, checkboxLayout, Field_Option_Id,Section,id));
         }

@@ -184,6 +184,9 @@ public class CheckList extends AppCompatActivity {
                 try {
                     db = myDb.getWritableDatabase();
                     Cursor taskList = db.rawQuery(query, null);
+
+                    Log.d("TestingValue",query+" 2 "+taskList.getCount());
+
                     if (taskList.moveToFirst()) {
                         do {
                             Frequency_Auto_Id = taskList.getString(taskList.getColumnIndex("Frequency_Auto_Id"));
@@ -210,9 +213,11 @@ public class CheckList extends AppCompatActivity {
                             StatusId = taskList.getString(taskList.getColumnIndex("Asset_Status_Id"));
                             Task_State = taskList.getString(taskList.getColumnIndex("Task_State"));
                             Activity_Type = taskList.getString(taskList.getColumnIndex("Activity_Type"));
+                            Log.d("Checklist","1 "+Activity_Type+" 2 "+Asset_Code);
 
                             if (RepeatEveryDay == 0 && RepeatEveryMin == 0) {
                                 String selectQuery = "SELECT  * FROM Task_Details WHERE Asset_Id='" + Asset_ID + "' AND Activity_Frequency_Id='" + Frequency_Auto_Id + "'";
+                                Log.d("Unplanned"," "+selectQuery);
                                 Cursor cursor = db.rawQuery(selectQuery, null);
                                 if (cursor.getCount() == 0) {
                                     String uuid = UUID.randomUUID().toString();

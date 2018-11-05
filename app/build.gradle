@@ -1,5 +1,6 @@
 apply plugin: 'com.android.application'
 
+//5/11/2018 Prathamesh: Updated Consumption Validation, Consumption Data to be post in Meter Reading, Consumption data will get in next task for next date.
 
 android {
     compileSdkVersion 27
@@ -9,7 +10,7 @@ android {
         applicationId "com.example.google.template"
         minSdkVersion 15
         targetSdkVersion 27
-        versionCode 4
+        versionCode 1
         versionName "demo"
     }
     buildTypes {

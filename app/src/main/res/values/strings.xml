@@ -1,5 +1,5 @@
 <resources>
-    <string name="application_name">MaricoMarks</string>
+    <string name="application_name">ISS_Demo</string>
     <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
     <string name="hint_email">Username</string>

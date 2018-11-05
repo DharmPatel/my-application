@@ -274,13 +274,13 @@ public class AssetsActivity extends AppCompatActivity {
                     "on aal.Asset_Id =  asm.Asset_Id " +
                     "Left Join Asset_Activity_AssignedTo aaa " +
                     " on aal.Auto_Id = aaa.Asset_Activity_Linking_Id " +
-                    "where aaa.Assigned_To_User_Group_Id IN (" + User_Group_Id + ")and asm.Asset_Location = '" + CheckedValue + "'";
+                    "where aaa.Assigned_To_User_Group_Id IN (" + User_Group_Id + ")and asm.Asset_Location = '" + CheckedValue + "' Group By asm.Asset_Code";
         }else {
             Query = "SELECT asm.* from Asset_Details asm Left Join Asset_Activity_Linking aal " +
                     "on aal.Asset_Id =  asm.Asset_Id " +
                     "Left Join Asset_Activity_AssignedTo aaa " +
                     " on aal.Auto_Id = aaa.Asset_Activity_Linking_Id " +
-                    "where aaa.Assigned_To_User_Group_Id IN (" + User_Group_Id + ")and asm.Asset_Type = '" + CheckedValue + "'";
+                    "where aaa.Assigned_To_User_Group_Id IN (" + User_Group_Id + ")and asm.Asset_Type = '" + CheckedValue + "' Group By asm.Asset_Code";
         }
         Cursor cursor = db.rawQuery(Query, null);
         Log.d("cursorAssetCount", String.valueOf(cursor.getCount()));
@@ -385,7 +385,7 @@ public class AssetsActivity extends AppCompatActivity {
                         "on aal.Asset_Id =  asm.Asset_Id " +
                         "Left Join Asset_Activity_AssignedTo aaa " +
                         "on aal.Auto_Id = aaa.Asset_Activity_Linking_Id " +
-                        "where aaa.Assigned_To_User_Group_Id IN (" + User_Group_Id + ")";
+                        "where aaa.Assigned_To_User_Group_Id IN (" + User_Group_Id + ") Group By asm.Asset_Code";
             } else {
                 Query = "SELECT * from Asset_Details where Site_Location_Id ='" + site_id + "' ";
             }

@@ -248,12 +248,12 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         }
         cursor.close();
 
-        String valueQuery = "Select Value,UOM  FROM Data_Posting WHERE Form_Structure_Id='"+fieldId+"' and Task_Id ='"+Task_Id+"'  ORDER BY Id DESC LIMIT 1";
+        String valueQuery = "Select Reading,UOM  FROM Meter_Reading WHERE Form_Structure_Id='"+fieldId+"' and Task_Id ='"+Task_Id+"'  ORDER BY Id DESC LIMIT 1";
         Log.d("TestingUrl",updateQuery);
         Cursor cursorDataPosting = database.rawQuery(valueQuery, null);
         if (cursorDataPosting.moveToFirst()) {
             do {
-                reading =  cursorDataPosting.getString(cursorDataPosting.getColumnIndex("Value"));
+                reading =  cursorDataPosting.getString(cursorDataPosting.getColumnIndex("Reading"));
                 uomValue =  cursorDataPosting.getString(cursorDataPosting.getColumnIndex("UOM"));
 //                Log.d("ATASdasdasd",uomValue);
 
@@ -926,18 +926,32 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         StringBuffer buffer = new StringBuffer();
         String reading ="";
         String uomValue ="";
+        String fieldType = "";
         SQLiteDatabase database = this.getWritableDatabase();
+        String formQuery = "select Field_Type from Form_Structure where Field_Id = '"+fieldId+"'";
+        Cursor c = database.rawQuery(formQuery,null);
+        if(c.moveToFirst()){
+            do{
+                fieldType = c.getString(c.getColumnIndex("Field_Type"));
+            } while (c.moveToNext());
+
+           Log.d("Field_Type"," "+fieldId+" "+fieldType);
+
+        }
+
         String updateQuery = "Select Reading, UOM,Task_Start_At  FROM Meter_Reading WHERE  Asset_Id = '"+autoId+"' AND Form_Structure_Id='"+fieldId+"'  ORDER BY Id DESC LIMIT 1";
         Cursor cursor = database.rawQuery(updateQuery, null);
-        if (cursor.moveToFirst()) {
-            do {
-                reading =  cursor.getString(0);
-                uomValue =  cursor.getString(1);
-                buffer.append(reading);
-                buffer.append(" ");
-                buffer.append(uomValue);
-            } while (cursor.moveToNext());
+        if (cursor.getCount() > 0) {
+            if (cursor.moveToFirst()) {
+                do {
+                    reading =  cursor.getString(0);
+                    uomValue =  cursor.getString(1);
+                    buffer.append(reading);
+                    buffer.append(" ");
+                    buffer.append(uomValue);
+                } while (cursor.moveToNext());
 
+            }
         }
         cursor.close();
         database.close();

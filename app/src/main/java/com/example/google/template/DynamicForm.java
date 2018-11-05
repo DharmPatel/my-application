@@ -115,6 +115,7 @@ public class DynamicForm extends AppCompatActivity {
     private List<EditText> editTextRemarkList = new ArrayList<EditText>();
     private List<TextView> textViewList = new ArrayList<TextView>();
     private List<CheckBox> checkBoxList = new ArrayList<CheckBox>();
+    private List<CheckBox> CheckboxList = new ArrayList<CheckBox>();
     private List<Spinner> textSpinnerList = new ArrayList<Spinner>();
     private List<RadioButton> textRadioButtonList = new ArrayList<RadioButton>();
     private List<RadioGroup> textRadioGroupMeterList = new ArrayList<RadioGroup>();
@@ -127,6 +128,7 @@ public class DynamicForm extends AppCompatActivity {
     ArrayList<String> previoudReadings = new ArrayList<>();
     private List<TextView> previousReadingChange = new ArrayList<TextView>();
     private List<TextView> textViewListIncident = new ArrayList<TextView>();
+    private HashMap<CheckBox,Integer> CheckboxListhash = new HashMap<>();
     Map<Integer,ImageView> drawableRadioImage = new HashMap<Integer,ImageView>();
     String readingConstant ="",EmployeeName="";
     LinearLayout.LayoutParams fittype, fittype1, fittype2, textLayout,textBranchType;
@@ -936,6 +938,9 @@ public class DynamicForm extends AppCompatActivity {
                             for (int i = 0; i < optionList.length; i++) {
                                 formLayout.addView(checkBox(optionList[i],Id));
                             }
+                            //Log.d("Field_Type12123",Field_Type+" "+Field_Label+" "+Field_Options);
+
+                            //checkboxlinearlayout(Field_Label,Field_Options,Id,null,Field_Option_Id,"");
 
                         }catch (Exception e){
                             e.printStackTrace();
@@ -1109,7 +1114,7 @@ public class DynamicForm extends AppCompatActivity {
                     if (Field_Type.equals("remark")) {
                         try {
                             formLayout.addView(textView(Field_Label));
-                            formLayout.addView(editTextRemark(Field_Label, Id, Value));
+                            formLayout.addView(editTextRemark(Field_Label, Id, ""));
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
@@ -1186,10 +1191,11 @@ public class DynamicForm extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 AlertCheck();
-                if (checkSubmitEditTextAdd() == true && checkSubmitEditText() == true && checkSubmitEditTextMeter() == true && checkSubmitRadio() == true && checkSubmitRadioMeter() == true && checkSpinnerValue() == true && checkSubmitRemark() == true) {
+                if (checkSubmitConsumption() == true && checkSubmitEditTextAdd() == true && checkSubmitEditText() == true && checkSubmitEditTextMeter() == true && checkSubmitRadio() == true && checkSubmitRadioMeter() == true && checkSpinnerValue() == true && checkSubmitRemark() == true) {
                     if (checkSubmitLowerReading() == true) {
                         if (intentFromReset.equals("Closing")){
                             saveData(taskInsert(taskStatus));
+                            emailAlert(TaskId);
                             Intent intent = new Intent(DynamicForm.this,DynamicForm.class);
                             intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                             intent.putExtra("FromReset","Opening");
@@ -1213,6 +1219,7 @@ public class DynamicForm extends AppCompatActivity {
                         }else if(intentFromReset.equals("Opening")){
                             Toast.makeText(getApplicationContext(), "Reset Done", Toast.LENGTH_SHORT).show();
                             saveData(taskInsert(taskStatus));
+                            emailAlert(TaskId);
                             Intent intent = new Intent(DynamicForm.this, HomePage.class);
                             intent.putExtra("User_Id", User_Id);
                             intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
@@ -1230,6 +1237,7 @@ public class DynamicForm extends AppCompatActivity {
                                             if(LOG) Log.d("taskStatusVal","1:"+taskStatus);
                                             if (PPM_Intent != null){
                                                 saveData(taskInsert(taskStatus));
+                                                emailAlert(TaskId);
                                                 Intent intent = new Intent(DynamicForm.this, ppm_activity.class);
                                                 intent.putExtra("TAB", "TAB3");
                                                 intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
@@ -1238,6 +1246,7 @@ public class DynamicForm extends AppCompatActivity {
                                             }else {
                                                 Log.d("ChecklistValue",Checklist);
                                                 saveData(taskInsert(taskStatus));
+                                                emailAlert(TaskId);
                                                 if(Checklist == null){
                                                     Intent intent = new Intent(DynamicForm.this, TaskDetails.class);
                                                     intent.putExtra("TAB", "TAB3");
@@ -1269,6 +1278,7 @@ public class DynamicForm extends AppCompatActivity {
                     } else {
                         if (intentFromReset.equals("Closing")){
                             saveData(taskInsert(taskStatus));
+                            emailAlert(TaskId);
                             Intent intent = new Intent(getApplicationContext(),DynamicForm.class);
                             intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                             intent.putExtra("FromReset","Opening");
@@ -1292,6 +1302,7 @@ public class DynamicForm extends AppCompatActivity {
                         }else if(intentFromReset.equals("Opening")){
                             Toast.makeText(getApplicationContext(), "Reset Done", Toast.LENGTH_SHORT).show();
                             saveData(taskInsert(taskStatus));
+                            emailAlert(TaskId);
                             Intent intent = new Intent(DynamicForm.this, HomePage.class);
                             intent.putExtra("User_Id", User_Id);
                             intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
@@ -1307,6 +1318,7 @@ public class DynamicForm extends AppCompatActivity {
                                 finish();
                             }else {
                                 saveData(taskInsert(taskStatus));
+                                emailAlert(TaskId);
                                 if (Checklist == null){
                                     Intent intent = new Intent(DynamicForm.this, TaskDetails.class);
                                     intent.putExtra("TAB", "TAB3");
@@ -1374,6 +1386,7 @@ public class DynamicForm extends AppCompatActivity {
         checkBox.setLayoutParams(fittype1);
         checkBox.setLayoutParams(textLayout);
         checkBoxList.add(checkBox);
+        CheckboxListhash.put(checkBox,id);
         return checkBox;
     }
 
@@ -1430,6 +1443,105 @@ public class DynamicForm extends AppCompatActivity {
         CalculationList.add(textView);
         return textView;
     }
+
+
+    private LinearLayout checkboxlinearlayout(String field_Label,String field_option,int id,String setText,String Field_Option_Id,String Section) {
+        LinearLayout checkboxLayout = new LinearLayout(getApplicationContext());
+        checkboxLayout.setOrientation(LinearLayout.VERTICAL);
+        checkboxLayout.setLayoutParams(textLayout);
+        checkboxLayout.addView(textView(field_Label));
+        String[] checkboxList = field_option.split(",");
+
+        for(int i = 0; i<checkboxList.length;i++){
+            Log.d("Chcekl",""+checkboxList[i]+" "+field_Label+" "+setText+" "+id);
+
+            checkboxLayout.addView(createCheckBox(checkboxList[i], i, setText, checkboxLayout, Field_Option_Id,Section,id));
+        }
+
+        return checkboxLayout;
+    }
+    private CheckBox createCheckBox(String field_option,final int id, String setText,final LinearLayout layout,String Field_Option_Id,final String Section,int idForm){
+        final CheckBox cbLayout = new CheckBox(this);
+        final LinearLayout checkboxLayout = new LinearLayout(getApplicationContext());
+
+        try {
+
+            cbLayout.setId(id);
+            cbLayout.setText(field_option);
+            cbLayout.setLayoutParams(textLayout);
+            //final String[] sectionIds = Section.split("\\|");
+            // layout.addView(cbLayout);
+            Log.d("Chcekl12",""+cbLayout+" "+field_option+" "+setText+" "+id);
+
+            //if(Completed.equals("Completed")){
+                cbLayout.setEnabled(false);
+                if(setText != null){
+                    String[]  setTextValue = setText.split(",");
+                    for (String aSetTextValue : setTextValue) {
+                        if (field_option.equals(aSetTextValue)) {
+                            cbLayout.setChecked(true);
+                        }
+                    }
+                }
+
+            //}else{
+                Log.d("Chcekl18787442",""+cbLayout.getText()+" "+field_option+" "+setText+" "+id);
+
+                cbLayout.setChecked(false);
+                cbLayout.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        if(LOG) Log.d("TestingCheckBoxClick", cbLayout.getText().toString() + "");
+                        if (cbLayout.isChecked()) {
+                            layout.addView(checkboxLayout);
+                            checkboxCheckedlinearlayout(checkboxLayout, id, cbLayout.getText().toString(), cbLayout.isChecked(), Section);
+                        } else {
+                            if (((LinearLayout) checkboxLayout).getChildCount() > 0)
+                                ((LinearLayout) checkboxLayout).removeAllViews();
+                            //removeRadioremark(checkboxLayout,0);
+                            layout.removeView(checkboxLayout);
+                        }
+                    }
+                });
+            //}
+
+            CheckboxListhash.put(cbLayout,idForm);
+            CheckboxList.add(cbLayout);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return cbLayout;
+    }
+
+    //,String field_option,int id,String setText,String Field_Option_Id
+    private void checkboxCheckedlinearlayout(LinearLayout checkboxLayout,int id,String field_Label,boolean value,String Section) {
+
+        checkboxLayout.setOrientation(LinearLayout.VERTICAL);
+        checkboxLayout.setLayoutParams(textLayout);
+        checkboxLayout.addView(textView(field_Label));
+        checkboxLayout.setId(500 + id);
+
+        //String[] checkboxList = field_option.split(",");
+        /*for(int i = 0; i<checkboxList.length;i++){
+            checkboxLayout.addView(createCheckBox(checkboxList[i], i, setText, checkboxLayout, Field_Option_Id));
+        }*/
+        if(LOG) Log.d("TestingValuewqad", value + "");
+        //if(value){
+        //sectionForm(Section, checkboxLayout);
+        //
+
+        //return checkboxLayout;
+    }
+
+
+
+
+
+
+
+
+
+
     private LinearLayout incidentlinearlayout(String field_Label,String field_option,int id,String setText,String Field_Option_Id,String section) {
         LinearLayout radioLayout = new LinearLayout(getApplicationContext());
         radioLayout.setOrientation(LinearLayout.VERTICAL);
@@ -1547,7 +1659,7 @@ public class DynamicForm extends AppCompatActivity {
         }
         return radioLayout;
     }
-    private EditText editText(final int mandatory, String name,final int id, String setText) {
+    private EditText editText(final int mandatory, String name, final int id, String setText) {
         final EditText editText = new EditText(this);
         editText.setId(id);
         editText.setLayoutParams(textLayout);
@@ -1576,6 +1688,41 @@ public class DynamicForm extends AppCompatActivity {
         }
         return editText;
     }
+
+
+    private void editTextCalc(int id) {
+        EditText addedValue = new EditText(this);
+        addedValue.setId(id);
+        ArrayList<String> valuesgot = new ArrayList<>();
+        try {
+            int Add=0;
+            for(int i=0;i< editTextAddList.size()-1;i++){
+                String value = editTextAddList.get(i).getText().toString();
+                valuesgot.add(value);
+                if(value.equals("")){
+                    Add += 0;
+                } else {
+                    Add+=Integer.parseInt(value);
+                }
+            }
+            if(editTextAddList.size() >= 2) {
+                if (editTextAddList != null && !editTextAddList.isEmpty()) {
+                    try {
+                        editTextAddList.get(editTextAddList.size()-1).setText(Add+"");
+                        editTextAddList.get(editTextAddList.size()-1).setEnabled(false);
+                        addedValue.setText(valuesgot.get(0)+","+valuesgot.get(1)+","+Add);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+            editTextaddition.add(addedValue);
+
+        } catch (NumberFormatException e) {
+            e.printStackTrace();
+        }
+    }
+
 
     public void AlertCheck(){
         for(EditText editText1:editTextList){
@@ -1620,38 +1767,6 @@ public class DynamicForm extends AppCompatActivity {
     }
 
 
-    private void editTextCalc(int id) {
-        EditText addedValue = new EditText(this);
-        addedValue.setId(id);
-        ArrayList<String> valuesgot = new ArrayList<>();
-        try {
-            int Add=0;
-            for(int i=0;i< editTextAddList.size()-1;i++){
-                String value = editTextAddList.get(i).getText().toString();
-                valuesgot.add(value);
-                if(value.equals("")){
-                    Add += 0;
-                } else {
-                    Add+=Integer.parseInt(value);
-                }
-            }
-            if(editTextAddList.size() >= 2) {
-                if (editTextAddList != null && !editTextAddList.isEmpty()) {
-                    try {
-                        editTextAddList.get(editTextAddList.size()-1).setText(Add+"");
-                        editTextAddList.get(editTextAddList.size()-1).setEnabled(false);
-                        addedValue.setText(valuesgot.get(0)+","+valuesgot.get(1)+","+Add);
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                }
-            }
-            editTextaddition.add(addedValue);
-
-        } catch (NumberFormatException e) {
-            e.printStackTrace();
-        }
-    }
 
     private TextView textViewBranch(final LinearLayout linearLayout, final int id, String label, final String Section_Id, final int sid) {
         final TextView textView = new TextView(this);
@@ -3732,6 +3847,37 @@ public class DynamicForm extends AppCompatActivity {
         }else return false;
     }
 
+
+    public boolean checkSubmitConsumption() {
+        boolean editTextCheck = false;
+        try {
+            if (editTextConsumptionData.size() == 0){
+                editTextCheck = true;
+            }else {
+                for (EditText editLongText : editTextConsumptionData) {
+                    slnew = editLongText.getText().toString();
+                    edittextValidation.add(editLongText.getText().toString());
+                    if (slnew.equals("")) {
+                        editTextCheck = false;
+                        editLongText.setError("Please Enter Value");
+                        Snackbar snackbar = Snackbar.make(formLayout, "Please Complete the form !!", Snackbar.LENGTH_SHORT);
+                        snackbar.show();
+                        break;
+                    } else {
+                        editTextCheck = true;
+                    }
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        if(editTextCheck==true){
+            return  true;
+        }else return false;
+    }
+
+
+
     //For Unplanned Mandatory Remark
     public boolean checkSubmitRemark() {
         boolean remarkCheck = false;
@@ -3773,10 +3919,16 @@ public class DynamicForm extends AppCompatActivity {
         try {
             if (editTextListMeter.size() == 0) {
                 editTextMeterCheck = true;
-            }else {
+                //Log.d("TestMeter","1 "+editTextMeterCheck);
+            } else {
+                //Log.d("TestMeter","2 "+editTextMeterCheck);
+
                 for (EditText editLongText : editTextListMeter) {
+                    //Log.d("TestMeter","3 "+editLongText.getText().toString());
+
                     edittextValidation.add(editLongText.getText().toString());
                     if (editLongText.getText().toString().equals("")) {
+                        //Log.d("TestMeter","4 "+editTextMeterCheck);
                         Snackbar snackbar = Snackbar.make(formLayout, "Please Enter Reading !!", Snackbar.LENGTH_SHORT);
                         snackbar.show();
                         editTextMeterCheck = false;
@@ -4701,7 +4853,7 @@ public class DynamicForm extends AppCompatActivity {
                 if (Field_Type.equals("textarea")) {
                     try {
                         formLayout.addView(textView(Field_Label));
-                        formLayout.addView(editTextarea(Field_Label, Id, Value));
+                        formLayout.addView(editTextarea1(Field_Label, Id, Value));
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
@@ -4771,6 +4923,9 @@ public class DynamicForm extends AppCompatActivity {
         radioButton.setId(SelectedId);
         if(Completed.equals("Completed")) {
             radioButton.setEnabled(false);
+            if(matchvalue.equals(strvalue)){
+                sectionForm(Section_Id, SelectedId, bracnhinglayout);
+            }
         }
 
         if (matchvalue.equals(strvalue)) {
@@ -5079,7 +5234,7 @@ public class DynamicForm extends AppCompatActivity {
 
         HashMap<String,String> editText = new HashMap<>();
         ArrayList<String> radioButtonString = new ArrayList<String>();
-        ArrayList<String> checkBox = new ArrayList<String>();
+        //ArrayList<String> checkBox = new ArrayList<String>();
         ContentValues contentValues = new ContentValues();
         contentValues.put("Task_Id", uuid);
         contentValues.put("Asset_Id", AssetId);
@@ -5138,19 +5293,26 @@ public class DynamicForm extends AppCompatActivity {
 
                 String[] edittextSplit = slnew.split("\\s+");
 
-                if(LOG)Log.d("TestingValuesSplit",edittextSplit[0]+" "+edittextSplit[1]);
+                Log.d("TestingValuesSplit", edittextSplit[0] + " " + edittextSplit[1]);
                 editText.put(myDb.getfieldId(fieldId), slnew);
-                contentValues1.put("Task_Id", uuid);
-                contentValues1.put("Form_Id", myDb.getFormId(myDb.getfieldId(fieldId)));
+                if (intentFromReset.equals("Closing")){
+                    contentValues.put("Task_Id",ClosingTaskId);
+                    contentValues.put("Reset", "0");
+                }else {
+                    contentValues.put("Task_Id",TaskId);
+                    contentValues.put("Reset", "1");
+                }
+                contentValues1.put("Asset_Id", AssetId);
+                //contentValues1.put("Form_Id", myDb.getFormId(myDb.getfieldId(fieldId)));
                 contentValues1.put("Form_Structure_Id", myDb.getfieldId(fieldId));
-                contentValues1.put("Value", edittextSplit[0]);
+                contentValues1.put("Reading", edittextSplit[0]);
                 contentValues1.put("UOM", edittextSplit[1]);
+                //contentValues1.put("Reset","0");
                 contentValues1.put("Site_Location_Id", SiteId);
-                contentValues1.put("Parameter_Id", "");
+                //contentValues1.put("Parameter_Id", "");
                 contentValues1.put("UpdatedStatus", "no");
-                emaildata.put(myDb.getfieldId(fieldId),edittextSplit[0]+" "+edittextSplit[1]);
                 db = myDb.getWritableDatabase();
-                db.insert("Data_Posting", null, contentValues1);
+                db.insert("Meter_Reading", null, contentValues1);
                 db.close();
             } catch (Exception e) {
                 e.printStackTrace();
@@ -5271,25 +5433,34 @@ public class DynamicForm extends AppCompatActivity {
             }
         }
 
-        for (CheckBox checkBox1 : checkBoxList){
+        //for (CheckBox checkBox1 : checkBoxList){
+
+        /*for (int i = 0; i <checkBoxList.size(); i++){
+            CheckBox checkBox1 = checkBoxList.get(i);
             int fieldId = checkBox1.getId();
+            Log.d("Checkbox"," "+fieldId);
             try {
+                StringBuilder sb = new StringBuilder();
+
                 String Form_Structure_Id = myDb.getfieldId(fieldId);
                 String formId = myDb.getFormId(Form_Structure_Id);
                 if (checkBox1.isChecked()){
+                    slnew += checkBox1.getText().toString()+",";
+
                     String list[] = slnew.split("\n");
-                    for (int i =0; i<list.length; i++){
-                        Log.d("sfbhdfngbmf",list[i]+"");
+                    for (int j =0; j<list.length; j++){
+                        Log.d("sfbhdfngbmf",list[j]+",");
+                        sb.append(list[j]);
                     }
-                    slnew = checkBox1.getText().toString();
                     editText.put(myDb.getfieldId(fieldId), slnew);
+                    Log.d("cklds",sb.toString()+" "+editText.toString());
                     ContentValues contentValues1 = new ContentValues();
                     contentValues1.put("Task_Id", uuid);
                     contentValues1.put("Form_Id", formId);
                     contentValues1.put("Form_Structure_Id", Form_Structure_Id);
                     contentValues1.put("Site_Location_Id", SiteId);
                     contentValues1.put("Parameter_Id", "");
-                    contentValues1.put("Value", slnew);
+                    contentValues1.put("Value", sb.deleteCharAt(sb.lastIndexOf(",")).toString());
                     contentValues1.put("UpdatedStatus", "no");
                     emaildata.put(myDb.getfieldId(fieldId),String.valueOf(slnew));
                     db=myDb.getWritableDatabase();
@@ -5300,7 +5471,7 @@ public class DynamicForm extends AppCompatActivity {
             } catch (Exception e) {
                 e.printStackTrace();
             }
-        }
+        }*/
 
         for (EditText editTextList1 : editTextDGTimeList) {
             try {
@@ -5826,6 +5997,49 @@ public class DynamicForm extends AppCompatActivity {
             //myDb.insertBitmap(pair.getValue(), uuid,pair.getKey(),myDb.Site_Location_Id(User_Id));
             itRadioImage.remove(); // avoids a ConcurrentModificationException
         }
+
+
+        /*Iterator check = CheckboxListhash.entrySet().iterator();
+        //String checkBocValue ="";
+        StringBuilder checkBocValue = new StringBuilder();
+        int FieldId = 0;
+        while (check.hasNext()) {
+            Map.Entry<CheckBox,Integer> pair = (Map.Entry)check.next();
+
+            FieldId = pair.getValue();
+            CheckBox checkBox = pair.getKey();
+
+            if(checkBox.isChecked()){
+                //checkBocValue = checkBox.getText().toString();
+                Log.d("Cgkds",checkBox.getText().toString()+",");
+
+                checkBocValue.append(checkBox.getText().toString()+",");
+            }
+
+
+            //myDb.insertBitmap(pair.getValue(), uuid,pair.getKey(),myDb.Site_Location_Id(User_Id));
+            check.remove(); // avoids a ConcurrentModificationException
+        }
+
+        try {
+            ContentValues contentValues1 = new ContentValues();
+            //int fieldId = editTextSignature.getId();
+            //editText.put(myDb.getfieldId(fieldId), editTextSignature.getText().toString());
+            contentValues1.put("Task_Id", uuid);
+            contentValues1.put("Form_Id", myDb.getFormId(myDb.getfieldId(FieldId)));
+            contentValues1.put("Form_Structure_Id", myDb.getfieldId(FieldId));
+            contentValues1.put("Value", checkBocValue.substring(0, checkBocValue.length() - 1));
+            contentValues1.put("Site_Location_Id", SiteId);
+            contentValues1.put("Parameter_Id", "");
+            contentValues1.put("UpdatedStatus", "no");
+            db = myDb.getWritableDatabase();
+            db.insert("Data_Posting", null, contentValues1);
+            db.close();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }*/
+
 
     }
 

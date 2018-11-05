@@ -109,7 +109,7 @@ public class applicationClass extends Application {
         return "yes";
     }
     public boolean checkLog(){ return true; }
-    public boolean writeJsonFile(){ return true; }
+    public boolean writeJsonFile(){ return false; }
     public String AutoSync(){ return "false"; }
     public int AutoSyncFreq(){ return 15; }
     public boolean fabButton(){ return false; }
