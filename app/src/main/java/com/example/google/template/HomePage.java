@@ -286,7 +286,7 @@ public class HomePage extends AppCompatActivity {
         mPhoneStatelistener = new myPhoneStateListener();
         mTelephonyManager = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
         mTelephonyManager.listen(mPhoneStatelistener, PhoneStateListener.LISTEN_SIGNAL_STRENGTHS);
-
+        Slider();
         initToolBar();
         SettingPref();
         AutoSyncPref();
@@ -295,7 +295,7 @@ public class HomePage extends AppCompatActivity {
         deletePreviousData();
         insertMissedTask();
         insertCancelledTask();
-        Slider();
+
         //downloadAsset();
 
 
@@ -525,28 +525,28 @@ public class HomePage extends AppCompatActivity {
                     }
                 } else {
 
-                   *//* if(taskProvider.getNoTaskAssigned() == false){
+                    if (taskProvider.getNoTaskAssigned() == false) {
 
-                        final Snackbar snackbar = Snackbar.make(linearLayout, "No Task Available For This Site", Snackbar.LENGTH_LONG);
+                        Snackbar snackbar = Snackbar.make(linearLayout, "No Task Available For This Site", Snackbar.LENGTH_LONG);
 
                         snackbar.show();
+                    } else {
+                        Snackbar snackbar = Snackbar
+                                .make(linearLayout, "Data not available.", Snackbar.LENGTH_LONG)
+                                .setAction("Please Synchronize", new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View view) {
+                                        new CheckingInternetConnectivity().execute();
+                                    }
+                                });
+
+                        snackbar.setDuration(20000);
+                        snackbar.show();
+                        // }
                     }
-                    else {*//*
-                    final Snackbar snackbar = Snackbar
-                            .make(linearLayout, "Data not available.", Snackbar.LENGTH_LONG)
-                            .setAction("Please Synchronize", new View.OnClickListener() {
-                                @Override
-                                public void onClick(View view) {
-                                    new CheckingInternetConnectivity().execute();
-                                }
-                            });
 
-                    snackbar.setDuration(20000);
-                    snackbar.show();
-                    // }
+
                 }
-
-
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -4783,9 +4783,9 @@ public class HomePage extends AppCompatActivity {
             Cursor cursor = db.rawQuery(selectQuery, null);
             Log.d("Teasdasd",selectQuery + " "+cursor.getCount() );
             Log.d("Teasdasd","GitWorklingas");
-            Log.d("Teasdasd","Dakshata ko dekha");
+            /*Log.d("Teasdasd","Dakshata ko dekha");
             Log.d("Teasdasd","Prathamesh ko dekha");
-            Log.d("Teasdasd","Dakshata ko Dakshata");
+            Log.d("Teasdasd","Dakshata ko Dakshata");*/
             if (cursor.moveToFirst()) {
                 do {
                     JSONObject PPMTaskJsonObject = new JSONObject();
