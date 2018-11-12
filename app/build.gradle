@@ -1,7 +1,7 @@
 apply plugin: 'com.android.application'
 
 //5/11/2018 Prathamesh: Updated Consumption Validation, Consumption Data to be post in Meter Reading, Consumption data will get in next task for next date.
-
+//12/11/2018 Prathamesh: Updated Meter Reset code for Consumption form.
 android {
     compileSdkVersion 27
     buildToolsVersion '27.0.3'
