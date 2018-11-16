@@ -49,7 +49,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         sqLiteDatabase.execSQL("CREATE TABLE Site_Details (Id INTEGER PRIMARY KEY ,Auto_Id TEXT,Site_Name_Label TEXT,Site_Name_Value TEXT,Assigned_To_User_Id TEXT)");
         sqLiteDatabase.execSQL("CREATE TABLE Form_Structure (Id INTEGER PRIMARY KEY,Field_Id TEXT,Site_Location_Id TEXT,Form_Id TEXT,Field_Label TEXT,Field_Type TEXT,Field_Options TEXT,FixedValue Text,Mandatory INTEGER,sid INTEGER,sections TEXT,Display_Order INTEGER,SafeRange INTEGER,Calculation INTEGER,Record_Status TEXT)");
         sqLiteDatabase.execSQL("CREATE TABLE Asset_Details (Id INTEGER PRIMARY KEY ,Asset_Id TEXT,Site_Location_Id TEXT,Asset_Code TEXT,Asset_Name TEXT,Asset_Location TEXT,Asset_Status_Id TEXT,Asset_Type TEXT,Status TEXT,Manual_Time TEXT, Asset_Update_Time TEXT,UpdatedStatus TEXT)");
-        sqLiteDatabase.execSQL("CREATE TABLE Asset_Status (Id INTEGER PRIMARY KEY,Asset_Status_Id TEXT,Status TEXT,Task_State TEXT)");
+        sqLiteDatabase.execSQL("CREATE TABLE Asset_Status (Id INTEGER PRIMARY KEY,Asset_Status_Id TEXT,Status TEXT,Task_State TEXT, Color TEXT)");
         sqLiteDatabase.execSQL("CREATE TABLE Parameter (Id INTEGER PRIMARY KEY,Site_Location_Id TEXT,Activity_Frequency_Id TEXT, Form_Id TEXT,Form_Structure_Id TEXT, Field_Limit_From TEXT,Field_Limit_To TEXT,Threshold_From TEXT,Threshold_To TEXT,Validation_Type TEXT,Critical INTEGER,Field_Option_Id TEXT)");
         sqLiteDatabase.execSQL("CREATE TABLE Meter_Reading(Id INTEGER PRIMARY KEY,Site_Location_Id TEXT,Task_Id TEXT,Asset_Id TEXT,Form_Structure_Id TEXT,Reading TEXT,UOM TEXT,Reset INTEGER,Activity_Frequency_Id TEXT,Task_Start_At TEXT,UpdatedStatus TEXT)");
         sqLiteDatabase.execSQL("CREATE TABLE Data_Posting(Id INTEGER PRIMARY KEY,Site_Location_Id TEXT,Task_Id TEXT,Form_Id TEXT,Form_Structure_Id TEXT,Parameter_Id TEXT,Value TEXT,UOM Text,Remark TEXT,UpdatedStatus TEXT)");
@@ -230,13 +230,15 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         count = cursor.getCount();
         return count+"";
     }
-    public String lastFinalReading(String fieldId,String Activity_Frequency_Id){
+    public String lastFinalReading(String fieldId,String Asset_Id){
         StringBuffer buffer = new StringBuffer();
         String Task_Id = "";
         String reading ="";
         String uomValue ="";
         SQLiteDatabase database = this.getWritableDatabase();
-        String updateQuery = "SELECT Auto_Id FROM Task_Details WHERE Task_Status IN ('Completed','Unplanned') AND Activity_Frequency_Id = '"+Activity_Frequency_Id+"' ORDER BY Id DESC LIMIT 1";
+        String updateQuery = "SELECT Auto_Id FROM Task_Details " +
+                "WHERE Task_Status IN ('Completed','Unplanned','Delayed') AND Asset_Id = '"+Asset_Id+"' " +
+                "ORDER BY Task_Start_At DESC LIMIT 1";
         Log.d("TestingUrl",updateQuery);
         Cursor cursor = database.rawQuery(updateQuery, null);
         if (cursor.moveToFirst()) {
@@ -249,7 +251,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         cursor.close();
 
         String valueQuery = "Select Reading,UOM  FROM Meter_Reading WHERE Form_Structure_Id='"+fieldId+"' and Task_Id ='"+Task_Id+"'  ORDER BY Id DESC LIMIT 1";
-        Log.d("TestingUrl",updateQuery);
+        Log.d("TestingUrl",valueQuery);
         Cursor cursorDataPosting = database.rawQuery(valueQuery, null);
         if (cursorDataPosting.moveToFirst()) {
             do {

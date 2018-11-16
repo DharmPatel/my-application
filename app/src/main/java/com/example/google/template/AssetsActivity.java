@@ -270,16 +270,20 @@ public class AssetsActivity extends AppCompatActivity {
         lvAssets.setAdapter(listDataAdapter);
         Log.d("hereGroupVal",GroupValue+"");
         if (GroupValue == 0) {
-            Query = "SELECT asm.* from Asset_Details asm Left Join Asset_Activity_Linking aal " +
+            Query = "SELECT asm.*, asst.Task_State, asst.Color from Asset_Details asm Left Join Asset_Activity_Linking aal " +
                     "on aal.Asset_Id =  asm.Asset_Id " +
                     "Left Join Asset_Activity_AssignedTo aaa " +
-                    " on aal.Auto_Id = aaa.Asset_Activity_Linking_Id " +
+                    "on aal.Auto_Id = aaa.Asset_Activity_Linking_Id " +
+                    "LEFT JOIN Asset_Status asst " +
+                    "ON asst.Asset_Status_Id = asm.Asset_Status_Id " +
                     "where aaa.Assigned_To_User_Group_Id IN (" + User_Group_Id + ")and asm.Asset_Location = '" + CheckedValue + "' Group By asm.Asset_Code";
         }else {
-            Query = "SELECT asm.* from Asset_Details asm Left Join Asset_Activity_Linking aal " +
+            Query = "SELECT asm.*, asst.Task_State, asst.Color from Asset_Details asm Left Join Asset_Activity_Linking aal " +
                     "on aal.Asset_Id =  asm.Asset_Id " +
                     "Left Join Asset_Activity_AssignedTo aaa " +
-                    " on aal.Auto_Id = aaa.Asset_Activity_Linking_Id " +
+                    "on aal.Auto_Id = aaa.Asset_Activity_Linking_Id " +
+                    "LEFT JOIN Asset_Status asst " +
+                    "ON asst.Asset_Status_Id = asm.Asset_Status_Id " +
                     "where aaa.Assigned_To_User_Group_Id IN (" + User_Group_Id + ")and asm.Asset_Type = '" + CheckedValue + "' Group By asm.Asset_Code";
         }
         Cursor cursor = db.rawQuery(Query, null);
@@ -297,8 +301,10 @@ public class AssetsActivity extends AppCompatActivity {
                     String Asset_Location = cursor.getString(cursor.getColumnIndex("Asset_Location"));
                     String Asset_Status_Id = cursor.getString(cursor.getColumnIndex("Asset_Status_Id"));
                     String Status = cursor.getString(cursor.getColumnIndex("Status"));
-
-                    DataProvider assetDataProvider = new DataProvider(Asset_Id, Asset_Code, Asset_Name, Asset_Location, Status, null, null, null);
+                    String Task_State = cursor.getString(cursor.getColumnIndex("Task_State"));
+                    String Color = cursor.getString(cursor.getColumnIndex("Color"));
+                    //DataProvider assetDataProvider = new DataProvider(Asset_Id, Asset_Code, Asset_Name, Asset_Location, Status, null, null, null);
+                    DataProvider assetDataProvider = new DataProvider(Asset_Id, Asset_Code, Asset_Name, Asset_Location, Status, null, null, null,Asset_Status_Id,Task_State,Color);
                     listDataAdapter.add(assetDataProvider);
                 }
                 while (cursor.moveToNext());
@@ -317,28 +323,34 @@ public class AssetsActivity extends AppCompatActivity {
             listDataAdapter = new ListDataAdapter(getApplicationContext(), R.layout.asset_list_item);
             lvAssets.setAdapter(listDataAdapter);
             if (LocationValue != "Select Location" && Categoryvalue == "Select Category") {
-                Query = "select asm.* " +
+                Query = "select asm.*, asst.Task_State, asst.Color " +
                         "from Asset_Details asm " +
                         "Left Join Asset_Activity_Linking aal "+
                         "on aal.Asset_Id =  asm.Asset_Id "+
                         "Left Join Asset_Activity_AssignedTo aaa "+
                         "on aal.Auto_Id = aaa.Asset_Activity_Linking_Id "+
+                        "LEFT JOIN Asset_Status asst " +
+                        "ON asst.Asset_Status_Id = asm.Asset_Status_Id " +
                         "where aaa.Assigned_To_User_Group_Id IN (" + User_Group_Id + ") and asm.Asset_Location ='"+LocationValue+"'";
             } else if (Categoryvalue != "Select Category" && LocationValue == "Select Location" ) {
-                Query = "select asm.* " +
+                Query = "select asm.*, asst.Task_State, asst.Color " +
                         "from Asset_Details asm " +
                         "Left Join Asset_Activity_Linking aal "+
                         "on aal.Asset_Id =  asm.Asset_Id "+
                         "Left Join Asset_Activity_AssignedTo aaa "+
                         "on aal.Auto_Id = aaa.Asset_Activity_Linking_Id "+
+                        "LEFT JOIN Asset_Status asst " +
+                        "ON asst.Asset_Status_Id = asm.Asset_Status_Id " +
                         "where aaa.Assigned_To_User_Group_Id IN (" + User_Group_Id + ") and asm.Asset_Type = '"+Categoryvalue+"'";
             }else if (Categoryvalue != "Select Category" && LocationValue != "Select Location"){
-                Query = "select asm.* " +
+                Query = "select asm.*,asst.Task_State, asst.Color " +
                         "from Asset_Details asm " +
                         "Left Join Asset_Activity_Linking aal "+
                         "on aal.Asset_Id =  asm.Asset_Id "+
                         "Left Join Asset_Activity_AssignedTo aaa "+
                         "on aal.Auto_Id = aaa.Asset_Activity_Linking_Id "+
+                        "LEFT JOIN Asset_Status asst " +
+                        "ON asst.Asset_Status_Id = asm.Asset_Status_Id " +
                         "where aaa.Assigned_To_User_Group_Id IN (" + User_Group_Id + ") and asm.Asset_Type = '"+Categoryvalue+"' and asm.Asset_Location ='"+LocationValue+"'";
 
             }
@@ -359,8 +371,11 @@ public class AssetsActivity extends AppCompatActivity {
                     String Asset_Location = cursor.getString(cursor.getColumnIndex("Asset_Location"));
                     String Asset_Status_Id = cursor.getString(cursor.getColumnIndex("Asset_Status_Id"));
                     String Status = cursor.getString(cursor.getColumnIndex("Status"));
+                    String Task_State = cursor.getString(cursor.getColumnIndex("Task_State"));
+                    String Color = cursor.getString(cursor.getColumnIndex("Color"));
+                    //DataProvider assetDataProvider = new DataProvider(Asset_Id, Asset_Code, Asset_Name, Asset_Location, Status, null, null, null);
+                    DataProvider assetDataProvider = new DataProvider(Asset_Id, Asset_Code, Asset_Name, Asset_Location, Status, null, null, null,Asset_Status_Id,Task_State,Color);
 
-                    DataProvider assetDataProvider = new DataProvider(Asset_Id, Asset_Code, Asset_Name, Asset_Location, Status, null, null, null);
                     listDataAdapter.add(assetDataProvider);
                 }
                 while (cursor.moveToNext());
@@ -379,12 +394,14 @@ public class AssetsActivity extends AppCompatActivity {
             listDataAdapter = new ListDataAdapter(getApplicationContext(), R.layout.asset_list_item);
             lvAssets.setAdapter(listDataAdapter);
             if (Asset_View == 0) {
-                Query = "select asm.* " +
+                Query = "select asm.*,asst.Task_State, asst.Color " +
                         "from Asset_Details asm " +
                         "Left Join Asset_Activity_Linking aal " +
                         "on aal.Asset_Id =  asm.Asset_Id " +
                         "Left Join Asset_Activity_AssignedTo aaa " +
                         "on aal.Auto_Id = aaa.Asset_Activity_Linking_Id " +
+                        "LEFT JOIN Asset_Status asst " +
+                        "ON asst.Asset_Status_Id = asm.Asset_Status_Id " +
                         "where aaa.Assigned_To_User_Group_Id IN (" + User_Group_Id + ") Group By asm.Asset_Code";
             } else {
                 Query = "SELECT * from Asset_Details where Site_Location_Id ='" + site_id + "' ";
@@ -399,8 +416,12 @@ public class AssetsActivity extends AppCompatActivity {
                     String Asset_Name = cursor.getString(cursor.getColumnIndex("Asset_Name"));
                     String Asset_Location = cursor.getString(cursor.getColumnIndex("Asset_Location"));
                     String Asset_Status_Id = cursor.getString(cursor.getColumnIndex("Asset_Status_Id"));
+                    String Task_State = cursor.getString(cursor.getColumnIndex("Task_State"));
                     String Status = cursor.getString(cursor.getColumnIndex("Status"));
-                    DataProvider assetDataProvider = new DataProvider(Asset_Id, Asset_Code, Asset_Name, Asset_Location, Status, null, null, null);
+                    String Color = cursor.getString(cursor.getColumnIndex("Color"));
+                    DataProvider assetDataProvider = new DataProvider(Asset_Id,Asset_Code,Asset_Name,Asset_Location,Status,null,null,null,Asset_Status_Id,Task_State,Color);
+
+                    //DataProvider assetDataProvider = new DataProvider(Asset_Id, Asset_Code, Asset_Name, Asset_Location, Status, null, null, null);
                     listDataAdapter.add(assetDataProvider);
                 }
                 while (cursor.moveToNext());
@@ -539,8 +560,9 @@ public class AssetsActivity extends AppCompatActivity {
                 do {
                     String Asset_Status_Id = cursor2.getString(cursor2.getColumnIndex("Asset_Status_Id"));
                     String status = cursor2.getString(cursor2.getColumnIndex("Status"));
-
-                    radioGroup.addView(radioButton(Asset_Code, status, cursor2.getInt(0)));
+                    String Task_State = cursor2.getString(cursor2.getColumnIndex("Task_State"));
+                    String Color = cursor2.getString(cursor2.getColumnIndex("Color"));
+                    radioGroup.addView(radioButton(Asset_Code, status, cursor2.getInt(0),Asset_Status_Id,Color));
                 }
                 while (cursor2.moveToNext());
                 textRadioGroupList.add(radioGroup);
@@ -844,7 +866,37 @@ public class AssetsActivity extends AppCompatActivity {
     }
 */
 
-    private RadioButton radioButton(final String assetId,String strvalue,int statusID) {
+
+    private RadioButton radioButton(final String assetId,String strvalue,int statusID,String Asset_Status_Id,String color) {
+        RadioButton radioButton = new RadioButton(this);
+        radioButton.setText(strvalue);
+        Log.d("dsafdasfsdf"," "+Asset_Status_Id);
+        try {
+            radioButton.setTextColor(Color.BLACK);
+          /*  if(Asset_Status_Id.equals("62652f03-c38a-11e6-bd45-386077afee16"))
+                radioButton.setTextColor(Color.parseColor(color));
+            else if(Asset_Status_Id.equals("62656a60-c38a-11e6-bd45-386077afee16"))
+                radioButton.setTextColor(Color.parseColor("#D68910"));
+            else if(Asset_Status_Id.equals("62659f3f-c38a-11e6-bd45-386077afee16"))
+                radioButton.setTextColor(Color.parseColor("#283747"));
+            else if(Asset_Status_Id.equals("928bb23b-d18a-11e6-8392-842b2b780a3f"))
+                radioButton.setTextColor(Color.parseColor("#922B21"));*/
+            radioButton.setId(statusID);
+
+            if(statusText.equals(strvalue))
+            {
+                radioButton.setChecked(true);
+            }
+        } catch (Exception e) {
+            if(LOG) Log.d(TAG,"aa399"+"ERROR==" + e);
+            Toast.makeText(getApplicationContext(), "Error code: aa399", Toast.LENGTH_SHORT).show();
+            e.printStackTrace();
+        }
+        textRadioButtonList.add(radioButton);
+        return radioButton;
+    }
+
+    /*private RadioButton radioButton(final String assetId,String strvalue,int statusID) {
         RadioButton radioButton = new RadioButton(this);
         radioButton.setText(strvalue);
         try {
@@ -871,12 +923,12 @@ public class AssetsActivity extends AppCompatActivity {
         }
         textRadioButtonList.add(radioButton);
         return radioButton;
-    }
+    }*/
     public void checkResetForm(String AssetCode){
         String uuid = UUID.randomUUID().toString();
         try {
             db= myDb.getWritableDatabase();
-            Cursor cursor= db.rawQuery(" SELECT a.*, b.Field_Type FROM Task_Details a,Form_Structure b WHERE a.Assigned_To_User_Group_Id IN ("+myDb.UserGroupId(User_Id)+") AND a.Site_Location_Id='"+site_id+"' AND a.Asset_Code='"+AssetCode+"' AND a.From_Id=b.Form_Id  AND b.Field_Type='meter'  GROUP BY From_Id", null);
+            Cursor cursor= db.rawQuery(" SELECT a.*, b.Field_Type FROM Task_Details a,Form_Structure b WHERE a.Assigned_To_User_Group_Id IN ("+myDb.UserGroupId(User_Id)+") AND a.Site_Location_Id='"+site_id+"' AND a.Asset_Code='"+AssetCode+"' AND a.From_Id=b.Form_Id  AND b.Field_Type IN ('meter','consumption')  GROUP BY From_Id", null);
 
             if (cursor.moveToFirst()) {
                 do {
@@ -1147,7 +1199,7 @@ public class AssetsActivity extends AppCompatActivity {
 
                 try {
                     db = myDb.getReadableDatabase();
-                    Cursor cursor = db.rawQuery("SELECT * FROM asset_Details where Site_Location_Id ='" + site_id + "' and (Asset_Code LIKE '%" + charSequence + "%' OR Asset_Name LIKE '%" + charSequence + "%' OR Asset_Location LIKE '%" + charSequence + "%' OR Status LIKE '" + charSequence + "%')", null);
+                    Cursor cursor = db.rawQuery("SELECT a.*,b.Task_State,b.Color FROM asset_Details a,Asset_Status b  where a.Asset_Status_Id=b.Asset_Status_Id and a.Site_Location_Id ='" + site_id + "' and (a.Asset_Code LIKE '%" + charSequence + "%' OR a.Asset_Name LIKE '%" + charSequence + "%' OR a.Asset_Location LIKE '%" + charSequence + "%' OR a.Status LIKE '" + charSequence + "%')", null);
                     listDataAdapter = new ListDataAdapter(getApplicationContext(), R.layout.asset_list_item);
                     lvAssets.setAdapter(listDataAdapter);
                     if (cursor.moveToFirst()) {
@@ -1159,7 +1211,10 @@ public class AssetsActivity extends AppCompatActivity {
                             String Asset_Location = cursor.getString(cursor.getColumnIndex("Asset_Location"));
                             String Asset_Status_Id = cursor.getString(cursor.getColumnIndex("Asset_Status_Id"));
                             String Status = cursor.getString(cursor.getColumnIndex("Status"));
-                            DataProvider assetDataProvider = new DataProvider(Asset_Id, Asset_Code, Asset_Name, Asset_Location, Status, null, null, null);
+                            String Task_State = cursor.getString(cursor.getColumnIndex("Task_State"));
+                            String Color = cursor.getString(cursor.getColumnIndex("Color"));
+                            //DataProvider assetDataProvider = new DataProvider(Asset_Id, Asset_Code, Asset_Name, Asset_Location, Status, null, null, null);
+                            DataProvider assetDataProvider = new DataProvider(Asset_Id, Asset_Code, Asset_Name, Asset_Location, Status, null, null, null,Asset_Status_Id,Task_State,Color);
                             listDataAdapter.add(assetDataProvider);
                         }
                         while (cursor.moveToNext());

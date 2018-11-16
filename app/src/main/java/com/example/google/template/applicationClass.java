@@ -108,7 +108,7 @@ public class applicationClass extends Application {
     public String completedView(){
         return "yes";
     }
-    public boolean checkLog(){ return true; }
+    public boolean checkLog(){ return false; }
     public boolean writeJsonFile(){ return false; }
     public String AutoSync(){ return "false"; }
     public int AutoSyncFreq(){ return 15; }
@@ -121,7 +121,7 @@ public class applicationClass extends Application {
         return "http://192.168.0.56/PunNewTemplate/";
     }*/
     public String urlString(){
-        return "http://punctualiti.net/iss_new/";
+        return "http://punctualiti.net/microland/";
     }
 }
 

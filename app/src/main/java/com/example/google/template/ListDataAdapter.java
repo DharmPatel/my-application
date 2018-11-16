@@ -72,7 +72,9 @@ public class ListDataAdapter extends ArrayAdapter<DataProvider> {
         layoutHandler.ASSET_NAME.setText(dataProvider.getAsset_Name());
         layoutHandler.ASSET_LOCATION.setText(dataProvider.getAsset_Location());
         //layoutHandler.ASSET_STATUS.setText(dataProvider.getStatus());
-        try {
+        row.setBackgroundColor(Color.parseColor(dataProvider.getColor()));
+
+        /*try {
             if(dataProvider.getStatus().equals(" "))
             {
                 row.setBackgroundColor(Color.TRANSPARENT);
@@ -104,7 +106,7 @@ public class ListDataAdapter extends ArrayAdapter<DataProvider> {
             }
         }catch (Exception e){
             e.printStackTrace();
-        }
+        }*/
         return row;
 
     }

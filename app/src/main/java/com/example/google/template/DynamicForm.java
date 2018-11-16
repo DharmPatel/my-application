@@ -482,7 +482,7 @@ public class DynamicForm extends AppCompatActivity {
                     }
                     if (Field_Type.equals("consumption")) {
                         try {
-                            formLayout.addView(consumptionlinearlayout(Mandatory, Field_Label, Field_Options, Id, "", Value, Field_Id, calculationvalue));
+                            formLayout.addView(consumptionlinearlayout(Mandatory, Field_Label, Field_Options, Id, "", Reading, Field_Id, calculationvalue));
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
@@ -1195,7 +1195,7 @@ public class DynamicForm extends AppCompatActivity {
                     if (checkSubmitLowerReading() == true) {
                         if (intentFromReset.equals("Closing")){
                             saveData(taskInsert(taskStatus));
-                            emailAlert(TaskId);
+                            emailAlert(ClosingTaskId);
                             Intent intent = new Intent(DynamicForm.this,DynamicForm.class);
                             intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                             intent.putExtra("FromReset","Opening");
@@ -1278,7 +1278,7 @@ public class DynamicForm extends AppCompatActivity {
                     } else {
                         if (intentFromReset.equals("Closing")){
                             saveData(taskInsert(taskStatus));
-                            emailAlert(TaskId);
+                            emailAlert(ClosingTaskId);
                             Intent intent = new Intent(getApplicationContext(),DynamicForm.class);
                             intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                             intent.putExtra("FromReset","Opening");
@@ -2320,6 +2320,8 @@ public class DynamicForm extends AppCompatActivity {
                 int selectedId3 = Log.d("ValuewOnEditText", radioButton.getText().toString() + " " + editTextFirst.getText().toString() + " " + radioButton2.getText().toString() + " " + editTextSecond.getText().toString() + " " + editTextConsumption.getText().toString());
             }
 
+           // Log.d("gh"," "+radioButton.isChecked()+" "+radioButton2.isChecked()+" "+);
+
             if (radioButton.isChecked() && radioButton2.isChecked() && !editTextFirst.getText().toString().equals("") && !editTextSecond.getText().toString().equals("")) {
                 //selectRB = radioButton.getText().toString();
                 if(LOG) Log.d("Consumption",selectRB);
@@ -2372,14 +2374,16 @@ public class DynamicForm extends AppCompatActivity {
         radioLayout.setOrientation(LinearLayout.VERTICAL);
         radioLayout.setLayoutParams(textLayout);
         String previousReading = "No Previous Reading";
-        if(!Completed.equals("Completed")){
-            previousReading = myDb.lastFinalReading(Field_Id,frequencyId);
+        if(!Completed.equals("Completed") || !intentFromReset.equals("Opening")){
+            Log.d("fjhsdg",Completed+" "+intentFromReset);
+            previousReading = myDb.lastFinalReading(Field_Id,AssetId);
         }
         String[] label = field_Label.split(",");
         for(int i = 0;i<label.length-1;i++){
             String[] labelValue = label[i].split("\\|");
-            if(LOG)Log.d("TestingValue", label[i] + " " + " " + labelValue);
+            if(LOG)Log.d("TestingValue", label[i] + " " + " " + labelValue+" "+i);
             if(i == 0){
+                Log.d("jdshfj",previousReading);
                 if(previousReading.equals("No Previous Reading")){
                     if(Completed.equals("Completed")) {
                      /*   radioLayout.addView(textView(labelValue[0]));
@@ -2395,12 +2399,19 @@ public class DynamicForm extends AppCompatActivity {
 
 
                 }else{
+                    if(!intentFromReset.equals("Opening")){
                     String[] previousReadingSplite = previousReading.split(",");
-                    if(LOG)Log.d("Teasdasdasxdcasdasd",previousReading + " "+ previousReadingSplite[0] +" "+ previousReadingSplite[1]);
                     radioLayout.addView(textView(labelValue[0]));
                     radioLayout.addView(editTextConsumption(id, getData, previousReadingSplite[0]));
                     radioLayout.addView(textView(labelValue[1]));
+                    if(LOG)Log.d("Teasdasdasxdcasdasd",previousReading + " "+ previousReadingSplite[0] +" "+ previousReadingSplite[1]);
                     radioLayout.addView(radiogroupMeterConsumption(Field_Options, id + i,  previousReadingSplite[1],calcutionvalue,null));
+                    } else {
+                        radioLayout.addView(textView(labelValue[0]));
+                        radioLayout.addView(editTextConsumption(id,"", ""));
+                        radioLayout.addView(textView(labelValue[1]));
+                        radioLayout.addView(radiogroupMeterConsumption(Field_Options, id + i, "",calcutionvalue,null));
+                    }
                 }
 
             }else {
@@ -2410,10 +2421,13 @@ public class DynamicForm extends AppCompatActivity {
                     radioLayout.addView(textView(labelValue[1]));
                     radioLayout.addView(radiogroupMeterConsumption(Field_Options, id + i, UOMvalue[2],calcutionvalue));*/
                 }else {
-                    radioLayout.addView(textView(labelValue[0]));
-                    radioLayout.addView(editTextConsumption(id, getData, ""));
-                    radioLayout.addView(textView(labelValue[1]));
-                    radioLayout.addView(radiogroupMeterConsumption(Field_Options, id + i, "",calcutionvalue,radioLayout));
+                    //if (!intentFromReset.equals("Opening")) {
+                        Log.d("dfjhgsd", "jhfgkj"+" "+labelValue[0]+" "+labelValue[1]);
+                        radioLayout.addView(textView(labelValue[0]));
+                        radioLayout.addView(editTextConsumption(id, getData, ""));
+                        radioLayout.addView(textView(labelValue[1]));
+                        radioLayout.addView(radiogroupMeterConsumption(Field_Options, id + i, "", calcutionvalue, radioLayout));
+                    //}
                 }
 
             }
@@ -4286,38 +4300,53 @@ public class DynamicForm extends AppCompatActivity {
                 myDb.updatedPPMTaskDetails(TaskId,taskStatus,Completed, applicationClass.yymmddhhmmss(), Scan_Type, User_Id, User_Group_Id, Remarks);
             }else {
                 if (Checklist != null){
-                    myDb.insertTaskDetails(TaskId, companyId,SiteId,frequencyId,taskStatus, Completed,applicationClass.yymmddhhmmss(),Asset_Name, AssetId,Form_IdIntent,assetCode,Asset_Location,Asset_Status,Activity_Name, Scan_Type, User_Id,User_Group_Id, Checklist,Remarks);
+                        myDb.insertTaskDetails(TaskId, companyId, SiteId, frequencyId, taskStatus, Completed, applicationClass.yymmddhhmmss(), Asset_Name, AssetId, Form_IdIntent, assetCode, Asset_Location, Asset_Status, Activity_Name, Scan_Type, User_Id, User_Group_Id, Checklist, Remarks);
                 }else {
-                    myDb.updatedTaskDetails(TaskId, taskStatus, Completed, applicationClass.yymmddhhmmss(), Scan_Type, User_Id, Remarks,0);
+                        myDb.updatedTaskDetails(TaskId, taskStatus, Completed, applicationClass.yymmddhhmmss(), Scan_Type, User_Id, Remarks, 0);
                 }
             }
         } else {
-            contentValues1.put("Auto_Id", TaskId);
-            contentValues1.put("Company_Customer_Id", companyId);
-            contentValues1.put("Site_Location_Id", SiteId);
-            contentValues1.put("Activity_Frequency_Id", frequencyId);
-            contentValues1.put("Task_Scheduled_Date", "0000-00-00 00:00:00");
-            contentValues1.put("Task_Status", "Unplanned");
-            contentValues1.put("Task_Start_At",applicationClass.yymmddhhmmss());
-            contentValues1.put("Assigned_To", "U");
-            contentValues1.put("EndDateTime", "[ Unplanned ]");
-            contentValues1.put("Asset_Name", Asset_Name);
-            contentValues1.put("Asset_Id",AssetId);
-            contentValues1.put("From_Id",Form_IdIntent);
-            contentValues1.put("Asset_Code",assetCode);
-            contentValues1.put("Asset_Location", Asset_Location);
-            contentValues1.put("Asset_Status", Asset_Status);
-            contentValues1.put("Activity_Name", Activity_Name);
-            contentValues1.put("Assigned_To_User_Id", User_Id);
-            contentValues1.put("Assigned_To_User_Group_Id",User_Group_Id);
-            contentValues1.put("Scan_Type", Scan_Type);
-            contentValues1.put("Remarks", Remarks);
-            contentValues1.put("UpdatedStatus", "no");
-            db=myDb.getWritableDatabase();
-            db.insert("Task_Details", null, contentValues1);
-            db.close();
+
+            if(!intentFromReset.equals("Closing")) {
+                Log.d("dhskjrwe12456", TaskId);
+                contentValues1.put("Auto_Id", TaskId);
+            } else {
+                Log.d("dhskjrwe132454", ClosingTaskId);
+                contentValues1.put("Auto_Id", ClosingTaskId);
+            }
+                contentValues1.put("Company_Customer_Id", companyId);
+                contentValues1.put("Site_Location_Id", SiteId);
+                contentValues1.put("Activity_Frequency_Id", frequencyId);
+                contentValues1.put("Task_Scheduled_Date", "0000-00-00 00:00:00");
+                contentValues1.put("Task_Status", "Unplanned");
+                contentValues1.put("Task_Start_At", applicationClass.yymmddhhmmss());
+                contentValues1.put("Assigned_To", "U");
+                contentValues1.put("EndDateTime", "[ Unplanned ]");
+                contentValues1.put("Asset_Name", Asset_Name);
+                contentValues1.put("Asset_Id", AssetId);
+                contentValues1.put("From_Id", Form_IdIntent);
+                contentValues1.put("Asset_Code", assetCode);
+                contentValues1.put("Asset_Location", Asset_Location);
+                contentValues1.put("Asset_Status", Asset_Status);
+                contentValues1.put("Activity_Name", Activity_Name);
+                contentValues1.put("Assigned_To_User_Id", User_Id);
+                contentValues1.put("Assigned_To_User_Group_Id", User_Group_Id);
+                contentValues1.put("Scan_Type", Scan_Type);
+                contentValues1.put("Remarks", Remarks);
+                contentValues1.put("UpdatedStatus", "no");
+                db = myDb.getWritableDatabase();
+                db.insert("Task_Details", null, contentValues1);
+                db.close();
+
         }
-        return  TaskId;
+
+        if(!intentFromReset.equals("Closing")) {
+            Log.d("dhskjrwe12456", TaskId);
+            return TaskId;
+        } else {
+            Log.d("dhskjrwe132454", ClosingTaskId);
+            return ClosingTaskId;
+        }
     }
 
 
@@ -5268,9 +5297,12 @@ public class DynamicForm extends AppCompatActivity {
                 if (intentFromReset.equals("Closing")){
                     contentValues.put("Task_Id",ClosingTaskId);
                     contentValues.put("Reset", "0");
+                }else if(intentFromReset.equals("Opening")){
+                    contentValues.put("Task_Id",TaskId);
+                    contentValues.put("Reset", "0");
                 }else {
                     contentValues.put("Task_Id",TaskId);
-                    contentValues.put("Reset", "1");
+                    contentValues.put("Reset", "0");
                 }
                 //contentValues.put("Reset", "0");
                 contentValues.put("UOM", selectRB);
@@ -5293,15 +5325,24 @@ public class DynamicForm extends AppCompatActivity {
 
                 String[] edittextSplit = slnew.split("\\s+");
 
-                Log.d("TestingValuesSplit", edittextSplit[0] + " " + edittextSplit[1]);
                 editText.put(myDb.getfieldId(fieldId), slnew);
                 if (intentFromReset.equals("Closing")){
-                    contentValues.put("Task_Id",ClosingTaskId);
-                    contentValues.put("Reset", "0");
-                }else {
-                    contentValues.put("Task_Id",TaskId);
-                    contentValues.put("Reset", "1");
+                    Log.d("TestingValuesSplit1", edittextSplit[0] + " " + edittextSplit[1]+" "+intentFromReset+" "+ClosingTaskId+" "+TaskId);
+
+                    contentValues1.put("Task_Id",ClosingTaskId);
+                    contentValues1.put("Reset", "0");
+                }else if(intentFromReset.equals("Opening")) {
+                    Log.d("TestingValuesSplit2", edittextSplit[0] + " " + edittextSplit[1]+" "+intentFromReset+" "+ClosingTaskId+" "+TaskId);
+
+                    contentValues1.put("Task_Id",TaskId);
+                    contentValues1.put("Reset", "1");
+                }else if(intentFromReset.equals("") || intentFromReset == null){
+                    Log.d("TestingValuesSplit3", edittextSplit[0] + " " + edittextSplit[1]+" "+intentFromReset+" "+ClosingTaskId+" "+TaskId);
+
+                    contentValues1.put("Task_Id",TaskId);
+                    contentValues1.put("Reset", "0");
                 }
+
                 contentValues1.put("Asset_Id", AssetId);
                 //contentValues1.put("Form_Id", myDb.getFormId(myDb.getfieldId(fieldId)));
                 contentValues1.put("Form_Structure_Id", myDb.getfieldId(fieldId));

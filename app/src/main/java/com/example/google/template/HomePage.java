@@ -2470,17 +2470,20 @@ public class HomePage extends AppCompatActivity {
                         if (AssetStatus != null) {
                             pDialog.setProgress(0);
                             db = myDb.getWritableDatabase();
-                            String sql = "insert into Asset_Status (Asset_Status_Id,Status,Task_State)values(?,?,?);";
+                            String sql = "insert into Asset_Status (Asset_Status_Id,Status,Task_State,Color)values(?,?,?,?);";
                             db.beginTransaction();
                             SQLiteStatement stmt = db.compileStatement(sql);
                             for (int i = 0; i < AssetStatus.length(); i++) {
                                 JSONObject c = AssetStatus.getJSONObject(i);
+                                Log.d("Asssret"," "+c.getString("Asset_Status_Id")+" "+c.getString("Status")+" "+c.getString("Task_State")+" "+c.getString("Color"));
                                 String Asset_Status_Id = c.getString("Asset_Status_Id");
                                 String Status = c.getString("Status");
                                 String Task_State = c.getString("Task_State");
+                                String Color = c.getString("Color");
                                 stmt.bindString(1, Asset_Status_Id);
                                 stmt.bindString(2, Status);
                                 stmt.bindString(3,Task_State);
+                                stmt.bindString(4,Color);
                                 long entryID = stmt.executeInsert();
                                 stmt.clearBindings();
                             }

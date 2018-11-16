@@ -68,11 +68,11 @@ public class MissedDelayTask extends AppCompatActivity {
             db= myDb.getWritableDatabase();
             //String Query = "SELECT a.Group_Name,b.* FROM User_Group a,Task_Details b WHERE a.User_Group_Id=b.Assigned_To_User_Group_Id and  Assigned_To_User_Group_Id IN ("+myDb.UserGroupId(User_Id)+") AND Site_Location_Id='"+SiteId+"' AND Asset_Status= 'WORKING' AND Asset_Code='"+assetCode+"' AND Task_Status = 'Missed'";
             String Query = "SELECT ug.Group_Name," +
-                    "td.*" +
-                    "FROM Task_Details td" +
-                    "LEFT JOIN User_Group ug ON" +
-                    "ug.User_Group_Id=td.Assigned_To_User_Group_Id" +
-                    "WHERE td.Assigned_To_User_Group_Id IN ("+myDb.UserGroupId(User_Id)+")" +
+                    "td.* " +
+                    "FROM Task_Details td " +
+                    "LEFT JOIN User_Group ug ON " +
+                    "ug.User_Group_Id=td.Assigned_To_User_Group_Id " +
+                    "WHERE td.Assigned_To_User_Group_Id IN ("+myDb.UserGroupId(User_Id)+") " +
                     "AND td.Site_Location_Id='"+SiteId+"' AND td.Asset_Status= 'WORKING'  AND td.Task_Status ='Missed' AND Asset_Code='"+assetCode+"' AND td.RecordStatus != 'D'";
             Cursor cursor= db.rawQuery(Query, null);
 

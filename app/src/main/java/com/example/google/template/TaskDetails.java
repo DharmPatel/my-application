@@ -253,7 +253,7 @@ public class TaskDetails extends AppCompatActivity implements PendingTask.OnComp
                 Calendar calenderEndon = Calendar.getInstance();
                 Calendar calenderStarton = Calendar.getInstance();
                 Date EndOn, StartOn, dateTimeStart;
-                String Frequency_Auto_Id,Assign_Days,RepeatEveryMonth,Activity_Master_Auto_Id,Asset_Activity_AssignedTo_Auto_Id,Asset_Activity_Linking_Auto_Id, Site_Location_Id, Form_Id, Asset_ID, Assigned_To_User_Group_Id,Assigned_To_User_Id, YearStartson,TimeEndson, TimeStartson, Activity_Name, Asset_Code, Asset_Name, Asset_Location,Status;
+                String Frequency_Auto_Id,Task_State,Assign_Days,RepeatEveryMonth,Activity_Master_Auto_Id,Asset_Activity_AssignedTo_Auto_Id,Asset_Activity_Linking_Auto_Id, Site_Location_Id, Form_Id, Asset_ID, Assigned_To_User_Group_Id,Assigned_To_User_Id, YearStartson,TimeEndson, TimeStartson, Activity_Name, Asset_Code, Asset_Name, Asset_Location,Status;
                 int Activity_Duration, Verified, Grace_Duration_Before, Grace_Duration_After, RepeatEveryDay,RepeatEveryMin;
                 String query = "SELECT af.Site_Location_Id,\n" +
                                 "af.Frequency_Auto_Id,\n" +
@@ -280,7 +280,8 @@ public class TaskDetails extends AppCompatActivity implements PendingTask.OnComp
                                 "ad.Asset_Code,\n" +
                                 "ad.Asset_Name,\n" +
                                 "ad.Asset_Location,\n" +
-                                "ad.Status\n" +
+                                "ad.Status,\n" +
+                                "asst.Task_State\n"+
                                 "FROM Activity_Frequency af \n" +
                                 "LEFT JOIN Asset_Activity_AssignedTo aaa ON \n" +
                                 "aaa.Asset_Activity_Linking_Id = af.Asset_Activity_Linking_Id \n" +
@@ -289,9 +290,11 @@ public class TaskDetails extends AppCompatActivity implements PendingTask.OnComp
                                 "LEFT JOIN Activity_Master am ON \n" +
                                 "am.Auto_Id = aal.Activity_Id \n" +
                                 "LEFT JOIN Asset_Details ad ON \n" +
-                                "ad.Asset_Id = aal.Asset_Id"+
-                        " WHERE aaa.Assigned_To_User_Group_Id IN ("+myDb.UserGroupId(User_Id)+") AND af.Site_Location_Id='"+ SiteId + "'" +
-                        "AND af.RecordStatus !='D' AND aaa.RecordStatus !='D' AND aal.RecordStatus !='D' AND am.RecordStatus !='D'";
+                                "ad.Asset_Id = aal.Asset_Id \n" +
+                                "LEFT JOIN Asset_Status asst ON \n"+
+                                "asst.Asset_Status_Id = ad.Asset_Status_Id \n"+
+                                " WHERE aaa.Assigned_To_User_Group_Id IN ("+myDb.UserGroupId(User_Id)+") AND af.Site_Location_Id='"+ SiteId + "'" +
+                                "AND af.RecordStatus !='D' AND aaa.RecordStatus !='D' AND aal.RecordStatus !='D' AND am.RecordStatus !='D'";
                 Log.d(TAG,"Querfdsafy : "+query);
                 SimpleDateFormat YDMDateFormat = new SimpleDateFormat("yyyy-MM-dd");
                 SimpleDateFormat YMDHMDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm");
@@ -321,6 +324,7 @@ public class TaskDetails extends AppCompatActivity implements PendingTask.OnComp
                             Asset_Name = taskList.getString(taskList.getColumnIndex("Asset_Name"));
                             Asset_Location = taskList.getString(taskList.getColumnIndex("Asset_Location"));
                             Status = taskList.getString(taskList.getColumnIndex("Status"));
+                            Task_State = taskList.getString(taskList.getColumnIndex("Task_State"));
                             Verified = taskList.getInt(taskList.getColumnIndex("Verified"));
                             Activity_Master_Auto_Id = taskList.getString(taskList.getColumnIndex("Activity_Master_Auto_Id"));
                             Asset_Activity_AssignedTo_Auto_Id = taskList.getString(taskList.getColumnIndex("Asset_Activity_AssignedTo_Auto_Id"));
@@ -439,7 +443,8 @@ public class TaskDetails extends AppCompatActivity implements PendingTask.OnComp
                                                                 contentValues1.put("Site_Location_Id", SiteId);
                                                                 contentValues1.put("Activity_Frequency_Id", Frequency_Auto_Id);
                                                                 contentValues1.put("Task_Scheduled_Date", YMDHMDateFormat.format(StartOn));
-                                                                if (!Status.equals("WORKING"))
+                                                                /*if (!Status.equals("WORKING")) */
+                                                                if (!Task_State.equalsIgnoreCase("A"))
                                                                     contentValues1.put("Task_Status", "Cancelled");
                                                                 else
                                                                     contentValues1.put("Task_Status", "Pending");
@@ -629,7 +634,7 @@ public class TaskDetails extends AppCompatActivity implements PendingTask.OnComp
                                String Asset_Name, String Activity_Name, String Assigned_To_User_Group_Id,
                                String Status, int repeatEveryMin, String assign_Days, String FreqId,
                                int Grace_DB, int Grace_DA, int Activity_Duration, String TimeStarts,
-                               String timeEndson,String YearStartsOn,String RepeatMonth){
+                               String timeEndson,String YearStartsOn,String RepeatMonth, String Task_State){
         try {
             YDMDateFormat = new SimpleDateFormat("yyyy-MM-dd");
             YMDHMDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm");
@@ -717,7 +722,7 @@ public class TaskDetails extends AppCompatActivity implements PendingTask.OnComp
                                 contentValues1.put("Site_Location_Id", SiteId);
                                 contentValues1.put("Activity_Frequency_Id", FreqId);
                                 contentValues1.put("Task_Scheduled_Date", YMDHMDateFormat.format(StartDateTaskCheck.getTime()));
-                                if (!Status.equals("WORKING"))
+                                if (!Task_State.equalsIgnoreCase("A"))
                                     contentValues1.put("Task_Status", "Cancelled");
                                 else
                                     contentValues1.put("Task_Status", "Pending");
