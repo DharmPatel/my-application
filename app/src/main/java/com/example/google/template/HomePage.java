@@ -492,12 +492,12 @@ public class HomePage extends AppCompatActivity {
 
     public void checklistActivity() {
         //SelectQuery();
-        Snackbar snackbar = Snackbar.make(linearLayout, "License not activated.", Snackbar.LENGTH_LONG);
-        snackbar.show();
+       /* Snackbar snackbar = Snackbar.make(linearLayout, "License not activated.", Snackbar.LENGTH_LONG);
+        snackbar.show();*/
 
 
 
-        /*try {
+        try {
             if (myDb.SiteName(User_Id) == null) {
                 Toast.makeText(getApplicationContext(), "Please Select Site", Toast.LENGTH_SHORT).show();
             } else {
@@ -552,7 +552,7 @@ public class HomePage extends AppCompatActivity {
             e.printStackTrace();
             Log.d("hp181", "ERROR==" + e);
             Toast.makeText(getApplicationContext(), "Error code: hp181 " + e.toString(), Toast.LENGTH_SHORT).show();
-        }*/
+        }
     }
 
     public void SelectQuery(){

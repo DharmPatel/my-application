@@ -390,7 +390,7 @@ public class CheckListPending extends Fragment {
 
                         Log.d("sdfgsdfgsdfg",StartDateTime+" "+EndDateTime);
 
-                            taskProvider = new TaskProvider(TaskId, Frequency_Id, Site_Location_Id, Assigned_To_User_Id, Asset_Id, From_Id, formatDateTask(parseDate(StartDateTime)), formatDateTask(parseDate(EndDateTime)), Asset_Code, Asset_Name, Asset_Location, Asset_Status, Activity_Name, Task_Status,Group_Name,Assigned_To_User_Group_Id,null);
+                            taskProvider = new TaskProvider(TaskId, Frequency_Id, Site_Location_Id, Assigned_To_User_Id, Asset_Id, From_Id, "", "", Asset_Code, Asset_Name, Asset_Location, Asset_Status, Activity_Name, Task_Status,Group_Name,Assigned_To_User_Group_Id,null);
                             taskProviders.add(taskProvider);
 
                         /*if (calenderCurrent.getTime().after(parseDate(EndDateTime))) {

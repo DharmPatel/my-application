@@ -402,7 +402,7 @@ public class AssetsActivity extends AppCompatActivity {
                         "on aal.Auto_Id = aaa.Asset_Activity_Linking_Id " +
                         "LEFT JOIN Asset_Status asst " +
                         "ON asst.Asset_Status_Id = asm.Asset_Status_Id " +
-                        "where aaa.Assigned_To_User_Group_Id IN (" + User_Group_Id + ") Group By asm.Asset_Code";
+                        "where aaa.Assigned_To_User_Group_Id IN (" + User_Group_Id + ") AND asm.Site_Location_Id = '"+ site_id +"' Group By asm.Asset_Code";
             } else {
                 Query = "SELECT * from Asset_Details where Site_Location_Id ='" + site_id + "' ";
             }

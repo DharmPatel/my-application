@@ -164,10 +164,10 @@ public class CheckListCompleted extends Fragment {
                     try {
 
                         if(Task_Status.equals("Unplanned")) {
-                            taskProvider = new TaskProvider(TaskId, Frequency_Id, Site_Location_Id, Assigned_To_User_Id, Asset_Id, From_Id, formatDateTask(parseDate(UnplannedTime)), EndDateTime, Asset_Code, Asset_Name, Asset_Location, Asset_Status, Activity_Name, Task_Status,Group_Name,null,UpdatedStatus);
+                            taskProvider = new TaskProvider(TaskId, Frequency_Id, Site_Location_Id, Assigned_To_User_Id, Asset_Id, From_Id, ""/*formatDateTask(parseDate(UnplannedTime))*/, /*EndDateTime*/"", Asset_Code, Asset_Name, Asset_Location, Asset_Status, Activity_Name, Task_Status,Group_Name,null,UpdatedStatus);
                             taskProviders.add(taskProvider);
                         }else {
-                            taskProvider = new TaskProvider(TaskId, Frequency_Id, Site_Location_Id, Assigned_To_User_Id, Asset_Id, From_Id, formatDateTask(parseDate(StartDateTime)), formatDateTask(parseDate(UnplannedTime)), Asset_Code, Asset_Name, Asset_Location, Asset_Status, Activity_Name, Task_Status,Group_Name,null,UpdatedStatus);
+                            taskProvider = new TaskProvider(TaskId, Frequency_Id, Site_Location_Id, Assigned_To_User_Id, Asset_Id, From_Id, /*formatDateTask(parseDate(StartDateTime))*/"", /*formatDateTask(parseDate(UnplannedTime))*/"", Asset_Code, Asset_Name, Asset_Location, Asset_Status, Activity_Name, Task_Status,Group_Name,null,UpdatedStatus);
                             taskProviders.add(taskProvider);
                         }
 
