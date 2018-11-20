@@ -344,6 +344,38 @@ public class LoginActivity extends AppCompatActivity {
                                     e.printStackTrace();
                                 }
 
+                                try{
+                                    JSONArray EmailDetails = response.getJSONArray("EmailList");
+                                    for (int i = 0; i < EmailDetails.length(); i++) {
+                                        JSONObject c = EmailDetails.getJSONObject(i);
+                                        String uuid = c.getString("Auto_Id");
+                                        String Site_Location_Id = c.getString("Site_Location_Id");
+                                        String Employee_Email = c.getString("Employee_Email");
+                                        String Email_For = c.getString("Email_For");
+                                        String Created_DateTime = c.getString("Created_DateTime");
+                                        String Deleted_DateTime = c.getString("Deleted_DateTime");
+                                        String Record_Status = c.getString("Record_Status");
+                                        ContentValues contentValues1 = new ContentValues();
+                                        contentValues1.put("Email_Auto_Id",uuid);
+                                        contentValues1.put("Site_Location_Id", Site_Location_Id);
+                                        contentValues1.put("Employee_Email", Employee_Email);
+                                        contentValues1.put("Email_For",Email_For);
+                                        contentValues1.put("Created_DateTime", Created_DateTime);
+                                        contentValues1.put("Deleted_DateTime", Deleted_DateTime);
+                                        contentValues1.put("Record_Status", Record_Status);
+                                        db = myDb.getWritableDatabase();
+                                        String UserGroupQuery = "Select * from EmailList Where Employee_Email='" + Employee_Email + "'";
+                                        Cursor cursor1 = db.rawQuery(UserGroupQuery, null);
+                                        if (cursor1.getCount() == 0) {
+                                            long insertemaillist = db.insert("EmailList", null, contentValues1);
+                                        }
+                                        db.close();
+                                    }
+
+                                }catch (Exception e){
+                                    e.printStackTrace();
+                                }
+
 
                                 try {
                                     JSONArray imageList = response.getJSONArray("ImageDetails");

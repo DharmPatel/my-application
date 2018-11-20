@@ -276,7 +276,7 @@ public class AssetsActivity extends AppCompatActivity {
                     "on aal.Auto_Id = aaa.Asset_Activity_Linking_Id " +
                     "LEFT JOIN Asset_Status asst " +
                     "ON asst.Asset_Status_Id = asm.Asset_Status_Id " +
-                    "where aaa.Assigned_To_User_Group_Id IN (" + User_Group_Id + ")and asm.Asset_Location = '" + CheckedValue + "' Group By asm.Asset_Code";
+                    "where aaa.Assigned_To_User_Group_Id IN (" + User_Group_Id + ") and asm.Site_Location_Id = '"+site_id+"' and asm.Asset_Location = '" + CheckedValue + "' Group By asm.Asset_Code";
         }else {
             Query = "SELECT asm.*, asst.Task_State, asst.Color from Asset_Details asm Left Join Asset_Activity_Linking aal " +
                     "on aal.Asset_Id =  asm.Asset_Id " +
@@ -284,7 +284,7 @@ public class AssetsActivity extends AppCompatActivity {
                     "on aal.Auto_Id = aaa.Asset_Activity_Linking_Id " +
                     "LEFT JOIN Asset_Status asst " +
                     "ON asst.Asset_Status_Id = asm.Asset_Status_Id " +
-                    "where aaa.Assigned_To_User_Group_Id IN (" + User_Group_Id + ")and asm.Asset_Type = '" + CheckedValue + "' Group By asm.Asset_Code";
+                    "where aaa.Assigned_To_User_Group_Id IN (" + User_Group_Id + ") and asm.Site_Location_Id = '"+site_id+"' and asm.Asset_Type = '" + CheckedValue + "' Group By asm.Asset_Code";
         }
         Cursor cursor = db.rawQuery(Query, null);
         Log.d("cursorAssetCount", String.valueOf(cursor.getCount()));

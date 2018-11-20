@@ -69,6 +69,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         sqLiteDatabase.execSQL("CREATE TABLE Measurement_Conversion (Id INTEGER Primary key,Conversion_Auto_Id TEXT, Source_UOM TEXT, Multiplication_Factor TEXT, Add_Factor TEXT, Subtraction_Factor TEXT, Division_Factor TEXT, Target_UOM TEXT)");
         sqLiteDatabase.execSQL("CREATE TABLE feedback_score(Id INTEGER PRIMARY KEY AUTOINCREMENT,Feedbaack_Auto_Id TEXT,Score TEXT,FeedBackName TEXT)");
         sqLiteDatabase.execSQL("CREATE TABLE Notification(Id INTEGER PRIMARY KEY AUTOINCREMENT,Notification_Auto_Id TEXT,Message TEXT,Update_Type TEXT)");
+        sqLiteDatabase.execSQL("CREATE TABLE EmailList (Id INTEGER PRIMARY KEY, Email_Auto_Id TEXT,Site_Location_Id TEXT, Employee_Email TEXT,Created_DateTime TEXT,Deleted_DateTime TEXT,Record_Status TEXT)");
 
     }
 
@@ -131,6 +132,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         }
         return Username;
     }
+
+
 
     public String UserName(String User_Id){
         String Username="";
