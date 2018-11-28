@@ -104,18 +104,18 @@ public class AssetsActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         this.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
         setContentView(R.layout.activity_assets_listview);
-        drawerLayout = (DrawerLayout)findViewById(R.id.drawer_layout);
-        navigationView = (NavigationView)findViewById(R.id.drawer_view);
+        /*drawerLayout = (DrawerLayout)findViewById(R.id.drawer_layout);
+        navigationView = (NavigationView)findViewById(R.id.drawer_view);*/
         expandableListView = (ExpandableListView)findViewById(R.id.submenu);
         OkButton = (Button)findViewById(R.id.SubmitBtn);
-        navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
+        /*navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
                 item.setChecked(true);
                 drawerLayout.closeDrawers();
                 return true;
             }
-        });
+        });*/
 
         try{
             myDb = new DatabaseHelper(getApplicationContext());
@@ -130,7 +130,7 @@ public class AssetsActivity extends AppCompatActivity {
             if(LOG) Log.d(TAG,"PreferenseValue"+companyId+"\n"+site_id+"\n"+User_Id+"\n"+Scan_Type);
             assetLinearLayout= (LinearLayout) findViewById(R.id.assetLinearLayout);
             imageViewSync= (ImageView) findViewById(R.id.imageViewSync);
-            imageViewFilter = (ImageView)findViewById(R.id.imageViewFilter);
+            //imageViewFilter = (ImageView)findViewById(R.id.imageViewFilter);
             lvAssets = (ListView)findViewById(R.id.lvAssets);
             listDataAdapter = new ListDataAdapter(getApplicationContext(), R.layout.asset_list_item);
             lvAssets.setAdapter(listDataAdapter);
@@ -141,9 +141,9 @@ public class AssetsActivity extends AppCompatActivity {
             Toast.makeText(getApplicationContext(), "Error code: aa118", Toast.LENGTH_SHORT).show();
         }
 
-        prepareMenuData();
-        populateExpandableList();
-        OkButton.setOnClickListener(new View.OnClickListener() {
+        //prepareMenuData();
+        //populateExpandableList();
+        /*OkButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Log.d("checkedval"," InAssetActivity: "+expandableListViewAdapter.getValue());
@@ -154,7 +154,7 @@ public class AssetsActivity extends AppCompatActivity {
                 getFilterList();
                 drawerLayout.closeDrawers();
             }
-        });
+        });*/
 
 
         try {
@@ -197,13 +197,13 @@ public class AssetsActivity extends AppCompatActivity {
             e.printStackTrace();
         }
 
-        imageViewFilter.setOnClickListener(new View.OnClickListener() {
+       /* imageViewFilter.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                drawerLayout.openDrawer(GravityCompat.END);
                 //FilterDialog();
             }
-        });
+        });*/
 
         lvAssets.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -394,7 +394,7 @@ public class AssetsActivity extends AppCompatActivity {
             listDataAdapter = new ListDataAdapter(getApplicationContext(), R.layout.asset_list_item);
             lvAssets.setAdapter(listDataAdapter);
             if (Asset_View == 0) {
-                Query = "select asm.*,asst.Task_State, asst.Color " +
+                Query = "select asm.*,asst.Task_State, asst.Color,al.* " +
                         "from Asset_Details asm " +
                         "Left Join Asset_Activity_Linking aal " +
                         "on aal.Asset_Id =  asm.Asset_Id " +
@@ -402,9 +402,15 @@ public class AssetsActivity extends AppCompatActivity {
                         "on aal.Auto_Id = aaa.Asset_Activity_Linking_Id " +
                         "LEFT JOIN Asset_Status asst " +
                         "ON asst.Asset_Status_Id = asm.Asset_Status_Id " +
+                        "LEFT JOIN Asset_Location al " +
+                        "ON al.Asset_Id = asm.Asset_Id " +
                         "where aaa.Assigned_To_User_Group_Id IN (" + User_Group_Id + ") AND asm.Site_Location_Id = '"+ site_id +"' Group By asm.Asset_Code";
             } else {
-                Query = "SELECT * from Asset_Details where Site_Location_Id ='" + site_id + "' ";
+                Query = "SELECT asm.*,al.* " +
+                        "from Asset_Details asm " +
+                        "LEFT JOIN Asset_Location al " +
+                        "ON al.Asset_Id = asm.Asset_Id " +
+                        "where Site_Location_Id ='" + site_id + "' ";
             }
             Cursor cursor = db.rawQuery(Query, null);
             Log.d(TAG, "AlertQuery" + Query);
@@ -414,11 +420,16 @@ public class AssetsActivity extends AppCompatActivity {
                     String Site_Location_Id = cursor.getString(cursor.getColumnIndex("Site_Location_Id"));
                     String Asset_Code = cursor.getString(cursor.getColumnIndex("Asset_Code"));
                     String Asset_Name = cursor.getString(cursor.getColumnIndex("Asset_Name"));
-                    String Asset_Location = cursor.getString(cursor.getColumnIndex("Asset_Location"));
+                    //String Asset_Location = cursor.getString(cursor.getColumnIndex("Asset_Location"));
                     String Asset_Status_Id = cursor.getString(cursor.getColumnIndex("Asset_Status_Id"));
                     String Task_State = cursor.getString(cursor.getColumnIndex("Task_State"));
                     String Status = cursor.getString(cursor.getColumnIndex("Status"));
                     String Color = cursor.getString(cursor.getColumnIndex("Color"));
+                    String building_code = cursor.getString(cursor.getColumnIndex("building_code"));
+                    String floor_code = cursor.getString(cursor.getColumnIndex("floor_code"));
+                    String room_area = cursor.getString(cursor.getColumnIndex("room_area"));
+                    String Asset_Location = building_code+"-"+floor_code+"-"+room_area;
+                    Log.d("XSAds",Asset_Location);
                     DataProvider assetDataProvider = new DataProvider(Asset_Id,Asset_Code,Asset_Name,Asset_Location,Status,null,null,null,Asset_Status_Id,Task_State,Color);
 
                     //DataProvider assetDataProvider = new DataProvider(Asset_Id, Asset_Code, Asset_Name, Asset_Location, Status, null, null, null);
@@ -1199,7 +1210,7 @@ public class AssetsActivity extends AppCompatActivity {
 
                 try {
                     db = myDb.getReadableDatabase();
-                    Cursor cursor = db.rawQuery("SELECT a.*,b.Task_State,b.Color FROM asset_Details a,Asset_Status b  where a.Asset_Status_Id=b.Asset_Status_Id and a.Site_Location_Id ='" + site_id + "' and (a.Asset_Code LIKE '%" + charSequence + "%' OR a.Asset_Name LIKE '%" + charSequence + "%' OR a.Asset_Location LIKE '%" + charSequence + "%' OR a.Status LIKE '" + charSequence + "%')", null);
+                    Cursor cursor = db.rawQuery("SELECT a.*,b.Task_State,b.Color, c.* FROM asset_Details a Left Join Asset_Activity_Linking aal on aal.Asset_Id =  a.Asset_Id Left Join Asset_Activity_AssignedTo aaa on aal.Auto_Id = aaa.Asset_Activity_Linking_Id LEFT JOIN Asset_Status b on b.Asset_Status_Id = a.Asset_Status_Id Left Join Asset_Location c on c.Asset_Id = a.Asset_Id where  a.Site_Location_Id ='" + site_id + "' and aaa.Assigned_To_User_Group_Id IN (" + User_Group_Id + ") and (a.Asset_Code LIKE '%" + charSequence + "%' OR a.Asset_Name LIKE '%" + charSequence + "%' OR a.Status LIKE '" + charSequence + "%') group by a.Asset_Code", null);
                     listDataAdapter = new ListDataAdapter(getApplicationContext(), R.layout.asset_list_item);
                     lvAssets.setAdapter(listDataAdapter);
                     if (cursor.moveToFirst()) {
@@ -1208,11 +1219,15 @@ public class AssetsActivity extends AppCompatActivity {
                             String Site_Location_Id = cursor.getString(cursor.getColumnIndex("Site_Location_Id"));
                             String Asset_Code = cursor.getString(cursor.getColumnIndex("Asset_Code"));
                             String Asset_Name = cursor.getString(cursor.getColumnIndex("Asset_Name"));
-                            String Asset_Location = cursor.getString(cursor.getColumnIndex("Asset_Location"));
                             String Asset_Status_Id = cursor.getString(cursor.getColumnIndex("Asset_Status_Id"));
                             String Status = cursor.getString(cursor.getColumnIndex("Status"));
                             String Task_State = cursor.getString(cursor.getColumnIndex("Task_State"));
                             String Color = cursor.getString(cursor.getColumnIndex("Color"));
+                            String building_code = cursor.getString(cursor.getColumnIndex("building_code"));
+                            String floor_code = cursor.getString(cursor.getColumnIndex("floor_code"));
+                            String room_area = cursor.getString(cursor.getColumnIndex("room_area"));
+                            String Asset_Location = building_code+"-"+floor_code+"-"+room_area;
+
                             //DataProvider assetDataProvider = new DataProvider(Asset_Id, Asset_Code, Asset_Name, Asset_Location, Status, null, null, null);
                             DataProvider assetDataProvider = new DataProvider(Asset_Id, Asset_Code, Asset_Name, Asset_Location, Status, null, null, null,Asset_Status_Id,Task_State,Color);
                             listDataAdapter.add(assetDataProvider);
@@ -1253,7 +1268,7 @@ public class AssetsActivity extends AppCompatActivity {
             if (result.getContents() != null) {
                 etSearch.setText(result.getContents());
                 db=myDb.getReadableDatabase();
-                Cursor cursor1 = db.rawQuery("select * from asset_Details where Asset_Code ='" + result.getContents() + "'", null);
+                Cursor cursor1 = db.rawQuery("SELECT a.*,b.Task_State,b.Color, c.* FROM asset_Details a Left Join Asset_Activity_Linking aal on aal.Asset_Id =  a.Asset_Id Left Join Asset_Activity_AssignedTo aaa on aal.Auto_Id = aaa.Asset_Activity_Linking_Id LEFT JOIN Asset_Status b on b.Asset_Status_Id = a.Asset_Status_Id Left Join Asset_Location c on c.Asset_Id = a.Asset_Id where  a.Site_Location_Id ='" + site_id + "' and aaa.Assigned_To_User_Group_Id IN (" + User_Group_Id + ") and a.Asset_Code = '"+result.getContents()+"'", null);
                 if(cursor1.getCount() == 0)
                 {
                     Toast.makeText(getApplicationContext(), "Please Enter Valid", Toast.LENGTH_LONG).show();

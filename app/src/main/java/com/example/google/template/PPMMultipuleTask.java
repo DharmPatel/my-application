@@ -37,6 +37,7 @@ public class PPMMultipuleTask extends AppCompatActivity {
     RecyclerView.Adapter adapter;
     PpmTaskProvider taskProvider;
     String listFromId;
+    String building_code,floor_code,room_area;
     String StartDate,EndDate,listFrequnecyId,status;
     String UserGroupId,timestartson,Asset_Type,asset_activity_linking_id,Status,updatedStatus,TaskIdList,TaskId,activity_frequency,Site_Location_Id,Assigned_To_User_Group_Id,Assigned_To_User_Id ,Asset_Id,Form_Id,StartDateTime,EndDateTime,Asset_Code,Asset_Name ,Asset_Location,Asset_Status,Activity_Name,Group_Name,Task_Status;
     Date dateTimeStart,dateTimeEnd;
@@ -71,28 +72,31 @@ public class PPMMultipuleTask extends AppCompatActivity {
         try {
             db= myDb.getWritableDatabase();
             String Query = "SELECT ppm.*,\n" +
-                    "              ug.Group_Name,\n" +
-                    "              am.Activity_Name,\n" +
-                    "              am.Form_Id,\n" +
-                    "              ad.Asset_Code,\n" +
-                    "              ad.Asset_Name,\n" +
-                    "              ad.Asset_Type,\n" +
-                    "              ad.Asset_Location,\n" +
-                    "              ad.Status\n" +
-                    "    FROM      ppm_task ppm \n" +
-                    "    LEFT JOIN asset_activity_assignedto aaa \n" +
-                    "    ON        aaa.Asset_Activity_Linking_Id = ppm.Asset_Activity_Linking_Id\n" +
-                    "    LEFT JOIN asset_activity_linking aal \n" +
-                    "    ON        aal.Auto_Id = ppm.Asset_Activity_Linking_Id \n" +
-                    "    LEFT JOIN asset_details ad \n" +
-                    "    ON        ad.Asset_Id = aal.Asset_Id \n" +
-                    "    LEFT JOIN activity_master am \n" +
-                    "    ON        am.Auto_Id = aal.Activity_Id \n" +
-                    "    LEFT JOIN User_Group ug\n" +
-                    "    ON                ug.User_Group_Id = aaa.Assigned_To_User_Group_Id \n" +
-                    "where ad.Asset_Code='"+assetCode+"' and aaa.Assigned_To_User_Group_Id IN ("+myDb.UserGroupId(User_Id)+") \n" +
-                    "AND ppm.Site_Location_Id='"+myDb.Site_Location_Id(User_Id)+"' AND\n" +
-                    "    \t  ad.Status= 'WORKING' and ppm.Task_Status = 'Pending' ";
+                    " ug.Group_Name,\n" +
+                    " am.Activity_Name,\n" +
+                    " am.Form_Id,\n" +
+                    " ad.Asset_Code,\n" +
+                    " ad.Asset_Name,\n" +
+                    " ad.Asset_Type,\n" +
+                    " ad.Asset_Location,\n" +
+                    " ad.Status,\n" +
+                    " al.* \n" +
+                    " FROM ppm_task ppm \n" +
+                    " LEFT JOIN asset_activity_assignedto aaa \n" +
+                    " ON aaa.Asset_Activity_Linking_Id = ppm.Asset_Activity_Linking_Id\n" +
+                    " LEFT JOIN asset_activity_linking aal \n" +
+                    " ON aal.Auto_Id = ppm.Asset_Activity_Linking_Id \n" +
+                    " LEFT JOIN asset_details ad \n" +
+                    " ON ad.Asset_Id = aal.Asset_Id \n" +
+                    " LEFT JOIN activity_master am \n" +
+                    " ON am.Auto_Id = aal.Activity_Id \n" +
+                    " LEFT JOIN User_Group ug\n" +
+                    " ON ug.User_Group_Id = aaa.Assigned_To_User_Group_Id \n" +
+                    " LEFT JOIN Asset_Location al \n" +
+                    " ON al.Asset_Id = ad.Asset_Id " +
+                    " where ad.Asset_Code='"+assetCode+"' and aaa.Assigned_To_User_Group_Id IN ("+myDb.UserGroupId(User_Id)+") \n" +
+                    " AND ppm.Site_Location_Id='"+myDb.Site_Location_Id(User_Id)+"' " +
+                    " AND ppm.Task_Status = 'Pending' ";
             Cursor cursor= db.rawQuery(Query, null);
             Log.d("cursor_count",cursor.getCount()+" Query:"+Query);
             if (cursor.getCount()!=0) {
@@ -109,7 +113,10 @@ public class PPMMultipuleTask extends AppCompatActivity {
                         Form_Id = cursor.getString(cursor.getColumnIndex("Form_Id"));
                         Asset_Code = cursor.getString(cursor.getColumnIndex("Asset_Code"));
                         Asset_Name = cursor.getString(cursor.getColumnIndex("Asset_Name"));
-                        Asset_Location = cursor.getString(cursor.getColumnIndex("Asset_Location"));
+                        building_code = cursor.getString(cursor.getColumnIndex("building_code"));
+                        floor_code = cursor.getString(cursor.getColumnIndex("floor_code"));
+                        room_area = cursor.getString(cursor.getColumnIndex("room_area"));
+                        Asset_Location = building_code+"-"+floor_code+"-"+room_area;
                         Status = cursor.getString(cursor.getColumnIndex("Status"));
                         Assigned_To_User_Group_Id = cursor.getString(cursor.getColumnIndex("Assigned_To_User_Group_Id"));
                         Group_Name = cursor.getString(cursor.getColumnIndex("Group_Name"));

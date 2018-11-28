@@ -311,24 +311,28 @@ public class HomePage extends AppCompatActivity {
                 // checking for type intent filter
 
 
-                Log.d("testasdasdasdasd1234",intent.getStringExtra("message"));
-                if (intent.getAction().equals(Config.REGISTRATION_COMPLETE)) {
-                    // gcm successfully registered
-                    // now subscribe to `global` topic to receive app wide notifications
-                    FirebaseMessaging.getInstance().subscribeToTopic(Config.TOPIC_GLOBAL);
+                try {
+                    if(LOG)Log.d("testasdasdasdasd1234",intent.getStringExtra("message"));
+                    if (intent.getAction().equals(Config.REGISTRATION_COMPLETE)) {
+                        // gcm successfully registered
+                        // now subscribe to `global` topic to receive app wide notifications
+                        FirebaseMessaging.getInstance().subscribeToTopic(Config.TOPIC_GLOBAL);
 
-                    displayFirebaseRegId();
+                        displayFirebaseRegId();
 
-                } else if (intent.getAction().equals(Config.PUSH_NOTIFICATION)) {
-                    // new push notification is received
+                    } else if (intent.getAction().equals(Config.PUSH_NOTIFICATION)) {
+                        // new push notification is received
 
-                    String message = intent.getStringExtra("message");
-                    if(message.equalsIgnoreCase("Update")){
-                        PromptApkDialog();
+                        String message = intent.getStringExtra("message");
+                        if(message.equalsIgnoreCase("Update")){
+                            PromptApkDialog();
+                        }
+
+                        Toast.makeText(getApplicationContext(), "Push notification: " + message, Toast.LENGTH_LONG).show();
+
                     }
-
-                    Toast.makeText(getApplicationContext(), "Push notification: " + message, Toast.LENGTH_LONG).show();
-
+                } catch (Exception e) {
+                    e.printStackTrace();
                 }
             }
         };
@@ -796,9 +800,9 @@ public class HomePage extends AppCompatActivity {
             if(LOG)Log.d(TAG, "PreviousTime" + simpleDateFormat1.format(calendar.getTime()));
             if (myDb.Site_Location_Id(User_Id) != null) {
                 db = myDb.getWritableDatabase();
-                db.delete("Task_Details", "date(Task_Scheduled_Date) < date('" + simpleDateFormat.format(new Date()) + "') AND UpdatedStatus = 'yes'", null);
-                db.delete("Task_Details", "date(Task_Start_At) < date('" + simpleDateFormat.format(new Date()) + "') AND UpdatedStatus = 'yes'", null);
-                db.delete("Task_Details_Server", "date(Task_Scheduled_Date) < date('" + simpleDateFormat.format(new Date()) + "') AND UpdatedStatus = 'yes'", null);
+                db.delete("Task_Details", "date(Task_Scheduled_Date) < date('" + simpleDateFormat1.format(calendar.getTime()) + "') AND UpdatedStatus = 'yes'", null);
+                db.delete("Task_Details", "date(Task_Start_At) < date('" + simpleDateFormat1.format(calendar.getTime()) + "') AND UpdatedStatus = 'yes'", null);
+                db.delete("Task_Details_Server", "date(Task_Scheduled_Date) < date('" + simpleDateFormat1.format(calendar.getTime()) + "') AND UpdatedStatus = 'yes'", null);
                 db.delete("Data_Posting", "Task_Id NOT IN(SELECT Auto_Id FROM Task_Details) AND UpdatedStatus ='yes'", null);
                 db.delete("Meter_Reading", "date(Task_Start_At) < date('" + simpleDateFormat1.format(calendar.getTime()) + "') AND UpdatedStatus = 'yes'", null);
                 db.delete("AlertMaster", "Task_Id NOT IN(SELECT Auto_Id FROM Task_Details) AND UpdatedStatus ='yes'", null);
@@ -1765,32 +1769,38 @@ public class HomePage extends AppCompatActivity {
                     pDialog.setMessage("Downloading Assets. Please Wait..");
                     pDialog.setProgressPercentFormat(null);
                     break;
+
                 case 5:
+                    pDialog.setMessage("Downloading AssetsLoaction. Please Wait..");
+                    pDialog.setProgressPercentFormat(null);
+                    break;
+
+                case 6:
                     pDialog.setMessage("Downloading Forms. Please Wait..");
                     pDialog.setProgressPercentFormat(null);
                     break;
-                case 6:
+                case 7:
                     pDialog.setMessage("Downloading  Parameters. Please Wait..");
                     pDialog.setProgressPercentFormat(null);
                     break;
-                case 7:
+                case 8:
                     pDialog.setMessage("Downloading  FeedbackScore. Please Wait..");
                     pDialog.setProgressPercentFormat(null);
                     break;
-                case 8:
+                case 9:
                     pDialog.setMessage("Downloading  Score. Please Wait..");
                     pDialog.setProgressPercentFormat(null);
                     break;
-                case 9:
+                case 10:
                     pDialog.setMessage("Downloading  CoversionFactors. Please Wait..");
                     pDialog.setProgressPercentFormat(null);
                     break;
-                case 10:
+                case 11:
                     pDialog.setMessage("Downloading  PPM Task. Please Wait..");
                     pDialog.setProgressPercentFormat(null);
                     break;
 
-                case 11:
+                case 12:
                     pDialog.setMessage("Getting Data From Server. Please Wait..");
 
 
@@ -1811,13 +1821,13 @@ public class HomePage extends AppCompatActivity {
         @Override
         protected String doInBackground(String... URL) {
             HttpHandler handler = new HttpHandler();
-            publishProgress(0,100,11);
+            publishProgress(0,100,12);
             String jsonTaskDone = handler.getTaskDetailsServer(myDb.UserGroupId(User_Id), new applicationClass().yymmdd(), myDb.Site_Location_Id(User_Id));
-            publishProgress(33,100,11);
+            publishProgress(33,100,12);
             String jsonStrTask = handler.taskDataCall(myDb.UserGroupId(User_Id), myDb.Site_Location_Id(User_Id), myDb.SiteURL(User_Id));
-            publishProgress(66,100,11);
+            publishProgress(66,100,12);
             String PPMTaskjson = handler.getPPmTask(myDb.UserGroupId(User_Id), myDb.Site_Location_Id(User_Id));
-            publishProgress(100,100,11);
+            publishProgress(100,100,12);
             if (jsonTaskDone != null) {
                 try {
                     JSONObject jsonObj = new JSONObject(jsonTaskDone);
@@ -2148,10 +2158,12 @@ public class HomePage extends AppCompatActivity {
                     try {
 
                         JSONArray assetDetailsJson = jsonObj.getJSONArray("AssetDetails");
+                        if(LOG)Log.d("AssetDetails"," "+assetDetailsJson.toString());
+
                         if (assetDetailsJson != null) {
                             pDialog.setProgress(0);
                             db = myDb.getWritableDatabase();
-                            String sql = "insert into Asset_Details (Asset_Id ,Site_Location_Id ,Asset_Code ,Asset_Name ,Asset_Location ,Asset_Status_Id ,Asset_Type,Status ,Manual_Time , Asset_Update_Time ,UpdatedStatus)values (?,?, ?, ?, ?, ?, ?, ?, ?, ?, ?);";
+                            String sql = "insert into Asset_Details (Asset_Id ,Site_Location_Id ,Asset_Code ,Asset_Name ,Asset_Location ,Building_Id,Floor_Id,Room_Id,Asset_Status_Id ,Asset_Type,Status ,Manual_Time , Asset_Update_Time ,UpdatedStatus)values (?,?, ?, ?, ?, ?, ?, ?,?,?,?, ?, ?, ?);";
                             db.beginTransaction();
                             SQLiteStatement stmt = db.compileStatement(sql);
                             for (int i = 0; i < assetDetailsJson.length(); i++) {
@@ -2163,26 +2175,33 @@ public class HomePage extends AppCompatActivity {
                                 String Asset_Code = c.getString("Asset_Code");
                                 String Asset_Name = c.getString("Asset_Name");
                                 String Asset_Location = c.getString("Asset_Location");
+                                String Building_Id =c.getString("Building");
+                                String Floor_Id =c.getString("Floor");
+                                String Room_Id =c.getString("Room_No");
                                 String Asset_Status_Id = c.getString("Asset_Status_Id");
                                 String Asset_Type = c.getString("Asset_Type");
                                 String Status = c.getString("Status");
 
-                                String selectQuery = "SELECT  * FROM Asset_Details where Asset_Id = '" + Asset_Id + "'";
-                                Cursor cursor = db.rawQuery(selectQuery, null);
+                                /*String selectQuery = "SELECT  * FROM Asset_Details where Asset_Id = '" + Asset_Id + "'";
+                                Cursor cursor = db.rawQuery(selectQuery, null);*/
+                                if(LOG)Log.d("AssetDfsdf",Asset_Location+" "+Building_Id+" "+Floor_Id+" "+Room_Id);
                                 stmt.bindString(1, Asset_Id);
                                 stmt.bindString(2, Site_Location_Id);
                                 stmt.bindString(3, Asset_Code);
                                 stmt.bindString(4, Asset_Name);
                                 stmt.bindString(5, Asset_Location);
-                                stmt.bindString(6, Asset_Status_Id);
-                                stmt.bindString(7, Asset_Type);
-                                stmt.bindString(8, Status);
-                                stmt.bindString(9, "");
-                                stmt.bindString(10, "");
-                                stmt.bindString(11, "");
+                                stmt.bindString(6, Building_Id);
+                                stmt.bindString(7, Floor_Id);
+                                stmt.bindString(8, Room_Id);
+                                stmt.bindString(9, Asset_Status_Id);
+                                stmt.bindString(10, Asset_Type);
+                                stmt.bindString(11, Status);
+                                stmt.bindString(12, "");
+                                stmt.bindString(13, "");
+                                stmt.bindString(14, "");
                                 long entryID = stmt.executeInsert();
                                 stmt.clearBindings();
-                                cursor.close();
+                                //cursor.close();
                             }
                             jumptime += 50;
                             pDialog.setProgress(jumptime);
@@ -2202,6 +2221,66 @@ public class HomePage extends AppCompatActivity {
                     }
 
 
+                    try {
+                        JSONArray assetLocationJson = jsonObj.getJSONArray("AssetLocation");
+                        if(LOG)Log.d("AssetLocation"," "+assetLocationJson.toString());
+                        if (assetLocationJson != null) {
+                            pDialog.setProgress(0);
+                            db = myDb.getWritableDatabase();
+                            String sql = "insert into Asset_Location (Asset_Id, Building_Id ,Floor_Id ,Room_Id ,building_code ,floor_code ,room_area,Site_Location_Id)values (?,?,?,?,?,?,?,?);";
+                            db.beginTransaction();
+                            SQLiteStatement stmt = db.compileStatement(sql);
+                            for (int i = 0; i < assetLocationJson.length(); i++) {
+                                publishProgress(i+1,assetLocationJson.length(),5);
+                                pDialog.setProgress(i+1);
+                                JSONObject c = assetLocationJson.getJSONObject(i);
+                                String Asset_Id = c.getString("Asset_Id");
+                                String Building_Id = c.getString("building");
+                                String Floor_Id = c.getString("floor");
+                                String Room_Id = c.getString("room_no");
+                                String building_code = c.getString("building_code");
+                                String floor_code = c.getString("floor_code");
+                                String room_area = c.getString("room_area");
+                                String Site_Location_Id = c.getString("Site_Location_Id");
+
+                                if(LOG)Log.d("Asdegrg",assetLocationJson.length()+" "+Building_Id+" "+Floor_Id+" "+building_code+" "
+                                +floor_code+" "+room_area+" "+Site_Location_Id);
+
+                                String selectQuery = "SELECT * FROM Asset_Location where Site_Location_Id = '" + myDb.Site_Location_Id(User_Id) + "'";
+                                Cursor cursor = db.rawQuery(selectQuery, null);
+                                stmt.bindString(1, Asset_Id);
+                                stmt.bindString(2, Building_Id);
+                                stmt.bindString(3, Floor_Id);
+                                stmt.bindString(4, Room_Id);
+                                stmt.bindString(5, building_code);
+                                stmt.bindString(6, floor_code);
+                                stmt.bindString(7,room_area);
+                                stmt.bindString(8,Site_Location_Id);
+                                /*stmt.bindString(7, Asset_Type);
+                                stmt.bindString(8, Status);
+                                stmt.bindString(9, "");
+                                stmt.bindString(10, "");
+                                stmt.bindString(11, "");*/
+                                long entryID = stmt.executeInsert();
+                                stmt.clearBindings();
+                                //cursor.close();
+                            }
+                            jumptime += 50;
+                            pDialog.setProgress(jumptime);
+                            /*String sqlquery = "DELETE FROM Asset_Location WHERE Id NOT IN (SELECT MIN(Id) FROM Asset_Location GROUP BY Building_Id) AND Site_Location_Id='"+myDb.Site_Location_Id(User_Id)+"'";
+                            db.rawQuery(sqlquery, null);
+                            db.execSQL(sqlquery);*/
+                            db.setTransactionSuccessful();
+                            db.endTransaction();
+                            db.close();
+                        }
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                        db.endTransaction();
+                    } catch (SQLException e) {
+                        e.printStackTrace();
+                        db.endTransaction();
+                    }
                     try {
                         JSONArray fromStructure = jsonObj.getJSONArray("Form_Structure");
                         String selectQuery1 = "SELECT  * FROM Form_Structure";
@@ -2224,7 +2303,7 @@ public class HomePage extends AppCompatActivity {
                             SQLiteStatement stmt = db.compileStatement(sql);
 
                             for (int k = 0; k < fromStructure.length(); k++) {
-                                publishProgress(k+1,fromStructure.length(),5);
+                                publishProgress(k+1,fromStructure.length(),6);
                                 pDialog.setProgress(k+1);
                                 JSONObject c2 = fromStructure.getJSONObject(k);
 
@@ -2290,7 +2369,7 @@ public class HomePage extends AppCompatActivity {
                             SQLiteStatement stmt = db.compileStatement(sql);
                             for (int j = 0; j < parameter.length(); j++) {
                                 //pDialog.setProgress(j+1);
-                                publishProgress(j+1,parameter.length(),6);
+                                publishProgress(j+1,parameter.length(),7);
                                 JSONObject c1 = parameter.getJSONObject(j);
                                 String Activity_Frequency_Id = c1.getString("Activity_Frequency_Id");
                                 String Form_Id = c1.getString("Form_Id");
@@ -2344,7 +2423,7 @@ public class HomePage extends AppCompatActivity {
                             db.beginTransaction();
                             SQLiteStatement stmt = db.compileStatement(sql);
                             for (int i = 0; i < FeedBackScore.length(); i++) {
-                                publishProgress(i+1,FeedBackScore.length(),7);
+                                publishProgress(i+1,FeedBackScore.length(),8);
                                 JSONObject c = FeedBackScore.getJSONObject(i);
                                 String Feedbaack_Auto_Id = c.getString("Auto_Id");
                                 String Score = c.getString("Score");
@@ -2354,7 +2433,7 @@ public class HomePage extends AppCompatActivity {
                                 stmt.bindString(2, Score);
                                 stmt.bindString(3, FeedBackName);
                                 long entryID = stmt.executeInsert();
-                                Log.d(TAG, "FeedBackScore" + "FeedBackScore Downloading...");
+                                if(LOG)Log.d(TAG, "FeedBackScore" + "FeedBackScore Downloading...");
                                 stmt.clearBindings();
                             }
                             jumptime += 20;
@@ -2383,7 +2462,7 @@ public class HomePage extends AppCompatActivity {
                             db.beginTransaction();
                             SQLiteStatement stmt = db.compileStatement(sql);
                             for (int i = 0; i < Score.length(); i++) {
-                                publishProgress(i+1,Score.length(),8);
+                                publishProgress(i+1,Score.length(),9);
                                 JSONObject c = Score.getJSONObject(i);
                                 String Score_Auto_Id = c.getString("Auto_Id");
                                 String Form_Struct_Id = c.getString("Form_Structure_Id");
@@ -2397,7 +2476,7 @@ public class HomePage extends AppCompatActivity {
                                 stmt.bindString(4, Option_Id);
                                 stmt.bindString(5, Score_Value);
                                 long entryID = stmt.executeInsert();
-                                Log.d(TAG, "Score" + "Score Downloading..."+entryID);
+                                if(LOG)Log.d(TAG, "Score" + "Score Downloading..."+entryID);
                                 stmt.clearBindings();
                             }
                             jumptime += 20;
@@ -2427,7 +2506,7 @@ public class HomePage extends AppCompatActivity {
                             db.beginTransaction();
                             SQLiteStatement stmt = db.compileStatement(sql);
                             for (int i = 0; i < Conversion.length(); i++) {
-                                publishProgress(i+1,Conversion.length(),9);
+                                publishProgress(i+1,Conversion.length(),10);
                                 JSONObject c = Conversion.getJSONObject(i);
                                 String Conversion_Auto_Id = c.getString("Auto_Id");
                                 String Source_UOM = c.getString("Source_UOM");
@@ -2445,7 +2524,7 @@ public class HomePage extends AppCompatActivity {
                                 stmt.bindString(6, Division_Factor);
                                 stmt.bindString(7, Target_UOM);
                                 long entryID = stmt.executeInsert();
-                                Log.d(TAG, "Conversion" + "Conversion Values Downloading..."+entryID);
+                                if(LOG)Log.d(TAG, "Conversion" + "Conversion Values Downloading..."+entryID);
                                 stmt.clearBindings();
                             }
                             jumptime += 20;
@@ -2475,7 +2554,7 @@ public class HomePage extends AppCompatActivity {
                             SQLiteStatement stmt = db.compileStatement(sql);
                             for (int i = 0; i < AssetStatus.length(); i++) {
                                 JSONObject c = AssetStatus.getJSONObject(i);
-                                Log.d("Asssret"," "+c.getString("Asset_Status_Id")+" "+c.getString("Status")+" "+c.getString("Task_State")+" "+c.getString("Color"));
+                                if(LOG)Log.d("Asssret"," "+c.getString("Asset_Status_Id")+" "+c.getString("Status")+" "+c.getString("Task_State")+" "+c.getString("Color"));
                                 String Asset_Status_Id = c.getString("Asset_Status_Id");
                                 String Status = c.getString("Status");
                                 String Task_State = c.getString("Task_State");
@@ -2534,10 +2613,10 @@ public class HomePage extends AppCompatActivity {
                             SQLiteStatement PpmTaskstmt = db.compileStatement(PpmTasksql);
 
                             for (int i = 0; i < task.length(); i++) {
-                                publishProgress(i+1,task.length(),10);
+                                publishProgress(i+1,task.length(),11);
                                 pDialog.setProgress(i+1);
                                 JSONObject c = task.getJSONObject(i);
-                                Log.d("hbkjcnv",((i+1)*100)/task.length()+"");
+                                if(LOG)Log.d("hbkjcnv",((i+1)*100)/task.length()+"");
                                 int setValue = ((i+1)*100)/task.length();
                                 //pDialog.setProgress(setValue);
                                 pDialog.setProgress(setValue);
@@ -3002,13 +3081,13 @@ public class HomePage extends AppCompatActivity {
         params.put("Sync_Count", countvalue);
         params.put("Site_Location_Id", myDb.Site_Location_Id(User_Id));
         params.put("Task_Details", uploadData);
-        Log.d("dfhj",params.toString());
+        if(LOG)Log.d("dfhj",params.toString());
 
         if (WRITE_JSON_FILE) {
             generateNoteOnSD(getApplicationContext(), "uploadData" + countvalue + ".txt", params.toString());
         }
         if(LOG)Log.d(TAG, "URL002" + myDb.SiteURL(User_Id) +" "+ new applicationClass().urlString() + new applicationClass().insertTask());
-        Log.d("Teasdasdasd",URLSTRING + new applicationClass().insertTask());
+        if(LOG)Log.d("Teasdasdasd",URLSTRING + new applicationClass().insertTask());
         client.post(URLSTRING + new applicationClass().insertTask(), params, new TextHttpResponseHandler() {//http://eclockwork.in/inserttask.php
             @Override
             public void onFailure(int statusCode, Header[] headers, String responseString, Throwable throwable) {
@@ -3144,6 +3223,8 @@ public class HomePage extends AppCompatActivity {
                         editorTaskInsert.putString("day", null);
                         editorTaskInsert.commit();
                         //new DataDownload().execute();
+                        getAssetLocation();
+
                         uploadDataPPM();
                         //getPPMTask();
 
@@ -3350,6 +3431,10 @@ public class HomePage extends AppCompatActivity {
     }
 
 
+    public void getAssetLocation(){
+
+    }
+
 
     public void uploadDataPPM() {
         pDialog.setMessage("Checking for PPM Task to upload. Please Wait");
@@ -3382,13 +3467,13 @@ public class HomePage extends AppCompatActivity {
         params.put("Sync_Count", countvalue);
         params.put("Site_Location_Id", myDb.Site_Location_Id(User_Id));
         params.put("PPMTaskDetails", uploadData);
-        Log.d("dfhj",params.toString());
+        if(LOG)Log.d("dfhj",params.toString());
 
         if (WRITE_JSON_FILE) {
             generateNoteOnSD(getApplicationContext(), "uploadData" + countvalue + ".txt", params.toString());
         }
         if(LOG)Log.d(TAG, "URL002" + myDb.SiteURL(User_Id) +" "+ new applicationClass().urlString() + new applicationClass().insertTask());
-        Log.d("Teasdasdasd",URLSTRING + new applicationClass().insertTask());
+        if(LOG)Log.d("Teasdasdasd",URLSTRING + new applicationClass().insertTask());
         client.post(URLSTRING + new applicationClass().insertPPMTask(), params, new TextHttpResponseHandler() {//http://eclockwork.in/inserttask.php
             @Override
             public void onFailure(int statusCode, Header[] headers, String responseString, Throwable throwable) {
@@ -3820,6 +3905,7 @@ public class HomePage extends AppCompatActivity {
             });
         }
     }
+
     private class CheckingInternetConnectivity extends AsyncTask<Void, Void, Boolean> {
         @Override
         protected void onPreExecute() {
@@ -4515,7 +4601,7 @@ public class HomePage extends AppCompatActivity {
 
 
         String ugid = myDb.UserGroupId(User_Id);
-        Log.d("UGID",ugid);
+        if(LOG)Log.d("UGID",ugid);
         String data = "";
         try {
             data = URLEncoder.encode("User_Group_Id", "UTF-8") + "=" + URLEncoder.encode(myDb.UserGroupId(User_Id), "UTF-8")+"&"+
@@ -4523,13 +4609,13 @@ public class HomePage extends AppCompatActivity {
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
         }
-        Log.d("PPMURLDATA", UrlList.PPMTASKURL+data);
+        if(LOG)Log.d("PPMURLDATA", UrlList.PPMTASKURL+data);
         JsonObjectRequest jsonObjReq = new JsonObjectRequest(Request.Method.GET,
                 UrlList.PPMTASKURL+data, null, new Response.Listener<JSONObject>() {
 
             @Override
             public void onResponse(JSONObject response) {
-                Log.d("PPMResponse", response.toString());
+                if(LOG)Log.d("PPMResponse", response.toString());
 
                 PPMresponse= response;
                 new InsertPPMTask().execute();
@@ -4604,7 +4690,7 @@ public class HomePage extends AppCompatActivity {
                             for (int i = 0; i < task.length(); i++) {
 
                                 JSONObject c = task.getJSONObject(i);
-                                Log.d("hbkjcnv",((i+1)*100)/task.length()+"");
+                                if(LOG)Log.d("hbkjcnv",((i+1)*100)/task.length()+"");
                                 int setValue = ((i+1)*100)/task.length();
                                 //pDialog.setProgress(setValue);
                                 pDialog.setProgress(setValue);
@@ -4784,8 +4870,8 @@ public class HomePage extends AppCompatActivity {
             db=myDb.getWritableDatabase();
 
             Cursor cursor = db.rawQuery(selectQuery, null);
-            Log.d("Teasdasd",selectQuery + " "+cursor.getCount() );
-            Log.d("Teasdasd","GitWorklingas");
+            if(LOG)Log.d("Teasdasd",selectQuery + " "+cursor.getCount() );
+            if(LOG)Log.d("Teasdasd","GitWorklingas");
             /*Log.d("Teasdasd","Dakshata ko dekha");
             Log.d("Teasdasd","Prathamesh ko dekha");
             Log.d("Teasdasd","Dakshata ko Dakshata");*/

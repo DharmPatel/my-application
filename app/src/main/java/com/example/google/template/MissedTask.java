@@ -345,8 +345,10 @@ public class MissedTask extends Fragment {
                         "FROM Task_Details td " +
                         "LEFT JOIN User_Group ug ON " +
                         "ug.User_Group_Id=td.Assigned_To_User_Group_Id " +
+                        "LEFT JOIN Asset_Status asst ON " +
+                        "asst.Status = td.Asset_Status " +
                         "WHERE td.Assigned_To_User_Group_Id IN ("+myDb.UserGroupId(User_Id)+") " +
-                        "AND td.Site_Location_Id='"+SiteId+"' AND td.Asset_Status= 'WORKING'  AND td.Task_Status ='Missed'  AND td.RecordStatus != 'D'";
+                        "AND td.Site_Location_Id='"+SiteId+"' AND asst.Task_State = 'A'  AND td.Task_Status ='Missed'  AND td.RecordStatus != 'D'";
 
                 Cursor cursor = db.rawQuery(pendingQuery, null);
                 Log.d("MissedCount", cursor.getCount() + "");

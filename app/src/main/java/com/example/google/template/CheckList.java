@@ -134,6 +134,7 @@ public class CheckList extends AppCompatActivity {
                 Calendar calenderEndon = Calendar.getInstance();
                 Calendar calenderStarton = Calendar.getInstance();
                 Date EndOn, StartOn, dateTimeStart;
+                String building_code,floor_code,room_area;
                 String Frequency_Auto_Id,Assign_Days,RepeatEveryMonth, Site_Location_Id,Activity_Type, Form_Id, Asset_ID, Assigned_To_User_Group_Id,Assigned_To_User_Id, YearStartson,TimeEndson, TimeStartson, Activity_Name, Asset_Code, Asset_Name, Asset_Location,Task_State, Status,StatusId;
                 int Activity_Duration, Grace_Duration_Before, Grace_Duration_After, RepeatEveryDay,RepeatEveryMin;
                 String query = "SELECT \n" +
@@ -160,7 +161,8 @@ public class CheckList extends AppCompatActivity {
                         " ad.Asset_Location,\n" +
                         " ad.Status,\n" +
                         " ad.Asset_Status_Id,\n" +
-                        " ast.Task_State\n" +
+                        " ast.Task_State,\n" +
+                        " al.*\n" +
                         " FROM Activity_Frequency af \n" +
                         " LEFT JOIN Asset_Activity_AssignedTo aaa ON \n" +
                         " aaa.Asset_Activity_Linking_Id = af.Asset_Activity_Linking_Id \n" +
@@ -172,6 +174,8 @@ public class CheckList extends AppCompatActivity {
                         " ad.Asset_Id = aal.Asset_Id \n" +
                         " LEFT JOIN Asset_Status ast ON\n" +
                         " ast.Status = ad.Status\n" +
+                        " LEFT JOIN Asset_Location al ON\n" +
+                        " al.Asset_Id = ad.Asset_Id\n" +
                         " WHERE \n" +
                         " aaa.Assigned_To_User_Group_Id IN ("+myDb.UserGroupId(User_Id)+") \n" +
                         "AND\n" +
@@ -208,7 +212,10 @@ public class CheckList extends AppCompatActivity {
                             Activity_Name = taskList.getString(taskList.getColumnIndex("Activity_Name"));
                             Asset_Code = taskList.getString(taskList.getColumnIndex("Asset_Code"));
                             Asset_Name = taskList.getString(taskList.getColumnIndex("Asset_Name"));
-                            Asset_Location = taskList.getString(taskList.getColumnIndex("Asset_Location"));
+                            building_code = taskList.getString(taskList.getColumnIndex("building_code"));
+                            floor_code = taskList.getString(taskList.getColumnIndex("floor_code"));
+                            room_area = taskList.getString(taskList.getColumnIndex("room_area"));
+                            Asset_Location = building_code+"-"+floor_code+"-"+room_area;
                             Status = taskList.getString(taskList.getColumnIndex("Status"));
                             StatusId = taskList.getString(taskList.getColumnIndex("Asset_Status_Id"));
                             Task_State = taskList.getString(taskList.getColumnIndex("Task_State"));

@@ -39,14 +39,14 @@
             android:textStyle="bold"
             >
         </TextView>
-        <ImageView
+        <!--<ImageView
             android:id="@+id/imageViewFilter"
             android:layout_width="0dp"
             android:layout_weight="0.10"
             android:paddingTop="5dp"
             android:layout_height="30dp"
             android:src="@drawable/filter"
-            />
+            />-->
     </TableRow>
 
 

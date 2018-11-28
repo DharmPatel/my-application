@@ -34,6 +34,7 @@ public class UnplannedActivity extends AppCompatActivity {
     private ListView lv;
     String assetName,activityName,assetCode,assetId,date,listFrequnecyId,listFromId,TaskIdList,StartDate,EndDate,companyId,SiteId,UserId,Scan_Type;
     String Frequency_Id,Site_Location_Id,Assigned_To_User_Id ,Asset_Id,From_Id,StartDateTime,EndDateTime,Asset_Code,Asset_Name ,Asset_Location,Asset_Status,Activity_Name,User_Group_Id,Group_Name,Task_Status;
+    String building_code,floor_code,room_area;
     String barcodeAsset ="55";
     TaskDataAdapter taskDataAdapter;
     NfcAdapter mNfcAdapter;
@@ -154,7 +155,7 @@ public class UnplannedActivity extends AppCompatActivity {
                     "ad.Asset_Name," +
                     "ad.Asset_Location," +
                     "ad.Status," +
-                    "ug.group_name " +
+                    "ug.group_name, al.* " +
                     "FROM Activity_Frequency af " +
                     "LEFT JOIN Asset_Activity_AssignedTo aaa ON " +
                     "aaa.Asset_Activity_Linking_Id = af.Asset_Activity_Linking_Id " +
@@ -166,6 +167,8 @@ public class UnplannedActivity extends AppCompatActivity {
                     "ad.Asset_Id = aal.Asset_Id " +
                     "LEFT JOIN User_Group ug ON " +
                     "aaa.Assigned_To_User_Group_Id = ug.User_Group_Id " +
+                    "LEFT JOIN Asset_Location al ON " +
+                    "al.Asset_Id=ad.Asset_Id " +
                     "WHERE aaa.Assigned_To_User_Group_Id IN ("+myDb.UserGroupId(UserId)+") AND af.Site_Location_Id = '"+SiteId+"' AND ad.Asset_Code ='"+barcodeAsset+"' AND " +
                     "af.RecordStatus !='D' AND aaa.RecordStatus !='D' AND aal.RecordStatus !='D' AND am.RecordStatus !='D' ";
 
@@ -180,7 +183,10 @@ public class UnplannedActivity extends AppCompatActivity {
                     From_Id = cursor.getString(cursor.getColumnIndex("Form_Id"));
                     Asset_Code  = cursor.getString(cursor.getColumnIndex("Asset_Code"));
                     Asset_Name = cursor.getString(cursor.getColumnIndex("Asset_Name")) ;
-                    Asset_Location = cursor.getString(cursor.getColumnIndex("Asset_Location")) ;
+                    building_code = cursor.getString(cursor.getColumnIndex("building_code"));
+                    floor_code = cursor.getString(cursor.getColumnIndex("floor_code"));
+                    room_area = cursor.getString(cursor.getColumnIndex("room_area"));
+                    Asset_Location = building_code+"-"+floor_code+"-"+room_area;
                     Asset_Status  = cursor.getString(cursor.getColumnIndex("Status"));
                     Activity_Name = cursor.getString(cursor.getColumnIndex("Activity_Name"));
                     Group_Name = cursor.getString(cursor.getColumnIndex("Group_Name"));

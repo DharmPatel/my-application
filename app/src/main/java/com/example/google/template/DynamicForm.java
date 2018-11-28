@@ -25,10 +25,12 @@ import android.graphics.Path;
 import android.graphics.RectF;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.ColorDrawable;
+import android.hardware.Camera;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.preference.PreferenceManager;
+import android.provider.MediaStore;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -218,7 +220,7 @@ public class DynamicForm extends AppCompatActivity {
         applicationClass = new applicationClass();
         EmployeeName = myDb.EmployeeName(User_Id);
         Checklist = getIntent().getStringExtra("IntentValue");
-        Log.d("ChecklistValue","1: "+Checklist);
+        Log.d("ChecklistValue","1: "+Checklist+" "+PPM_Intent);
         //createCutomActionBarTitle();
         try{
             /*if(Completed.equals("Completed") ){
@@ -1158,8 +1160,18 @@ public class DynamicForm extends AppCompatActivity {
             taskSelfie.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    Intent cameraIntent = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
-                    startActivityForResult(cameraIntent, CAMERA_REQUEST);
+                    try {
+                        Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+                        /*if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1) {
+                            cameraIntent.putExtra("android.intent.extras.LENS_FACING_FRONT", 1);
+                        } else {
+                            cameraIntent.putExtra("android.intent.extras.CAMERA_FACING", 1);
+                        }
+                        Log.d("jdskh","124654 "+cameraIntent.getDataString()+" "+Build.VERSION.SDK_INT);*/
+                        startActivityForResult(cameraIntent, CAMERA_REQUEST);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
                 }
             });
 
@@ -4105,6 +4117,7 @@ public class DynamicForm extends AppCompatActivity {
     @TargetApi(Build.VERSION_CODES.N)
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == CAMERA_REQUEST && resultCode == Activity.RESULT_OK) {
+            //Log.d("HGjgkj"," "+data.getExtras().get("data")+" "+data.getExtras().get("android.intent.extras.CAMERA_FACING"));
             Bitmap photo = (Bitmap) data.getExtras().get("data");
             Bitmap drawImage = photo.copy(Bitmap.Config.ARGB_8888, true);
             Canvas canvas = new Canvas(drawImage); //bmp is the bitmap to dwaw into
@@ -6064,7 +6077,7 @@ public class DynamicForm extends AppCompatActivity {
     }
 
     private void emailBackgroundData(final String value){
-        {
+
             try{
                 final String id =  myDb.emailList(SiteId);
                 new Thread(new Runnable() {
@@ -6085,7 +6098,7 @@ public class DynamicForm extends AppCompatActivity {
             }catch (Exception e){
                 e.printStackTrace();
             }
-        }
+
     }
 
     public void InsertAlert(String uuid,String Form_Structure_Id){

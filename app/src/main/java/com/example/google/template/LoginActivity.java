@@ -455,8 +455,9 @@ public class LoginActivity extends AppCompatActivity {
                                                     finish();
                                                 }
                                             }
-                                        } else
+                                        } else {
                                             Toast.makeText(LoginActivity.this, "Username or Password Incorrect", Toast.LENGTH_LONG).show();
+                                        }
                                         cursor.close();
                                         db.close();
                                     } catch (Exception e) {
@@ -497,7 +498,7 @@ public class LoginActivity extends AppCompatActivity {
                 VolleyLog.d(TAG, "Error: " + error.getMessage());
                 error.printStackTrace();
                 Toast.makeText(getApplicationContext(),
-                        error.getMessage(), Toast.LENGTH_SHORT).show();
+                        "Username or Password Incorrect", Toast.LENGTH_SHORT).show();
                 // hide the progress dialog
 
             }

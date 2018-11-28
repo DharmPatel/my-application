@@ -253,6 +253,7 @@ public class TaskDetails extends AppCompatActivity implements PendingTask.OnComp
                 Calendar calenderEndon = Calendar.getInstance();
                 Calendar calenderStarton = Calendar.getInstance();
                 Date EndOn, StartOn, dateTimeStart;
+                String building_code,floor_code,room_area;
                 String Frequency_Auto_Id,Task_State,Assign_Days,RepeatEveryMonth,Activity_Master_Auto_Id,Asset_Activity_AssignedTo_Auto_Id,Asset_Activity_Linking_Auto_Id, Site_Location_Id, Form_Id, Asset_ID, Assigned_To_User_Group_Id,Assigned_To_User_Id, YearStartson,TimeEndson, TimeStartson, Activity_Name, Asset_Code, Asset_Name, Asset_Location,Status;
                 int Activity_Duration, Verified, Grace_Duration_Before, Grace_Duration_After, RepeatEveryDay,RepeatEveryMin;
                 String query = "SELECT af.Site_Location_Id,\n" +
@@ -281,7 +282,8 @@ public class TaskDetails extends AppCompatActivity implements PendingTask.OnComp
                                 "ad.Asset_Name,\n" +
                                 "ad.Asset_Location,\n" +
                                 "ad.Status,\n" +
-                                "asst.Task_State\n"+
+                                "asst.Task_State,\n" +
+                                "al.* "+
                                 "FROM Activity_Frequency af \n" +
                                 "LEFT JOIN Asset_Activity_AssignedTo aaa ON \n" +
                                 "aaa.Asset_Activity_Linking_Id = af.Asset_Activity_Linking_Id \n" +
@@ -292,9 +294,10 @@ public class TaskDetails extends AppCompatActivity implements PendingTask.OnComp
                                 "LEFT JOIN Asset_Details ad ON \n" +
                                 "ad.Asset_Id = aal.Asset_Id \n" +
                                 "LEFT JOIN Asset_Status asst ON \n"+
-                                "asst.Asset_Status_Id = ad.Asset_Status_Id \n"+
-                                " WHERE aaa.Assigned_To_User_Group_Id IN ("+myDb.UserGroupId(User_Id)+") AND af.Site_Location_Id='"+ SiteId + "'" +
-                                "AND af.RecordStatus !='D' AND aaa.RecordStatus !='D' AND aal.RecordStatus !='D' AND am.RecordStatus !='D'";
+                                "asst.Asset_Status_Id = ad.Asset_Status_Id \n" +
+                                "LEFT JOIN Asset_Location al ON " +
+                                "al.Asset_Id = ad.Asset_Id"+
+                                " WHERE aaa.Assigned_To_User_Group_Id IN ("+myDb.UserGroupId(User_Id)+") AND af.Site_Location_Id='"+ SiteId + "'";
                 Log.d(TAG,"Querfdsafy : "+query);
                 SimpleDateFormat YDMDateFormat = new SimpleDateFormat("yyyy-MM-dd");
                 SimpleDateFormat YMDHMDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm");
@@ -322,7 +325,10 @@ public class TaskDetails extends AppCompatActivity implements PendingTask.OnComp
                             Activity_Name = taskList.getString(taskList.getColumnIndex("Activity_Name"));
                             Asset_Code = taskList.getString(taskList.getColumnIndex("Asset_Code"));
                             Asset_Name = taskList.getString(taskList.getColumnIndex("Asset_Name"));
-                            Asset_Location = taskList.getString(taskList.getColumnIndex("Asset_Location"));
+                            building_code = taskList.getString(taskList.getColumnIndex("building_code"));
+                            floor_code = taskList.getString(taskList.getColumnIndex("floor_code"));
+                            room_area = taskList.getString(taskList.getColumnIndex("room_area"));
+                            Asset_Location = building_code+"-"+floor_code+"-"+room_area;
                             Status = taskList.getString(taskList.getColumnIndex("Status"));
                             Task_State = taskList.getString(taskList.getColumnIndex("Task_State"));
                             Verified = taskList.getInt(taskList.getColumnIndex("Verified"));

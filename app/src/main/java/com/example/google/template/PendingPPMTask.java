@@ -45,6 +45,7 @@ public class PendingPPMTask extends Fragment {
     RecyclerView.Adapter adapter;
     LinearLayout ProgressBarLayout;
     int listcount;
+    String building_code,floor_code,room_area;
     private ProgressDialog pDialog;
     private ProgressBar mProgress;
     DatabaseHelper myDb;
@@ -167,38 +168,41 @@ public class PendingPPMTask extends Fragment {
 
             myDb=new DatabaseHelper(getActivity());
             db= myDb.getWritableDatabase();
-            String pending_query =  "SELECT   DISTINCT ppm.Auto_Id , \n" +
-                    "          ppm.Site_Location_Id , \n" +
-                    "          ppm.Activity_Frequency , \n" +
-                    "          ppm.Task_Date , \n" +
-                    "          ppm.Task_End_Date , \n" +
-                    "          ppm.Task_Status , \n" +
-                    "          ppm.Asset_Activity_Linking_Id , \n" +
-                    "          ppm.Timestartson , \n" +
-                    "          ppm.Activity_Duration , \n" +
-                    "          ppm.Grace_Duration_Before , \n" +
-                    "          ppm.Grace_Duration_After,\n" +
-                    "          ppm.UpdatedStatus,\n" +
-                    "          am.Activity_Name,\n" +
-                    "          am.Form_Id,\n" +
-                    "          ad.Asset_Code,\n" +
-                    "          ad.Asset_Name,\n" +
-                    "          ad.Asset_Location,\n" +
-                    "          ad.Asset_Type,\n" +
-                    "          ad.Status,\n" +
-                    "          aaa.Assigned_To_User_Group_Id,\n" +
-                    "          ug.Group_Name\n" +
-                    "FROM      ppm_task ppm \n" +
+            String pending_query =  "SELECT   DISTINCT ppm.Auto_Id ,\n" +
+                    " ppm.Site_Location_Id , \n" +
+                    " ppm.Activity_Frequency , \n" +
+                    " ppm.Task_Date , \n" +
+                    " ppm.Task_End_Date , \n" +
+                    " ppm.Task_Status , \n" +
+                    " ppm.Asset_Activity_Linking_Id , \n" +
+                    " ppm.Timestartson , \n" +
+                    " ppm.Activity_Duration , \n" +
+                    " ppm.Grace_Duration_Before , \n" +
+                    " ppm.Grace_Duration_After,\n" +
+                    " ppm.UpdatedStatus,\n" +
+                    " am.Activity_Name,\n" +
+                    " am.Form_Id,\n" +
+                    " ad.Asset_Code,\n" +
+                    " ad.Asset_Name,\n" +
+                    " ad.Asset_Location,\n" +
+                    " ad.Asset_Type,\n" +
+                    " ad.Status,\n" +
+                    " aaa.Assigned_To_User_Group_Id,\n" +
+                    " ug.Group_Name,\n" +
+                    " al.*\n " +
+                    "FROM ppm_task ppm \n" +
                     "LEFT JOIN asset_activity_assignedto aaa \n" +
-                    "ON        aaa.Asset_Activity_Linking_Id = ppm.Asset_Activity_Linking_Id\n" +
+                    "ON aaa.Asset_Activity_Linking_Id = ppm.Asset_Activity_Linking_Id\n" +
                     "LEFT JOIN asset_activity_linking aal \n" +
-                    "ON        aal.Auto_Id = ppm.Asset_Activity_Linking_Id \n" +
+                    "ON aal.Auto_Id = ppm.Asset_Activity_Linking_Id \n" +
                     "LEFT JOIN asset_details ad \n" +
-                    "ON        ad.Asset_Id = aal.Asset_Id \n" +
+                    "ON ad.Asset_Id = aal.Asset_Id \n" +
                     "LEFT JOIN activity_master am \n" +
-                    "ON        am.Auto_Id = aal.Activity_Id \n" +
-                    "LEFT JOIN User_Group ug\n" +
-                    "ON                ug.User_Group_Id = aaa.Assigned_To_User_Group_Id \n" +
+                    "ON am.Auto_Id = aal.Activity_Id \n" +
+                    "LEFT JOIN User_Group ug \n" +
+                    "ON ug.User_Group_Id = aaa.Assigned_To_User_Group_Id \n" +
+                    "LEFT JOIN Asset_Location al \n " +
+                    "ON al.Asset_Id = ad.Asset_Id " +
                     "WHERE ppm.task_status = 'Pending' and aaa.Assigned_To_User_Group_Id IN ("+myDb.UserGroupId(User_Id)+") AND  ppm.site_location_id ='"+myDb.Site_Location_Id(User_Id)+"'";
             Log.d("TestingQuery",pending_query);
             Cursor cursor= db.rawQuery(pending_query, null);
@@ -223,7 +227,10 @@ public class PendingPPMTask extends Fragment {
                     Form_Id = cursor.getString(cursor.getColumnIndex("Form_Id"));
                     Asset_Code = cursor.getString(cursor.getColumnIndex("Asset_Code"));
                     Asset_Name = cursor.getString(cursor.getColumnIndex("Asset_Name"));
-                    Asset_Location = cursor.getString(cursor.getColumnIndex("Asset_Location"));
+                    building_code = cursor.getString(cursor.getColumnIndex("building_code"));
+                    floor_code = cursor.getString(cursor.getColumnIndex("floor_code"));
+                    room_area = cursor.getString(cursor.getColumnIndex("room_area"));
+                    Asset_Location = building_code+"-"+floor_code+"-"+room_area;
                     Asset_Type = cursor.getString(cursor.getColumnIndex("Asset_Type"));
                     Status = cursor.getString(cursor.getColumnIndex("Status"));
                     Assigned_To_User_Group_Id = cursor.getString(cursor.getColumnIndex("Assigned_To_User_Group_Id"));

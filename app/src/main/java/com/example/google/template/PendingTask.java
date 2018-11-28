@@ -116,21 +116,21 @@ public class PendingTask extends Fragment {
         mProgress = (ProgressBar)view.findViewById(R.id.pbHeaderProgress);
         linlaHeaderProgress = (LinearLayout) view.findViewById(R.id.linlaHeaderProgress);
         calenderCurrent = Calendar.getInstance();
-        drawerLayout = (DrawerLayout)view.findViewById(R.id.drawer_layout);
-        navigationView = (NavigationView)view.findViewById(R.id.drawer_view);
+        /*drawerLayout = (DrawerLayout)view.findViewById(R.id.drawer_layout);
+        navigationView = (NavigationView)view.findViewById(R.id.drawer_view);*/
         expandableListView = (ExpandableListView)view.findViewById(R.id.submenu);
         OkButton = (Button)view.findViewById(R.id.SubmitBtn);
-        navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
+        /*navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
                 item.setChecked(true);
                 drawerLayout.closeDrawers();
                 return true;
             }
-        });
-        prepareMenuData();
-        populateExpandableList();
-        OkButton.setOnClickListener(new View.OnClickListener() {
+        });*/
+        //prepareMenuData();
+        //populateExpandableList();
+        /*OkButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Log.d("checkedval"," InJobCard: "+expandableListViewAdapter.getValue());
@@ -141,15 +141,14 @@ public class PendingTask extends Fragment {
                 floorData();
                 drawerLayout.closeDrawers();
             }
-        })
-        ;
+        });
         imageViewFilter = (ImageView)view.findViewById(R.id.imageViewFilter1);
         imageViewFilter.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 drawerLayout.openDrawer(GravityCompat.END);
             }
-        });
+        });*/
 
 
         lv = (ListView)view.findViewById(R.id.list_Missed);
@@ -489,8 +488,10 @@ public class PendingTask extends Fragment {
                                               "FROM Task_Details td " +
                                               "LEFT JOIN User_Group ug ON " +
                                               "ug.User_Group_Id=td.Assigned_To_User_Group_Id " +
+                                              "LEFT JOIN Asset_Status asst ON " +
+                                              "asst.Status = td.Asset_Status "+
                                               "WHERE td.Assigned_To_User_Group_Id IN ("+myDb.UserGroupId(User_Id)+") " +
-                                              "AND td.Site_Location_Id='"+SiteId+"' AND td.Asset_Status= 'WORKING'  AND td.Task_Status='Pending' AND td.RecordStatus != 'D'";
+                                              "AND td.Site_Location_Id='"+SiteId+"' AND asst.Task_State = 'A'  AND td.Task_Status='Pending' AND td.RecordStatus != 'D'";
 
                 Cursor cursor= db.rawQuery(pendingQuery, null);
                 if (cursor.moveToFirst()) {
@@ -788,6 +789,11 @@ public class PendingTask extends Fragment {
                                 e.printStackTrace();
                                 Toast.makeText(getContext(), "Error code: pt453", Toast.LENGTH_SHORT).show();
                             }
+                        } else if(myDb.getassetStatus(result.getContents()).trim().equals("")) {
+                            Intent intent = new Intent(getContext(), UnplannedActivity.class);
+                            intent.putExtra("AssetCode", result.getContents());
+                            startActivity(intent);
+                            getActivity().finish();
                         }else {
                             AlertDialog.Builder alertDialog =new AlertDialog.Builder(getContext());
                             alertDialog.setMessage("Task is " + myDb.getassetStatus(result.getContents()) + ".");

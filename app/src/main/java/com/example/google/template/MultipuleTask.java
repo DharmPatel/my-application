@@ -60,7 +60,16 @@ public class MultipuleTask extends AppCompatActivity {
         int count = 0;
         try {
             db= myDb.getWritableDatabase();
-            String Query = "SELECT a.Group_Name,b.* FROM User_Group a,Task_Details b WHERE a.User_Group_Id=b.Assigned_To_User_Group_Id and  Assigned_To_User_Group_Id IN ("+myDb.UserGroupId(User_Id)+") AND Site_Location_Id='"+SiteId+"' AND Asset_Status= 'WORKING' AND Asset_Code='"+assetCode+"' AND Task_Status = 'Pending' AND RecordStatus != 'D'";
+            String Query = "SELECT ug.Group_Name," +
+                    "td.* " +
+                    "FROM Task_Details td " +
+                    "LEFT JOIN User_Group ug " +
+                    "ON ug.User_Group_Id=td.Assigned_To_User_Group_Id " +
+                    "LEFT JOIN Asset_Status asst " +
+                    "ON asst.Status = td.Asset_Status " +
+                    "WHERE td.Assigned_To_User_Group_Id IN ("+myDb.UserGroupId(User_Id)+") " +
+                    "AND td.Site_Location_Id='"+SiteId+"' AND asst.Task_State = 'A' AND td.Asset_Code='"+assetCode+"' " +
+                    "AND td.Task_Status = 'Pending' AND td.RecordStatus != 'D'";
             Cursor cursor= db.rawQuery(Query, null);
             Log.d("hfdvjhfvb",Query);
 
@@ -150,7 +159,7 @@ public class MultipuleTask extends AppCompatActivity {
                     intent.putExtra("User_Group_Id", UserGroupId);
                     intent.putExtra("Completed", "Pending");
                     intent.putExtra("Status","Completed");
-                    intent.putExtra("PPMTask","PPMPending");
+                    //intent.putExtra("PPMTask","PPMPending");
                     startActivity(intent);
                     finish();
                 /*} else if(Task_Status.equals("Missed")){

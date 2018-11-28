@@ -48,7 +48,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         sqLiteDatabase.execSQL("CREATE TABLE User_Group (Id INTEGER PRIMARY KEY,User_Group_Id TEXT,Group_Name TEXT)");
         sqLiteDatabase.execSQL("CREATE TABLE Site_Details (Id INTEGER PRIMARY KEY ,Auto_Id TEXT,Site_Name_Label TEXT,Site_Name_Value TEXT,Assigned_To_User_Id TEXT)");
         sqLiteDatabase.execSQL("CREATE TABLE Form_Structure (Id INTEGER PRIMARY KEY,Field_Id TEXT,Site_Location_Id TEXT,Form_Id TEXT,Field_Label TEXT,Field_Type TEXT,Field_Options TEXT,FixedValue Text,Mandatory INTEGER,sid INTEGER,sections TEXT,Display_Order INTEGER,SafeRange INTEGER,Calculation INTEGER,Record_Status TEXT)");
-        sqLiteDatabase.execSQL("CREATE TABLE Asset_Details (Id INTEGER PRIMARY KEY ,Asset_Id TEXT,Site_Location_Id TEXT,Asset_Code TEXT,Asset_Name TEXT,Asset_Location TEXT,Asset_Status_Id TEXT,Asset_Type TEXT,Status TEXT,Manual_Time TEXT, Asset_Update_Time TEXT,UpdatedStatus TEXT)");
+        sqLiteDatabase.execSQL("CREATE TABLE Asset_Details (Id INTEGER PRIMARY KEY ,Asset_Id TEXT,Site_Location_Id TEXT,Asset_Code TEXT,Asset_Name TEXT,Asset_Location TEXT,Building_Id TEXT,Floor_Id TEXT,Room_Id TEXT,Asset_Status_Id TEXT,Asset_Type TEXT,Status TEXT,Manual_Time TEXT, Asset_Update_Time TEXT,UpdatedStatus TEXT)");
         sqLiteDatabase.execSQL("CREATE TABLE Asset_Status (Id INTEGER PRIMARY KEY,Asset_Status_Id TEXT,Status TEXT,Task_State TEXT, Color TEXT)");
         sqLiteDatabase.execSQL("CREATE TABLE Parameter (Id INTEGER PRIMARY KEY,Site_Location_Id TEXT,Activity_Frequency_Id TEXT, Form_Id TEXT,Form_Structure_Id TEXT, Field_Limit_From TEXT,Field_Limit_To TEXT,Threshold_From TEXT,Threshold_To TEXT,Validation_Type TEXT,Critical INTEGER,Field_Option_Id TEXT)");
         sqLiteDatabase.execSQL("CREATE TABLE Meter_Reading(Id INTEGER PRIMARY KEY,Site_Location_Id TEXT,Task_Id TEXT,Asset_Id TEXT,Form_Structure_Id TEXT,Reading TEXT,UOM TEXT,Reset INTEGER,Activity_Frequency_Id TEXT,Task_Start_At TEXT,UpdatedStatus TEXT)");
@@ -70,7 +70,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         sqLiteDatabase.execSQL("CREATE TABLE feedback_score(Id INTEGER PRIMARY KEY AUTOINCREMENT,Feedbaack_Auto_Id TEXT,Score TEXT,FeedBackName TEXT)");
         sqLiteDatabase.execSQL("CREATE TABLE Notification(Id INTEGER PRIMARY KEY AUTOINCREMENT,Notification_Auto_Id TEXT,Message TEXT,Update_Type TEXT)");
         sqLiteDatabase.execSQL("CREATE TABLE EmailList (Id INTEGER PRIMARY KEY, Email_Auto_Id TEXT,Site_Location_Id TEXT, Employee_Email TEXT,Created_DateTime TEXT,Deleted_DateTime TEXT,Record_Status TEXT)");
-
+        sqLiteDatabase.execSQL("CREATE TABLE Asset_Location (Id INTEGER PRIMARY KEY,Asset_Id TEXT,Building_Id TEXT,Floor_Id TEXT,Room_Id TEXT,building_code TEXT,floor_code TEXT,room_area TEXT,Site_Location_Id TEXT)");
     }
 
     @Override
@@ -241,7 +241,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         SQLiteDatabase database = this.getWritableDatabase();
         String updateQuery = "SELECT Auto_Id FROM Task_Details " +
                 "WHERE Task_Status IN ('Completed','Unplanned','Delayed') AND Asset_Id = '"+Asset_Id+"' " +
-                "ORDER BY Task_Start_At DESC LIMIT 1";
+                "ORDER BY Id DESC";
         Log.d("TestingUrl",updateQuery);
         Cursor cursor = database.rawQuery(updateQuery, null);
         if (cursor.moveToFirst()) {
@@ -804,6 +804,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         String selectQuery = "SELECT Task_Status FROM Task_Details WHERE Asset_Code = '"+assetCode+"' AND Task_Scheduled_Date <='"+ applicationClass.yymmddhhmm()+"' AND EndDateTime >= '"+ applicationClass.yymmddhhmm()+"' AND Task_Status !='Unplanned' AND RecordStatus = 'I'";
         SQLiteDatabase database = this.getWritableDatabase();
         Cursor cursor = database.rawQuery(selectQuery, null);
+        Log.d("MKds"," "+selectQuery+" "+cursor.getCount());
         if(cursor.getCount() > 0){
             if (cursor.moveToFirst()) {
                 do {
@@ -816,6 +817,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         }else {
             String Query = "SELECT Task_Status FROM Task_Details WHERE Asset_Code = '"+assetCode+"' AND Task_Status !='Unplanned'";
             Cursor cursorforCount = database.rawQuery(Query, null);
+            Log.d("MKds"," "+Query+" "+cursorforCount.getCount());
+
             if(cursorforCount.getCount() !=0) {
                 if (cursorforCount.moveToNext()) {
                     assetStatus = cursorforCount.getString(0);

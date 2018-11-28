@@ -41,6 +41,7 @@ public class MissedPPMTask extends Fragment {
     PPMTaskAdapter ppmTaskAdapter;
     Calendar calenderCurrent;
     PpmTaskProvider ppmTaskProvider;
+    String building_code,floor_code,room_area;
     String User_Id,Auto_Id,Form_Id,updatedStatus, Site_Location_Id,activity_frequency,task_date,task_end_date,task_status,asset_activity_linking_id,timestartson,Activity_Name,Asset_Code,Asset_Name,Asset_Location,Asset_Type,Status,Assigned_To_User_Group_Id,Group_Name;
     Date dateTimeStart,dateTimeEnd,LimitTime;
 
@@ -152,7 +153,8 @@ public class MissedPPMTask extends Fragment {
                     "          ad.Asset_Type,\n" +
                     "          ad.Status,\n" +
                     "          aaa.Assigned_To_User_Group_Id,\n" +
-                    "          ug.Group_Name\n" +
+                    "          ug.Group_Name,\n" +
+                    "          al.* \n" +
                     "FROM      ppm_task ppm \n" +
                     "LEFT JOIN asset_activity_assignedto aaa \n" +
                     "ON        aaa.Asset_Activity_Linking_Id = ppm.Asset_Activity_Linking_Id\n" +
@@ -164,6 +166,8 @@ public class MissedPPMTask extends Fragment {
                     "ON        am.Auto_Id = aal.Activity_Id \n" +
                     "LEFT JOIN User_Group ug\n" +
                     "ON                ug.User_Group_Id = aaa.Assigned_To_User_Group_Id \n" +
+                    "LEFT JOIN Asset_Location al \n" +
+                    "ON al.Asset_Id = ad.Asset_Id " +
                     "WHERE ppm.task_status = 'Missed' and aaa.Assigned_To_User_Group_Id = "+myDb.UserGroupId(User_Id)+" AND  ppm.site_location_id ='"+myDb.Site_Location_Id(User_Id)+"'";
             Log.d("TestingQuery",pending_query);
             Cursor cursor= db.rawQuery(pending_query, null);
@@ -188,7 +192,10 @@ public class MissedPPMTask extends Fragment {
                     Form_Id = cursor.getString(cursor.getColumnIndex("Form_Id"));
                     Asset_Code = cursor.getString(cursor.getColumnIndex("Asset_Code"));
                     Asset_Name = cursor.getString(cursor.getColumnIndex("Asset_Name"));
-                    Asset_Location = cursor.getString(cursor.getColumnIndex("Asset_Location"));
+                    building_code = cursor.getString(cursor.getColumnIndex("building_code"));
+                    floor_code = cursor.getString(cursor.getColumnIndex("floor_code"));
+                    room_area = cursor.getString(cursor.getColumnIndex("room_area"));
+                    Asset_Location = building_code+"-"+floor_code+"-"+room_area;
                     Asset_Type = cursor.getString(cursor.getColumnIndex("Asset_Type"));
                     Status = cursor.getString(cursor.getColumnIndex("Status"));
                     Assigned_To_User_Group_Id = cursor.getString(cursor.getColumnIndex("Assigned_To_User_Group_Id"));
