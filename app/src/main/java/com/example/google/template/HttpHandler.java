@@ -284,7 +284,7 @@ public class HttpHandler {
     public String taskDataCall(String User_Group_Id, String SiteID,String URL) {
         String response = null;
         try {
-            String reqUrl =  URLSTRING+"DataDownloadvNew.php";
+            String reqUrl =  URLSTRING+"DataDownload.php";
             if(LOG)Log.d("fdsaf",reqUrl);
             URL url = new URL(reqUrl);
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();

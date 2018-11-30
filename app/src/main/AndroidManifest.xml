@@ -26,7 +26,7 @@
         android:name=".applicationClass"
         android:allowBackup="false"
         android:hardwareAccelerated="false"
-        android:icon="@drawable/applogo"
+        android:icon="@drawable/eurestservices"
         android:label="@string/application_name"
         android:largeHeap="true"
         android:theme="@style/AppTheme1">
