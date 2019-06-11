@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:id="@+id/ticketLinearLayout">
+    <include
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/toolbar_addcomplain"
+        layout="@layout/toolbar_qr_new_complain"/>
+
+    <!--<TableLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/bg_main"
+        android:stretchColumns="*"
+        >
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:weightSum="1">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:text="Ticket Code"
+                android:padding="5sp"
+                android:textColor="#FFF"
+                android:layout_height="wrap_content"
+                android:textStyle="bold" />
+
+            <TextView
+                android:padding="5sp"
+                android:text="Priority"
+                android:textColor="#FFF"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textStyle="bold"
+                >
+            </TextView>
+            <TextView
+                android:padding="5sp"
+                android:text="Date(Time)"
+                android:textColor="#FFF"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textStyle="bold"/>
+        </TableRow>
+    </TableLayout>-->
+    <!--
+        <ListView
+            android:layout_width="match_parent"
+            android:id="@+id/ticket"
+            android:background="#EEEEEE"
+            android:elevation="4dp"
+            android:scrollbars="vertical"
+            android:layout_height="wrap_content"
+            android:verticalSpacing="3dp"
+            android:divider="#808080"
+            android:dividerHeight="1dip">
+        </ListView>
+    -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/ll_nfc"
+        android:visibility="gone"
+        android:background="@color/white"
+        android:orientation="vertical">
+
+        <ImageView
+            android:layout_width="match_parent"
+        android:layout_height="400dp"
+        android:layout_gravity="bottom"
+        android:src="@drawable/nfc"
+       />
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="20dp"
+            android:gravity="center"
+            android:text="Tap device with NFC tag"/>
+    </LinearLayout>
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/recyclerview"
+            android:background="#EEE"
+            android:verticalSpacing="3dp"
+            app:stackFromEnd="true"
+            app:layoutManager="android.support.v7.widget.LinearLayoutManager"
+            android:divider="#808080"
+            android:scrollbars="vertical"
+            android:elevation="4dp"
+            android:visibility="visible"
+            android:dividerHeight="1dip"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+        </android.support.v7.widget.RecyclerView>
+<!--    </android.support.design.widget.AppBarLayout>-->
+</LinearLayout>

@@ -1,0 +1,213 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <android.support.v7.widget.CardView
+        android:id="@+id/cardView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            >
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_marginTop="10dp"
+                android:layout_height="wrap_content"
+                android:weightSum="10">
+                <TextView
+                    android:id="@+id/tvCategory"
+                    android:text=" [ Category ]"
+                    android:textSize="12dp"
+                    android:textColor="@color/input_register_hint"
+                    android:layout_gravity="top"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:textStyle="bold"
+                    android:layout_weight="3"
+                    >
+                </TextView>
+
+                <TextView
+                    android:id="@+id/tvSubject"
+                    android:text=" [ Subject ]"
+                    android:textSize="12dp"
+                    android:textColor="@color/input_register_hint"
+                    android:layout_gravity="top"
+                    android:layout_width="0dp"
+                    android:paddingLeft="14sp"
+                    android:layout_height="wrap_content"
+                    android:textStyle="bold"
+                    android:layout_weight="4"
+                    >
+                </TextView>
+                <TextView
+                    android:id="@+id/tvLevel"
+                    android:text=" [ Level ]"
+                    android:textSize="12dp"
+                    android:textColor="@color/input_register_hint"
+                    android:layout_gravity="top"
+                    android:layout_width="0dp"
+                    android:paddingLeft="14sp"
+                    android:layout_height="wrap_content"
+                    android:textStyle="bold"
+                    android:layout_weight="3"
+                    >
+                </TextView>
+
+
+
+                <TextView
+                    android:layout_weight="0"
+                    android:id="@+id/tvAssetCode"
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    >
+                </TextView>
+                <TextView
+                    android:layout_weight="0"
+                    android:id="@+id/tvAsset_Id"
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    >
+                </TextView>
+                <TextView
+                    android:layout_weight="0"
+                    android:id="@+id/tvUpdateStatus"
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    >
+                </TextView>
+                <!-- <TextView
+                     android:id="@+id/tvAssetLocation"
+                     android:text=""
+                     android:textColor="#337ab7"
+                     android:layout_width="0dp"
+                     android:textSize="12dp"
+                     android:padding="14sp"
+                     android:layout_height="wrap_content"
+                     android:layout_gravity="top"
+                     android:layout_weight="7"
+                     android:textStyle="bold"
+                     >
+                 </TextView>-->
+
+
+
+            </LinearLayout>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:weightSum="10">
+                <TextView
+                    android:id="@+id/tvDate"
+                    android:text=" [ Date ]"
+                    android:textSize="12dp"
+                    android:textColor="#337ab7"
+                    android:layout_gravity="top"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:textStyle="bold"
+                    android:layout_weight="3"
+                    >
+                </TextView>
+
+                <TextView
+                    android:id="@+id/tvAssignedTo"
+                    android:text=" [ AssignedTo ]"
+                    android:textSize="12dp"
+                    android:textColor="#337ab7"
+                    android:layout_gravity="top"
+                    android:layout_width="0dp"
+                    android:paddingLeft="14sp"
+                    android:layout_height="wrap_content"
+                    android:textStyle="bold"
+                    android:layout_weight="4"
+                    >
+                </TextView>
+                <TextView
+                    android:id="@+id/tvSite"
+                    android:text=" [ Site ]"
+                    android:textSize="12dp"
+                    android:textColor="#337ab7"
+                    android:layout_gravity="top"
+                    android:layout_width="0dp"
+                    android:paddingLeft="14sp"
+                    android:layout_height="wrap_content"
+                    android:textStyle="bold"
+                    android:layout_weight="3"
+                    >
+                </TextView>
+                <!-- <TextView
+                     android:id="@+id/tvAssetLocation"
+                     android:text=""
+                     android:textColor="#337ab7"
+                     android:layout_width="0dp"
+                     android:textSize="12dp"
+                     android:padding="14sp"
+                     android:layout_height="wrap_content"
+                     android:layout_gravity="top"
+                     android:layout_weight="7"
+                     android:textStyle="bold"
+                     >
+                 </TextView>-->
+
+                <TextView
+                    android:id="@+id/tvTaskType"
+                    android:text=" "
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:layout_weight="0.35"
+                    android:textStyle="bold"
+                    >
+                </TextView>
+
+            </LinearLayout>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:orientation="horizontal"
+                android:layout_marginBottom="05dp">
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center"
+                    android:layout_height="wrap_content">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:text=" Last Updated : "
+                        android:textStyle="bold"
+                        android:textSize="12dp"
+                        android:textColor="@color/bg_main"
+                        android:layout_height="wrap_content" />
+                    <TextView
+                        android:id="@+id/tvLastUpdate"
+                        android:text=" [ Updated Time ]"
+                        android:textSize="12dp"
+                        android:paddingLeft="05dp"
+                        android:gravity="center"
+                        android:textColor="@android:color/holo_red_dark"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:textStyle="bold"
+                        android:layout_weight="3"
+                        >
+                    </TextView>
+                </LinearLayout>
+
+
+
+
+            </LinearLayout>
+
+        </LinearLayout>
+    </android.support.v7.widget.CardView>
+</LinearLayout>

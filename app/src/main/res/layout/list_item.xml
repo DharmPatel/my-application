@@ -2,17 +2,19 @@
 
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
+    android:layout_height="match_parent"
     android:orientation="vertical"
     >
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_marginTop="10dp"
+        android:layout_marginBottom="10dp"
         android:layout_height="wrap_content"
-        android:weightSum="10">
+        android:weightSum="10"
+        android:orientation="horizontal">
         <TextView
             android:id="@+id/tvTime"
-            android:text=" [ TVTIME ]"
+            android:text=" [TVTIME]"
             android:textSize="12dp"
             android:layout_gravity="top"
             android:layout_width="0dp"
@@ -24,11 +26,10 @@
 
         <TextView
             android:id="@+id/tvAssetName"
-            android:text=" [ tvAssetName ]"
+            android:text=" [tvAssetName]"
             android:textSize="12dp"
             android:layout_gravity="top"
             android:layout_width="0dp"
-            android:paddingLeft="14sp"
             android:layout_height="wrap_content"
             android:textStyle="bold"
             android:layout_weight="4"
@@ -37,11 +38,10 @@
 
         <TextView
             android:id="@+id/tvActivity_name"
-            android:text=" [ tvActivity_name ]"
+            android:text=" [tvActivity_name]"
             android:textSize="12dp"
             android:layout_gravity="top"
             android:layout_width="0dp"
-            android:paddingLeft="14sp"
             android:layout_height="wrap_content"
             android:textStyle="bold"
             android:layout_weight="3"
@@ -89,12 +89,12 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
+        android:layout_marginTop="10dp"
         android:layout_marginBottom="10dp"
         android:weightSum="10">
         <TextView
             android:id="@+id/graceDuration2"
-            android:text=" [ Unplanned ]"
+            android:text=" [Unplanned]"
             android:textSize="12dp"
             android:textColor="@color/bg_main"
             android:layout_gravity="top"
@@ -107,12 +107,11 @@
 
         <TextView
             android:id="@+id/tvAssetLocation"
-            android:text=" [ Unplanned ]"
+            android:text=" [Unplanned]"
             android:textSize="12dp"
             android:textColor="@color/bg_main"
             android:layout_gravity="top"
             android:layout_width="0dp"
-            android:paddingLeft="14sp"
             android:layout_height="wrap_content"
             android:textStyle="bold"
             android:layout_weight="4"
@@ -125,7 +124,6 @@
             android:textColor="@color/bg_main"
             android:layout_gravity="top"
             android:layout_width="0dp"
-            android:paddingLeft="14sp"
             android:paddingRight="5dp"
             android:layout_height="wrap_content"
             android:textStyle="bold"

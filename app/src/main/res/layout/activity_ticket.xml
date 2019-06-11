@@ -2,7 +2,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_height="fill_parent"
     android:layout_width="fill_parent"
-    tools:context="com.example.google.template.TicketActivity">
+    tools:context="com.example.google.csmia_temp.TicketActivity">
 
     <LinearLayout
         android:orientation="vertical"

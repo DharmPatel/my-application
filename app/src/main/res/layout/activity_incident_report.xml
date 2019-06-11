@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:id="@+id/linearLayoutIncident"
-    tools:context="com.example.google.template.IncidentReport">
+    tools:context="com.example.google.csmia_temp.IncidentReport">
     <android.support.v7.widget.RecyclerView
         android:id="@+id/rvIncident"
         android:layout_width="match_parent"
