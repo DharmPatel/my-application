@@ -52,7 +52,7 @@
             <!--Layout1-->
             <LinearLayout
                 android:id="@+id/firstInnerLayout1"
-                android:layout_width="wrap_content"
+                android:layout_width="61dp"
                 android:layout_height="match_parent"
                 android:layout_weight="0.33"
                 android:orientation="vertical">
@@ -60,7 +60,7 @@
                 <ImageView
 
                     android:id="@+id/imageViewAssets"
-                    android:layout_width="wrap_content"
+                    android:layout_width="58dp"
                     android:layout_height="60dp"
                     android:layout_gravity="center"
                     android:adjustViewBounds="true"
@@ -73,14 +73,14 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
                     android:layout_marginTop="10dp"
-                    android:text="Asset"
+                    android:text="@string/asset"
                     android:textColor="#0A3560" />
             </LinearLayout>
 
             <!--Layout2-->
             <LinearLayout
                 android:id="@+id/secondInnerLayout1"
-                android:layout_width="wrap_content"
+                android:layout_width="72dp"
                 android:layout_height="match_parent"
                 android:layout_weight="0.33"
                 android:orientation="vertical">
@@ -100,7 +100,7 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
                     android:layout_marginTop="10dp"
-                    android:text="HelpDesk"
+                    android:text="@string/helpdesk"
                     android:textColor="#0A3560" />
 
             </LinearLayout>
@@ -110,14 +110,13 @@
                 android:id="@+id/thirdInnerLayout1"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
-                android:layout_weight="0.49"
+                android:layout_weight="0.34"
                 android:orientation="vertical">
 
                 <ImageView
                     android:id="@+id/imageViewAlert"
-                    android:layout_width="wrap_content"
+                    android:layout_width="58dp"
                     android:layout_height="60dp"
-                    android:paddingRight="19dp"
                     android:layout_gravity="center"
                     android:adjustViewBounds="true"
                     android:scaleType="fitXY"
@@ -128,9 +127,8 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
-                    android:paddingRight="19dp"
                     android:layout_marginTop="10dp"
-                    android:text="Warning"
+                    android:text="@string/warning"
                     android:textColor="#0A3560" />
 
             </LinearLayout>
@@ -143,7 +141,8 @@
             android:layout_width="match_parent"
             android:layout_height="100dp"
             android:layout_marginTop="5dp"
-            android:orientation="horizontal">
+            android:orientation="horizontal"
+            android:weightSum="1">
 
             <!--Layout4-->
             <LinearLayout
@@ -155,7 +154,7 @@
 
                 <ImageView
                     android:id="@+id/imageViewForm"
-                    android:layout_width="wrap_content"
+                    android:layout_width="58dp"
                     android:layout_height="60dp"
                     android:adjustViewBounds="true"
                     android:scaleType="fitXY"
@@ -167,7 +166,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
-                    android:text="CheckList"
+                    android:text="@string/checklist"
                     android:layout_marginTop="10dp"
                     android:textColor="#0A3560"/>
 
@@ -176,28 +175,28 @@
             <!--Layout5-->
             <LinearLayout
                 android:id="@+id/secondInnerLayout2"
-                android:orientation="vertical"
-                android:layout_width="wrap_content"
+                android:layout_width="71dp"
                 android:layout_height="match_parent"
-                android:layout_weight="0.33">
+                android:layout_weight="0.33"
+                android:orientation="vertical">
 
                 <ImageView
                     android:id="@+id/imageViewSync"
-                    android:layout_width="wrap_content"
+                    android:layout_width="58dp"
                     android:layout_height="60dp"
+                    android:layout_gravity="center"
                     android:adjustViewBounds="true"
                     android:scaleType="fitXY"
-                    android:layout_gravity="center"
-                    android:src="@drawable/sync"/>
+                    android:src="@drawable/sync" />
 
                 <TextView
                     android:id="@+id/txt5id"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
-                    android:text="Synchronise"
                     android:layout_marginTop="10dp"
-                    android:textColor="#0A3560"/>
+                    android:text="@string/synchronise"
+                    android:textColor="#0A3560" />
 
             </LinearLayout>
 
@@ -207,11 +206,11 @@
                 android:orientation="vertical"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
-                android:layout_weight="0.33">
+                android:layout_weight="0.34">
 
                 <ImageView
                     android:id="@+id/imageViewTask"
-                    android:layout_width="wrap_content"
+                    android:layout_width="58dp"
                     android:layout_height="60dp"
                     android:layout_gravity="center"
                     android:adjustViewBounds="true"
@@ -223,7 +222,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
-                    android:text="Job Card"
+                    android:text="@string/job_card"
                     android:layout_marginTop="10dp"
                     android:textColor="#0A3560"/>
 
@@ -237,61 +236,62 @@
             android:layout_width="match_parent"
             android:layout_height="100dp"
             android:layout_marginTop="5dp"
-            android:orientation="horizontal">
+            android:orientation="horizontal"
+            android:weightSum="1">
 
             <!--Layout7-->
             <LinearLayout
                 android:id="@+id/firstInnerLayout3"
-                android:orientation="vertical"
-                android:layout_width="wrap_content"
+                android:layout_width="59dp"
                 android:layout_height="match_parent"
-                android:layout_weight="0.33">
+                android:layout_weight="0.33"
+                android:orientation="vertical">
 
                 <ImageView
                     android:id="@+id/imgworkpermit"
-                    android:layout_width="wrap_content"
+                    android:layout_width="58dp"
                     android:layout_height="60dp"
+                    android:layout_gravity="center"
                     android:adjustViewBounds="true"
                     android:scaleType="fitXY"
-                    android:layout_gravity="center"
-                    android:src="@drawable/permit"/>
+                    android:src="@drawable/permit" />
 
                 <TextView
                     android:id="@+id/txt7id"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
-                    android:text="Work permit"
                     android:layout_marginTop="10dp"
-                    android:textColor="#0A3560"/>
+                    android:text="@string/work_permit"
+                    android:textColor="#0A3560" />
 
             </LinearLayout>
 
             <!--Layout8-->
             <LinearLayout
                 android:id="@+id/secondInnerLayout3"
-                android:orientation="vertical"
-                android:layout_width="wrap_content"
+                android:layout_width="69dp"
                 android:layout_height="match_parent"
-                android:layout_weight="0.33">
+                android:layout_weight="0.33"
+                android:orientation="vertical">
 
                 <ImageView
                     android:id="@+id/imgReport"
-                    android:layout_width="wrap_content"
+                    android:layout_width="58dp"
                     android:layout_height="60dp"
+                    android:layout_gravity="center"
                     android:adjustViewBounds="true"
                     android:scaleType="fitXY"
-                    android:layout_gravity="center"
-                    android:src="@drawable/report"/>
+                    android:src="@drawable/report" />
 
                 <TextView
                     android:id="@+id/txt8id"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
-                    android:text="Incident Report"
                     android:layout_marginTop="10dp"
-                    android:textColor="#0A3560"/>
+                    android:text="@string/incident_report"
+                    android:textColor="#0A3560" />
 
             </LinearLayout>
 
@@ -301,11 +301,11 @@
                 android:orientation="vertical"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
-                android:layout_weight="0.33">
+                android:layout_weight="0.34">
 
                 <ImageView
                     android:id="@+id/imgViewPPM"
-                    android:layout_width="wrap_content"
+                    android:layout_width="58dp"
                     android:layout_height="60dp"
                     android:layout_gravity="center"
                     android:adjustViewBounds="true"
@@ -317,7 +317,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
-                    android:text="PPM"
+                    android:text="@string/ppm"
                     android:layout_marginTop="10dp"
                     android:textColor="#0A3560"/>
 

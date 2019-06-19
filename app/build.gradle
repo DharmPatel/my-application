@@ -3,15 +3,20 @@ apply plugin: 'com.android.application'
 //5/11/2018 Prathamesh: Updated Consumption Validation, Consumption Data to be post in Meter Reading, Consumption data will get in next task for next date.
 //12/11/2018 Prathamesh: Updated Meter Reset code for Consumption form.
 android {
-    compileSdkVersion 27
-    buildToolsVersion '27.0.3'
+    compileSdkVersion 28
+    buildToolsVersion '28.0.3'
 
     defaultConfig {
-        applicationId "com.example.google.template"
+        applicationId "com.example.google.csmia_temp"
         minSdkVersion 15
-        targetSdkVersion 27
-        versionCode 1
-        versionName "demo"
+        targetSdkVersion 28
+        versionCode 8
+        versionName "3.0.7"
+        //v3.0.1 .net to .in
+        //v3.0.2 ims/alert/helpdesk + checklist tab activation
+        //v3.0.3 ticket closing only for particular group and ticket fetch on basis of group name for Civil/Electrical
+        //v3.0.4 Asset Tab access removed for FE and Supervisor users.
+        //v3.0.5 AutoSync & helpdesk
     }
     buildTypes {
         release {
@@ -24,13 +29,13 @@ android {
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
     //noinspection GradleCompatible
-    implementation 'com.android.support:appcompat-v7:25.4.0'
+    implementation 'com.android.support:appcompat-v7:28.0.0'
     implementation 'com.google.android.gms:play-services-vision:15.0.2'
     implementation 'com.google.code.gson:gson:2.8.0'
-    implementation 'com.android.support:design:27.1.1'
+    implementation 'com.android.support:design:28.0.0'
     implementation 'com.journeyapps:zxing-android-embedded:3.4.0'
     implementation 'com.loopj.android:android-async-http:1.4.9'
-    implementation 'com.android.support:support-v4:27.1.1'
+    implementation 'com.android.support:support-v4:28.0.0'
     implementation 'com.roughike:bottom-bar:1.2.4'
     implementation 'net.lingala.zip4j:zip4j:1.3.2'
     implementation 'com.github.d-max:spots-dialog:0.4@aar'
@@ -40,10 +45,13 @@ dependencies {
     implementation 'com.github.bumptech.glide:glide:3.7.0'
     implementation 'com.android.support.constraint:constraint-layout:1.1.3'
     implementation 'com.android.volley:volley:1.0.0'
+    implementation 'com.google.firebase:firebase-core:16.0.1'
     implementation 'com.google.firebase:firebase-messaging:17.3.1'
-    implementation 'com.android.support:cardview-v7:27.1.1'
-
-
+    implementation 'com.android.support:recyclerview-v7:28.0.0'
+    implementation 'com.squareup.retrofit2:retrofit:2.1.0'
+    implementation 'com.squareup.retrofit2:converter-gson:2.1.0'
+    implementation 'pub.devrel:easypermissions:0.2.0'
+    implementation 'com.android.support:cardview-v7:28.0.0'
 }
 apply plugin: 'com.google.gms.google-services'
 

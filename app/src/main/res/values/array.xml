@@ -14,7 +14,13 @@
         <item>Low</item>
         <item>Medium</item>
     </string-array>
-
+    <string-array name="country_arrays1">
+        <item>No Filter</item>
+        <item>Site</item>
+        <item>Category</item>
+        <item>Priority</item>
+        <item>AssignTo</item>
+    </string-array>
 
 
 </resources>

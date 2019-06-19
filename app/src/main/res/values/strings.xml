@@ -1,5 +1,5 @@
 <resources>
-    <string name="application_name">Microland</string>
+    <string name="application_name">CSMIA</string>
     <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
     <string name="hint_email">Username</string>
@@ -19,13 +19,14 @@
     <string name="hint_save">Save</string>
     <string name="Categories">Categories</string>
     <string name="Location">Location</string>
-    <string name="helpdesk">Helpdesk</string>
+    <string name="helpdesk">IMS</string>
+    <string name="asset">Asset</string>
     <string name="sync">sync</string>
     <string name="notifications">Notifications</string>
     <string name="unplanned">Unplanned</string>
 
     <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="hello_blank_fragment">All Ticket fragment</string>
 
     <string name="default_notification_channel_id" translatable="false">fcm_default_channel</string>
     <string name="missed">Missed</string>
@@ -35,4 +36,33 @@
     <string name="nav_header_title">Android Studio</string>
     <string name="nav_header_subtitle">android.studio@android.com</string>
     <string name="nav_header_desc">Navigation header</string>
+    <string name="warning">Deviations</string>
+    <string name="checklist">CheckList</string>
+    <string name="synchronise">Synchronise</string>
+    <string name="job_card">Job Card</string>
+    <string name="work_permit">Helpdesk</string>
+    <string name="incident_report">Incident Report</string>
+    <string name="ppm">PPM</string>
+    <string name="open">Open</string>
+    <string name="attended">Attended</string>
+    <string name="close">Close</string>
+    <string name="me">M&amp;E</string>
+    <string name="housekeeping">HouseKeeping</string>
+    <string-array name="status">
+        <item>@string/open</item>
+        <item>@string/attended</item>
+        <item>@string/close</item>
+    </string-array>
+
+    <string-array name="statusAssigned">
+        <item>@string/open</item>
+        <item>@string/attended</item>
+
+    </string-array>
+
+    <string-array name="type">
+        <item>@string/me</item>
+        <item>@string/housekeeping</item>
+    </string-array>
+    <string name="update">Update</string>
 </resources>

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    package="com.example.google.template">
+    package="com.example.google.csmia_temp">
 
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
@@ -18,18 +18,18 @@
     <uses-feature
         android:name="android.hardware.nfc"
         android:required="true" />
-<!--
-    <uses-feature android:name="android.hardware.camera" android:required="false" />
-    <uses-feature android:name="android.hardware.camera.front" android:required="false" />-->
 
     <application
         android:name=".applicationClass"
         android:allowBackup="false"
         android:hardwareAccelerated="false"
-        android:icon="@drawable/eurestservices"
+        android:icon="@drawable/applogo"
         android:label="@string/application_name"
         android:largeHeap="true"
+        android:usesCleartextTraffic="true"
         android:theme="@style/AppTheme1">
+        <uses-library android:name="org.apache.http.legacy" android:required="false" />
+
         <activity
             android:name=".LoginActivity"
             android:screenOrientation="portrait">
@@ -43,23 +43,46 @@
             android:name=".HomePage"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme1" />
-
+        <activity
+            android:name=".Helpdesk.Activity.TicketDetailsHk"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme1" />
         <meta-data
             android:name="com.google.android.gms.version"
             android:value="@integer/google_play_services_version" />
-
+        <activity android:name=".Helpdesk.Activity.NewTicketActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme1"
+            android:launchMode="singleTask"/>
+        <activity android:name=".Helpdesk.Activity.TicketDetails"
+            android:launchMode="singleTask"/>
         <activity
             android:name=".AssetsActivity"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme1" />
         <activity
+            android:name=".Helpdesk.Activity.TicketLogActivity"
+            android:screenOrientation="portrait"
+           />
+        <activity
             android:name=".TaskDetails"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppThemeTaskDetails" />
+        <activity
+            android:name=".Helpdesk.Activity.TicketTabActivity"
             android:screenOrientation="portrait"
             android:theme="@style/AppThemeTaskDetails" />
         <activity
             android:name=".DynamicForm"
             android:screenOrientation="portrait"
             android:theme="@style/AppThemeTaskDetails" />
+        <activity
+            android:name=".IncidentReport"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme" />
+        <activity
+            android:name=".IncidentForm"
+            android:screenOrientation="portrait" />
         <activity
             android:name=".ResetForm"
             android:screenOrientation="portrait"
@@ -112,22 +135,26 @@
             android:label="Settings"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme" />
+
         <activity android:name=".PpmDemo" />
 
-        <service android:name=".MyFirebaseMessagingService">
-            <intent-filter>
-                <action android:name="com.google.firebase.MESSAGING_EVENT" />
-            </intent-filter>
-        </service>
-        <service android:name=".MyFirebaseInstanceIDService">
-            <intent-filter>
-                <action android:name="com.google.firebase.INSTANCE_ID_EVENT" />
-            </intent-filter>
-        </service>
-
         <activity android:name=".Notification" />
+        <activity android:name=".CheckList" />
+        <activity android:name=".TicketList" />
+        <activity android:name=".viewTicket"/>
+        <activity android:name=".WorkPermitActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme1" />
 
-        <activity android:name=".CheckList"></activity>
+        <provider
+            android:name="android.support.v4.content.FileProvider"
+            android:authorities="${applicationId}.provider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/provider_paths"/>
+        </provider>
 
     </application>
 

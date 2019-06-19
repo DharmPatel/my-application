@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="warning">Deviations</string>
+    <string name="checklist">CheckList</string>
+    <string name="job_card">Job Card</string>
+    <string name="work_permit">Helpdesk</string>
+    <string name="incident_report">Incident Report</string>
+    <string name="ppm">PPM</string>
+    <string name="open">Open</string>
+    <string name="attended">Attended</string>
+    <string name="close">Close</string>
+    <string name="me">M&amp;E</string>
+    <string name="housekeeping">HouseKeeping</string>
+    <string-array name="status">
+        <item>@string/open</item>
+        <item>@string/attended</item>
+        <item>@string/close</item>
+    </string-array>
+
+    <string-array name="statusAssigned">
+        <item>@string/open</item>
+        <item>@string/attended</item>
+
+    </string-array>
+
+    <string-array name="type">
+        <item>@string/me</item>
+        <item>@string/housekeeping</item>
+    </string-array>
+</resources>
