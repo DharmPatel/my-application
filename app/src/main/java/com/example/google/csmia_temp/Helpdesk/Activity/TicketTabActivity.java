@@ -48,7 +48,6 @@ public class TicketTabActivity extends AppCompatActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_tickettab_layout);
-
         mainLinearLayout = (LinearLayout)findViewById(R.id.tickettablayout);
         myDb = new DatabaseHelper(getApplicationContext());
         tabLayout = (TabLayout) findViewById(R.id.TickettabLayout);
@@ -65,7 +64,6 @@ public class TicketTabActivity extends AppCompatActivity {
         viewPager.setCurrentItem(0);
         viewPager.setOffscreenPageLimit(1);
         tabLayout.setupWithViewPager(viewPager);
-
         settings = PreferenceManager.getDefaultSharedPreferences(this);
         User_Id = settings.getString("userId", null);
         Scan_Type = myDb.ScanType(User_Id);

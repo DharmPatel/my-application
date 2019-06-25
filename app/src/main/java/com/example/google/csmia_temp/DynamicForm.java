@@ -107,6 +107,7 @@ import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
@@ -248,7 +249,7 @@ public class DynamicForm extends AppCompatActivity {
     String source = "";//"InfoSM";
     String mainURL = "";//http://103.233.79.246//submitsms.jsp";
     String Master_DB,Site_DB_Name;
-    String Building=null,Floor=null,Room=null;
+    //String Building=null,Floor=null,Room=null;
     String Building_id,Floor_id,Room_id,employee_name,user_mailid;
     Boolean dataInsert;
     String Product;
@@ -2798,7 +2799,19 @@ public class DynamicForm extends AppCompatActivity {
     public CheckBox check(String Label,final int cbId,String IMS_Id,final int id,String optionValue) {
         final CheckBox cbCheck = new CheckBox(this);
         String[] IMS = IMS_Id.split("\\|");
-        List<String> data = new ArrayList<>();
+        List<String> data = Arrays.asList(IMS);
+        ArrayList<String> newListData = new ArrayList<>(data);
+       /* String[] arr = new String[1];
+        arr[0] = "rohit";
+        List<String> newList = Arrays.asList(arr);
+
+        // Will throw `UnsupportedOperationException
+        // newList.add("jain"); // Can't do this.
+
+        ArrayList<String> updatableList = new ArrayList<String>();
+
+        updatableList.addAll(newList);*/
+
         cbCheck.setVisibility(View.GONE);
         dataInsert=true;
         for (String IM : IMS) {
@@ -2815,26 +2828,27 @@ public class DynamicForm extends AppCompatActivity {
                     });
 
                     Log.d("CBChecked","213 "+cbCheck.isChecked());
-                }
-            }else {
-                if(dataInsert) {
-                    Log.d("CBChecked", "213 " + cbCheck.isChecked());
-                    int elementNo = Integer.parseInt(data.get(data.size() - 1));
-                    ArrayList<Integer> index = new ArrayList<>();
-                    for (int i = 1; i <= elementNo; i++) {
-                        index.add(i);
-                    }
-                    ArrayList<Integer> dataIntType = new ArrayList<>();
-                    for (int i = 0; i < data.size(); i++) {
-                        dataIntType.add(Integer.parseInt(data.get(i)));
-                    }
-                    index.removeAll(dataIntType);
-                    Log.d("index Data", "" + index);
-                    if (index != null) {
-                        if (index.contains(cbId)) {
-                            if (Form_Id != null ) {
-                                dataInsert=false;
-                                InsertHelpdk(Field_Id, optionValue);
+                }else {
+                    if(dataInsert) {
+                        Log.d("CBChecked", "213 " + cbCheck.isChecked());
+
+                        int elementNo = Integer.parseInt(newListData.get(newListData.size() - 1));
+                        ArrayList<Integer> index = new ArrayList<>();
+                        for (int i = 1; i <= elementNo; i++) {
+                            index.add(i);
+                        }
+                        ArrayList<Integer> dataIntType = new ArrayList<>();
+                        for (int i = 0; i < newListData.size(); i++) {
+                            dataIntType.add(Integer.parseInt(newListData.get(i)));
+                        }
+                        index.removeAll(dataIntType);
+                        Log.d("index Data", "" + index);
+                        if (index != null) {
+                            if (index.contains(cbId)) {
+                                if (Form_Id != null ) {
+                                    dataInsert=false;
+                                    InsertHelpdk(Field_Id, optionValue);
+                                }
                             }
                         }
                     }
@@ -2959,12 +2973,12 @@ public class DynamicForm extends AppCompatActivity {
                     public void onFailure(Call<MuiltiticketResponse> call, Throwable t) {
                         progressDialog.dismiss();
                         //Toast.makeText(TicketDetailsActivity.this,"Internet connection not found...plz check connection ",Toast.LENGTH_SHORT).show();
-                        Toast.makeText(DynamicForm.this, "Error!!", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(DynamicForm.this, "Error!!", Toast.LENGTH_LONG).show();
                    /*     onBackPressed();*/
                     }
                 });}else {
                     progressDialog.dismiss();
-                    Toast.makeText(DynamicForm.this, "There is not proper data available to gerenate ticket!! ", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(DynamicForm.this, "There is not proper data available to gerenate ticket!! ", Toast.LENGTH_LONG).show();
                     /*Snackbar snackbar = Snackbar.make(formLayout, "There is not proper data available to gerenate ticket!! ", Snackbar.LENGTH_SHORT);
                     snackbar.show();*/
                 }
@@ -2973,7 +2987,7 @@ public class DynamicForm extends AppCompatActivity {
             }
 
         } else {
-            Toast.makeText(DynamicForm.this, "Please check your internet connection !!", Toast.LENGTH_SHORT).show();
+            Toast.makeText(DynamicForm.this, "Please check your internet connection !!", Toast.LENGTH_LONG).show();
           /*  Snackbar snackbar = Snackbar.make(formLayout, "Please check your internet connection !!", Snackbar.LENGTH_SHORT);
             snackbar.show();*/
         }
@@ -3000,8 +3014,8 @@ public class DynamicForm extends AppCompatActivity {
                         serviceDetail =new ServiceDetail();
                         serviceDetail.setCategory(Product);
                         serviceDetail.setSubcategory(Subject);
-
-                        if(Subject.equalsIgnoreCase("NA")){
+                        Log.d("abcdefgh",":: "+Product+" :"+Subject+" :"+Type+" :"+OptionValue+" :: ");
+                            if(Subject.equalsIgnoreCase("NA")){
                             /* serviceDetail =new ServiceDetail(Product,Subject,OptionValue);*/
                             serviceDetail.setIssue(OptionValue);
                         }else {

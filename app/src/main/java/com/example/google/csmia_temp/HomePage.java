@@ -898,6 +898,7 @@ public class HomePage extends AppCompatActivity {
                     Map.Entry<String, String> pair = (Map.Entry) it.next();
                     System.out.println(pair.getKey() + " = " + pair.getValue());
                     if(LOG)Log.d(TAG, "SiteName" + myDb.SiteName(User_Id));
+                    Log.d("ErrorCheck","1"+myDb.SiteName(User_Id)+" "+pair.getValue());
                     if (myDb.SiteName(User_Id).equalsIgnoreCase(pair.getValue())) {
                         int i = adapter1.getPosition(pair.getValue());
                         spinner.setSelection(i);
@@ -3306,7 +3307,7 @@ public class HomePage extends AppCompatActivity {
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
-
+/*
                     try {
                         final JSONArray AssetDetails = jsonObjTask.getJSONArray("AssetDetails");
                         if (AssetDetails != null) {
@@ -3316,7 +3317,7 @@ public class HomePage extends AppCompatActivity {
                         e.printStackTrace();
                     } catch (SQLException e) {
                         e.printStackTrace();
-                    }
+                    }*/
 
 
                 } catch (Exception e) {

@@ -235,7 +235,7 @@ public class CheckListPending extends Fragment {
                     }
                 }
                 cursor.close();
-                db.close();
+                //db.close();
 
             }
             else if(taskId.size()>1){
@@ -413,7 +413,7 @@ public class CheckListPending extends Fragment {
                     while (cursor.moveToNext());
                 }
                 cursor.close();
-                db.close();
+                //db.close();
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -469,7 +469,7 @@ public class CheckListPending extends Fragment {
                 }
                 db.delete("Task_Details_Server","UpdatedStatus = 'yes'", null);
                 cursor.close();
-                db.close();
+                //db.close();
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -511,7 +511,7 @@ public class CheckListPending extends Fragment {
         db=myDb.getWritableDatabase();
         Cursor cursor = db.rawQuery(completedQuery, null);
         abc=cursor.getCount();
-        db.close();
+        //db.close();
         return abc;
     }
 

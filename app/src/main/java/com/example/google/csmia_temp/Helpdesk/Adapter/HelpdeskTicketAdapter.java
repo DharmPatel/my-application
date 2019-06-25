@@ -26,7 +26,6 @@ public class HelpdeskTicketAdapter extends RecyclerView.Adapter<HelpdeskTicketAd
     public HelpdeskTicketAdapter(Context context, ArrayList<HkTicket> HkticketArrayList) {
         this.context = context;
         hkticketArrayList = HkticketArrayList;
-
     }
 
     @Override

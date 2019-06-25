@@ -254,7 +254,7 @@ public class TaskDetails extends AppCompatActivity implements PendingTask.OnComp
                 Calendar calenderStarton = Calendar.getInstance();
                 Date EndOn, StartOn, dateTimeStart;
                 String building_code,floor_code,room_area;
-                String Frequency_Auto_Id,Task_State,Assign_Days,RepeatEveryMonth,Activity_Master_Auto_Id,Asset_Activity_AssignedTo_Auto_Id,Asset_Activity_Linking_Auto_Id, Site_Location_Id, Form_Id, Asset_ID, Assigned_To_User_Group_Id,Assigned_To_User_Id, YearStartson,TimeEndson, TimeStartson, Activity_Name, Asset_Code, Asset_Name, Asset_Location,Status;
+                String Frequency_Auto_Id,Task_State,Assign_Days,RepeatEveryMonth,Activity_Type,Activity_Master_Auto_Id,Asset_Activity_AssignedTo_Auto_Id,Asset_Activity_Linking_Auto_Id, Site_Location_Id, Form_Id, Asset_ID, Assigned_To_User_Group_Id,Assigned_To_User_Id, YearStartson,TimeEndson, TimeStartson, Activity_Name, Asset_Code, Asset_Name, Asset_Location,Status;
                 int Activity_Duration, Verified, Grace_Duration_Before, Grace_Duration_After, RepeatEveryDay,RepeatEveryMin;
                 String query = "SELECT af.Site_Location_Id,\n" +
                                 "af.Frequency_Auto_Id,\n" +
@@ -273,6 +273,7 @@ public class TaskDetails extends AppCompatActivity implements PendingTask.OnComp
                                 "am.Auto_Id AS Activity_Master_Auto_Id,\n" +
                                 "am.Form_Id,\n" +
                                 "am.Activity_Name,\n" +
+                                " am.Activity_Type,\n" +
                                 "aaa.Auto_Id AS Asset_Activity_AssignedTo_Auto_Id,\n" +
                                 "aaa.Assigned_To_User_Id,\n" +
                                 "aaa.Assigned_To_User_Group_Id,\n" +
@@ -297,7 +298,9 @@ public class TaskDetails extends AppCompatActivity implements PendingTask.OnComp
                                 "asst.Asset_Status_Id = ad.Asset_Status_Id \n" +
                                 "LEFT JOIN Asset_Location al ON " +
                                 "al.Asset_Id = ad.Asset_Id"+
-                                " WHERE aaa.Assigned_To_User_Group_Id IN ("+myDb.UserGroupId(User_Id)+") AND af.Site_Location_Id='"+ SiteId + "'";
+                                " WHERE aaa.Assigned_To_User_Group_Id IN ("+myDb.UserGroupId(User_Id)+") " +
+                                "AND af.Site_Location_Id='"+ SiteId + "'" +
+                                "AND am.Activity_Type='JobCard'";
                 Log.d(TAG,"Querfdsafy : "+query);
                 SimpleDateFormat YDMDateFormat = new SimpleDateFormat("yyyy-MM-dd");
                 SimpleDateFormat YMDHMDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm");
@@ -335,6 +338,7 @@ public class TaskDetails extends AppCompatActivity implements PendingTask.OnComp
                             Activity_Master_Auto_Id = taskList.getString(taskList.getColumnIndex("Activity_Master_Auto_Id"));
                             Asset_Activity_AssignedTo_Auto_Id = taskList.getString(taskList.getColumnIndex("Asset_Activity_AssignedTo_Auto_Id"));
                             Asset_Activity_Linking_Auto_Id = taskList.getString(taskList.getColumnIndex("Asset_Activity_Linking_Auto_Id"));
+                            Activity_Type = taskList.getString(taskList.getColumnIndex("Activity_Type"));
 
                             if (RepeatEveryDay == 0 && RepeatEveryMin == 0) {        /*For Unplanned Task */
                                 String selectQuery = "SELECT  * FROM Task_Details WHERE Asset_Id='" + Asset_ID + "' AND Activity_Frequency_Id='" + Frequency_Auto_Id + "'";
@@ -361,9 +365,9 @@ public class TaskDetails extends AppCompatActivity implements PendingTask.OnComp
                                     contentValues1.put("Asset_Location", Asset_Location);
                                     contentValues1.put("Asset_Status", Status);
                                     contentValues1.put("Activity_Name", Activity_Name);
+                                    contentValues1.put("Activity_Type", Activity_Type);
                                     contentValues1.put("Verified", Verified);
                                     contentValues1.put("Remarks", "");
-
                                     contentValues1.put("Activity_Master_Auto_Id", Activity_Master_Auto_Id);
                                     contentValues1.put("Asset_Activity_AssignedTo_Auto_Id", Asset_Activity_AssignedTo_Auto_Id);
                                     contentValues1.put("Asset_Activity_Linking_Auto_Id", Asset_Activity_Linking_Auto_Id);
@@ -527,7 +531,7 @@ public class TaskDetails extends AppCompatActivity implements PendingTask.OnComp
                                 ContentValues contentValues1 = new ContentValues();
                                 contentValues1.put("UpdatedStatus", "yes");
 
-                                long resultset = db.update("Task_Details", contentValues, "Activity_Frequency_Id ='" + Activity_Frequency_Id + "' AND  Task_Scheduled_Date ='" + Task_Scheduled_Date + "'AND Task_Status <> 'Completed'", null);
+                                long resultset = db.update("Task_Details", contentValues, "Activity_Frequency_Id ='" + Activity_Frequency_Id + "' AND Activity_Type= 'JobCard' AND  Task_Scheduled_Date ='" + Task_Scheduled_Date + "'AND Task_Status <> 'Completed'", null);
                                 if (resultset == -1)
                                     Log.d(TAG,"Task Details not updated ");
                                 else {

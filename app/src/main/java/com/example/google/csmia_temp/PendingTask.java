@@ -306,7 +306,7 @@ public class PendingTask extends Fragment {
             new AsyncTaskRunner().execute();
         }
         cursor.close();
-        db.close();
+        //db.close();
     }
 
 
@@ -351,7 +351,7 @@ public class PendingTask extends Fragment {
                     }
                 }
                 cursor.close();
-                db.close();
+                //db.close();
 
             }
             else if(taskId.size()>1){
@@ -478,14 +478,13 @@ public class PendingTask extends Fragment {
             myDb=new DatabaseHelper(getActivity());
             Calendar calendar = Calendar.getInstance();
             final SimpleDateFormat simpleDateFormat12 = new SimpleDateFormat("yyyy-MM-dd HH:mm");
-
             Calendar calLimitTime = Calendar.getInstance();
             calLimitTime.setTime(calenderCurrent.getTime());
             calLimitTime.add(Calendar.MINUTE, 480);
             LimitTime = calLimitTime.getTime();
 
             try {
-                SQLiteDatabase db = myDb.getReadableDatabase();
+                SQLiteDatabase db1 = myDb.getReadableDatabase();
                 String pendingQuery = "SELECT ug.Group_Name," +
                                               "td.* " +
                                               "FROM Task_Details td " +
@@ -496,7 +495,8 @@ public class PendingTask extends Fragment {
                                               "WHERE td.Assigned_To_User_Group_Id IN ("+UserGroupId+") " +
                                               "AND td.Site_Location_Id='"+SiteId+"' AND asst.Task_State = 'A'  AND td.Task_Status='Pending' AND td.RecordStatus != 'D'";
 
-                 Cursor cursor= db.rawQuery(pendingQuery, null);
+                 Cursor cursor= db1.rawQuery(pendingQuery, null);
+                 Log.d("ErrorCheck","2 : "+pendingQuery+" CursorCount: "+cursor.getCount());
                 if (cursor.getCount()> 0){
                     if (cursor.moveToFirst()) {
                         do {
@@ -535,7 +535,7 @@ public class PendingTask extends Fragment {
                     }
                 }
                 cursor.close();
-                db.close();
+                //db1.close();
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -626,7 +626,7 @@ public class PendingTask extends Fragment {
         db=myDb.getWritableDatabase();
         Cursor cursor = db.rawQuery(completedQuery, null);
         abc=cursor.getCount();
-        db.close();
+        //db.close();
         return abc;
     }
     @Override

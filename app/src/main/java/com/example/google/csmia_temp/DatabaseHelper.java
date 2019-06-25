@@ -687,7 +687,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 } while (res.moveToNext());
             }
             res.close();
-            db.close();
+            //db.close();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -799,7 +799,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 } while (res.moveToNext());
             }
             res.close();
-            db.close();
+            //db.close();
         }catch (Exception e) {
             e.printStackTrace();
         }
@@ -940,7 +940,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         String Site_Location_Id="";
         try {
             String query = "SELECT Site_Location_Id FROM Settings Where User_Id ='"+User_Id+"'";
-            SQLiteDatabase db = getWritableDatabase();
+            SQLiteDatabase db = this.getReadableDatabase();
             Cursor res =db.rawQuery(query, null);
             if (res.moveToFirst()) {
                 do {

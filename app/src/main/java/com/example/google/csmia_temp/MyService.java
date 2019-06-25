@@ -112,9 +112,9 @@ public class MyService extends Service {
                     //new CheckingInternetConnectivity().execute();
                     new DownloadWebPageTask().execute();
                 }
-                mHandler.postDelayed(this,SyncFreq()* 60 * 1000);
+                mHandler.postDelayed(this,SyncFreq() * 60 * 1000);
             }
-        },SyncFreq()* 60 * 1000);
+        },SyncFreq() * 60 * 1000);
         ////////////////////////////////////////////////////////////////////////////
         return START_STICKY;
     }
@@ -1604,7 +1604,7 @@ public class MyService extends Service {
                         e.printStackTrace();
                     }
 
-                    try {
+                    /*try {
                         final JSONArray AssetDetails = jsonObjTask.getJSONArray("AssetDetails");
                         if (AssetDetails != null) {
                             db.execSQL("DELETE FROM Asset_Details WHERE Site_Location_Id='"+site_id+"'");
@@ -1613,7 +1613,7 @@ public class MyService extends Service {
                         e.printStackTrace();
                     } catch (SQLException e) {
                         e.printStackTrace();
-                    }
+                    }*/
 
 
                 } catch (Exception e) {
