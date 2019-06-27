@@ -4,15 +4,15 @@ import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
 public class MuiltiticketResponse {
-    @SerializedName("respone")
+    @SerializedName("ticket_code")
     @Expose
-    private String respone;
+    private String ticketCode;
 
-    public String getRespone() {
-        return respone;
+    public String getTicketCode() {
+        return ticketCode;
     }
 
-    public void setRespone(String respone) {
-        this.respone = respone;
+    public void setTicketCode(String ticketCode) {
+        this.ticketCode = ticketCode;
     }
 }

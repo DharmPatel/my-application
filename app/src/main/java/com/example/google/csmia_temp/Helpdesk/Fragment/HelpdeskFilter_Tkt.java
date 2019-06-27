@@ -276,10 +276,9 @@ public class HelpdeskFilter_Tkt extends Fragment{
                         hkticketArrayList=response.body();
                         for (int i=0;i<hkticketArrayList.size();i++){
                             HkTicket hkTicket = hkticketArrayList.get(i);
-                           if(hkTicket.getBuildingName()!=null || hkTicket.getFloorName()!=null || hkTicket.getRoomArea()!=null){
+                           if(hkTicket.getBuildingName()!=null || hkTicket.getFloorName()!=null || hkTicket.getRoomArea()!=null) {
                                hkFilterNullDataList.add(hkTicket);
                            }
-
                         }
                         Collections.reverse(hkFilterNullDataList);
                         for (int i=0;i<hkFilterNullDataList.size();i++){

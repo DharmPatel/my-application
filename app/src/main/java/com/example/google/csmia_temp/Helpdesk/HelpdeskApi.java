@@ -3,6 +3,7 @@ package com.example.google.csmia_temp.Helpdesk;
 import com.example.google.csmia_temp.Helpdesk.Model.GenerateTicket;
 import com.example.google.csmia_temp.Helpdesk.Model.HkTicket;
 import com.example.google.csmia_temp.Helpdesk.Model.MuiltiticketResponse;
+import com.example.google.csmia_temp.Helpdesk.Model.NotificationResponse;
 import com.example.google.csmia_temp.Helpdesk.Model.Ticket;
 
 import java.util.ArrayList;
@@ -10,6 +11,8 @@ import java.util.ArrayList;
 import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.http.Body;
+import retrofit2.http.Field;
+import retrofit2.http.FormUrlEncoded;
 import retrofit2.http.GET;
 import retrofit2.http.Headers;
 import retrofit2.http.POST;
@@ -36,12 +39,25 @@ public interface HelpdeskApi  {
 
     @Headers("Content-Type: application/json")
     @POST("ticketInsert_sweety.php")
-    Call<MuiltiticketResponse> sendMultiTicket(@Body GenerateTicket generateTicket);
+    Call<ArrayList<MuiltiticketResponse>> sendMultiTicket(@Body GenerateTicket generateTicket);
 
     @POST("ticketData_helpdk.php")
     Call<ArrayList<HkTicket>> getHelpdkTkt(@Query("site_location_id") String site_location_id, @Query("main_db") String maindb, @Query("Login_user_for") String login_for, @Query("user_id") String userid);
-    /*
 
+    @FormUrlEncoded
+    @POST("tokenupdate.php")
+    Call<TokenResponse> TokenCall (@Field("Site_Location_Id") String site_location_id,
+                                   @Field("macAddress") String macaddress,
+                                   @Field("token") String token,
+                                   @Field("user_role") String user_role);
+
+    @Headers({"Accept: application/json"})
+    @GET("notification.php")
+    Call<NotificationResponse> TokenUpload (@Query("user_token") String site_location_id,
+                                            @Query("message") String user_role,
+                                            @Query("user_role_name") String group_name,
+                                            @Query("Site_Location_Id") String Site_Location_Id );
+    /*
     @Multipart
     @POST("ticketInsert.php") //Your login url should look like this
     Call<ResponseBody> ticketInsert(@Part("user_id") RequestBody user_id,

@@ -81,6 +81,9 @@ import com.example.google.csmia_temp.ConstantList.UrlList;
 import com.example.google.csmia_temp.Helpdesk.Activity.HelpdeskTickets;
 import com.example.google.csmia_temp.Helpdesk.Activity.NewTicketActivity;
 import com.example.google.csmia_temp.Helpdesk.Activity.TicketTabActivity;
+import com.example.google.csmia_temp.Helpdesk.HelpDeskClient;
+import com.example.google.csmia_temp.Helpdesk.HelpdeskApi;
+import com.example.google.csmia_temp.Helpdesk.TokenResponse;
 import com.example.google.csmia_temp.util.NotificationUtils;
 /*import com.google.firebase.messaging.FirebaseMessaging;*/
 import com.google.zxing.integration.android.IntentIntegrator;
@@ -131,8 +134,9 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
 import cz.msebera.android.httpclient.Header;
-
-
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Retrofit;
 
 
 public class HomePage extends AppCompatActivity {
@@ -147,11 +151,11 @@ public class HomePage extends AppCompatActivity {
     ViewPager viewPager;
     myPhoneStateListener mPhoneStatelistener;
     ImageView imageViewTask, imageViewForm, imageViewAssets, imageViewSync, imageViewTicket, imageViewWorkPermit,imageViewPPM,imageViewincidentReport,imageViewAlert;
-    SharedPreferences settings;
+    SharedPreferences settings,settings_token;
     SharedPreferences settings1;
     JSONObject jsonObjSite;
     android.support.v7.widget.Toolbar toolbar;
-    SharedPreferences.Editor editor1;
+    SharedPreferences.Editor editor1,editor,editor_token;
     SharedPreferences.Editor editorTaskInsert;
     public static final String MY_PREFS_NAME = "MyPrefsFile";
     public static final String SYNCString = "Synchronizing Data. Please Wait..";
@@ -184,9 +188,9 @@ public class HomePage extends AppCompatActivity {
     final long PERIOD_MS = 3000;// time in milliseconds between successive task executions
     File[] files;
     JSONObject PPMresponse;
-
+    String UserType_G = null, group_name,user_group_id;
     String SyncStatusResult="",AssetId="",Asset_Name = "",data="",Form_Structure_Id="",Task_Id="",Form_Ticket_Id="",Type="",Subject="",Group_Id = "",Product = "",IncidentSource = "",LoggedBy = "";
-
+    Timer myTimer;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -237,6 +241,9 @@ public class HomePage extends AppCompatActivity {
         editor1.commit();
 
         site_id = myDb.Site_Location_Id(User_Id);
+        if(!site_id.equals("")){
+            TokenSend();
+        }
         Log.d("MyServices","SyncStatusHomePage: "+myDb.AutoSyncSetting()+" Result: "+SyncStatusResult);
         imageViewAssets.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -725,6 +732,7 @@ public class HomePage extends AppCompatActivity {
 
         }
     }
+
     public void ticketActivity() {
         /*Snackbar snackbar = Snackbar.make(linearLayout, "License not activated.", Snackbar.LENGTH_LONG);
         snackbar.show();*/
@@ -3070,10 +3078,10 @@ public class HomePage extends AppCompatActivity {
 
                             editor1 = settings.edit();
                             editor1.clear();
-                            editor1.commit();
+                            editor1.apply();
                             editorTaskInsert = settings.edit();
                             editorTaskInsert.putString("day",null);
-                            editorTaskInsert.commit();
+                            editorTaskInsert.apply();
                             Intent intent = new Intent(HomePage.this, LoginActivity.class);
                             intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                             startActivity(intent);
@@ -5276,7 +5284,165 @@ public class HomePage extends AppCompatActivity {
         Log.e(TAG, "Firebase reg id: " + regId);
 
     }
+    public  void TokenSend(){
+        settings = PreferenceManager.getDefaultSharedPreferences(HomePage.this);
+        User_Id = settings.getString("userId", null);
+        site_id = myDb.Site_Location_Id(User_Id);
+        if(!site_id.equals("")){
+            settings =PreferenceManager.getDefaultSharedPreferences(HomePage.this);
+            UserType_G = settings.getString("UserType_G", null);
+            if(UserType_G!="G"){
+                if(group_name==null){
+                    myDb = new DatabaseHelper(this);
+                    user_group_id = myDb.UserGroupId(User_Id);
+                    group_name = Group_Name(user_group_id);
+                    settings = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+                    editor = settings.edit();
+                    editor.putString("groupName", group_name);
+                    editor.apply();
+                }
+                myTimer = new Timer();
+                myTimer.schedule(new TimerTask() {
+                    @Override
+                    public void run() {
+                        BroadcastReceiver tokenReceiver = new BroadcastReceiver() {
+                            @Override
+                            public void onReceive(Context context, Intent intent) {
+                                String token = intent.getStringExtra("token");
+                                if(token != null)
+                                {
+                                    Log.e("firebase", String.valueOf(token));
 
+                                    // save token to  Share Pref
+                                    settings_token = getApplicationContext().getSharedPreferences(Config.SHARED_PREF,0);
+                                    editor_token = settings_token.edit();
+                                    editor_token.putString("token", token);
+                                    editor_token.apply();
+                                }
 
+                            }
+                        };
+                        LocalBroadcastManager.getInstance(HomePage.this).registerReceiver(tokenReceiver,
+                                new IntentFilter("tokenReceiver"));
+                        TimerMethod();
 
+                    }
+
+                }, 0, 200000);}
+        }}
+    public String Group_Name(String group_name1) {
+        ArrayList<String> groupNmList = new ArrayList<>();
+        myDb = new DatabaseHelper(this);
+        Cursor cursor;
+        String[] strData = new String[]{};
+//        sqLiteDatabase.execSQL("CREATE TABLE helpdk_user_group(ID INTEGER PRIMARY KEY,group_id TEXT,user_group_id TEXT, group_name TEXT, created_at TEXT, punctual_group_id TEXT)");
+        db = myDb.getWritableDatabase();
+        String str1 = group_name1.replace("'", "");
+        if (str1.contains(",")) {
+            strData = str1.split(",");
+        }else {
+            strData = new String[1];
+            strData[0]= str1;
+        }
+        for (String aStrData : strData) {
+            String query_room_id = "SELECT Group_Name FROM User_Group WHERE User_Group_Id='" + aStrData + "'";
+            cursor = db.rawQuery(query_room_id, null);
+            if (cursor.getCount() > 0) {
+                if (cursor.moveToFirst()) {
+                    try {
+                        do {
+                            group_name = cursor.getString(cursor.getColumnIndex("Group_Name"));
+                            groupNmList.add(group_name);
+                            Log.d("GroupName", "" + group_name);
+                        } while (cursor.moveToNext());
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+            cursor.close();
+        }
+        return group_name;
+    }
+    public String UserGroupId(String User_Id){
+        String UserGroupId="";
+        try {
+            String query = "SELECT User_Group_Id FROM Settings Where User_Id ='"+User_Id+"'";
+
+            SQLiteDatabase db = myDb.getWritableDatabase();
+            Cursor res =db.rawQuery(query, null);
+            if (res.moveToFirst()) {
+                do {
+                    UserGroupId=res.getString(res.getColumnIndex("User_Group_Id"));
+                } while (res.moveToNext());
+            }
+            res.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return UserGroupId;
+    }
+    private void TimerMethod() {
+        //This method is called directly by the timer
+        //and runs in the same thread as the timer.
+
+        //We call the method that will work with the UI
+        //through the runOnUiThread method.
+        this.runOnUiThread(Timer_Tick);
+    }
+
+    private void NoticationSend() {
+        settings_token = getApplicationContext().getSharedPreferences(Config.SHARED_PREF, 0);
+        settings =PreferenceManager.getDefaultSharedPreferences(HomePage.this);
+        String token = settings_token.getString("token", null);
+        String groupname = settings.getString("groupName", null);
+        Log.d("Token = ",""+token);
+        Log.d("groupName = ",""+groupname);
+        Retrofit retrofit = HelpDeskClient.getClient();
+        final HelpdeskApi helpdeskApi = retrofit.create(HelpdeskApi.class);
+        Call<TokenResponse> call = null;
+        String MacAddres = getMacAddr();
+        call = helpdeskApi.TokenCall(myDb.Site_Location_Id(User_Id), MacAddres,token,groupname);
+        call.enqueue(new Callback<TokenResponse>() {
+            @Override
+            public void onResponse(Call<TokenResponse> call, retrofit2.Response<TokenResponse> response) {
+                if (response.code() == 200) {
+                    settings = PreferenceManager.getDefaultSharedPreferences(HomePage.this);
+                    User_Id = settings.getString("userId", null);
+                    TokenResponse tokenResponse=response.body();
+//                        Toast.makeText(getApplicationContext(),tokenResponse.getMsg() , Toast.LENGTH_SHORT).show();
+                    Log.d("NotificationSend Method",tokenResponse.getMsg());
+
+                } else if (response.code() == 404) {
+                    Toast.makeText(getApplicationContext(), "Error!!", Toast.LENGTH_SHORT).show();
+                } else {
+                    Toast.makeText(getApplicationContext(), "" + response.errorBody(), Toast.LENGTH_SHORT).show();
+                }
+            }
+            @Override
+            public void onFailure(Call<TokenResponse> call, Throwable t) {
+            }
+        });
+    }
+
+    private Runnable Timer_Tick = new Runnable() {
+        public void run() {
+            //This method runs in the same thread as the UI.
+
+            //Do something to the UI thread here
+            if (isNetworkConnected()) {
+
+                NoticationSend();
+//                Toast.makeText(getApplicationContext(), "Token Call ", Toast.LENGTH_SHORT).show();
+            } else {
+                Snackbar snackbar = Snackbar.make(linearLayout, "Please check your internet connection !!", Snackbar.LENGTH_LONG);
+                snackbar.show();
+            }
+        }
+    };
+    public boolean isNetworkConnected() {
+        ConnectivityManager cm = (ConnectivityManager) this.getSystemService(Context.CONNECTIVITY_SERVICE);
+        if (cm.getActiveNetworkInfo() != null) return true;
+        else return false;
+    }
 }

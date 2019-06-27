@@ -81,6 +81,7 @@ import com.example.google.csmia_temp.Helpdesk.HelpdeskApi;
 import com.example.google.csmia_temp.Helpdesk.Model.GenerateTicket;
 import com.example.google.csmia_temp.Helpdesk.Model.HelpdeskInsert;
 import com.example.google.csmia_temp.Helpdesk.Model.MuiltiticketResponse;
+import com.example.google.csmia_temp.Helpdesk.Model.NotificationResponse;
 import com.example.google.csmia_temp.Helpdesk.Model.ServiceDetail;
 
 import org.json.JSONArray;
@@ -209,7 +210,7 @@ public class DynamicForm extends AppCompatActivity {
     static final boolean LOG = new applicationClass().checkLog();
     String Form_IdIntent, PPM_Intent, Record_id,AssetId,frequencyId,label_value;
     String Field_Id,Reading,Remarks,UOM,Value,Form_Id,IMS_Id,Field_Label,Field_Type,Field_Options,sections,Asset_Name,Asset_Location,Asset_Status,Completed="",Activity_Name;
-    SharedPreferences settings;
+    SharedPreferences settings,settings_token;
     SharedPreferences.Editor editor;
     String selectRB = "";
     String uuid = "", resp = "";
@@ -250,12 +251,13 @@ public class DynamicForm extends AppCompatActivity {
     String mainURL = "";//http://103.233.79.246//submitsms.jsp";
     String Master_DB,Site_DB_Name;
     //String Building=null,Floor=null,Room=null;
-    String Building_id,Floor_id,Room_id,employee_name,user_mailid;
+    String Building_id,Floor_id,Room_id,employee_name,user_mailid,group_name,service_sub_cat;
     Boolean dataInsert;
-    String Product;
+    String Product,site_id,b_code;
     ServiceDetail serviceDetail;
     GenerateTicket generateTicket;
     List<ServiceDetail> serviceDetaillist;
+    List<String>groupNamelist;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -287,6 +289,7 @@ public class DynamicForm extends AppCompatActivity {
         Form_IdIntent = getIntent().getStringExtra("Form_Id");
         intentFromReset = getIntent().getStringExtra("FromReset");
         serviceDetaillist =new ArrayList<>();
+        groupNamelist=new ArrayList<>();
         Scan_Type = myDb.ScanType(User_Id);
         applicationClass = new applicationClass();
         EmployeeName = myDb.EmployeeName(User_Id);
@@ -2878,14 +2881,14 @@ public class DynamicForm extends AppCompatActivity {
         cursor.close();
     }
     private void setAsset_Location(){
-        db=myDb.getWritableDatabase();
-//("CREATE TABLE Asset_Location (Id INTEGER PRIMARY KEY,Asset_Id TEXT,Building_Id TEXT,Floor_Id TEXT,Room_Id TEXT,building_code TEXT,building_name TEXT,floor_code TEXT,floor_name TEXT,room_area TEXT,Site_Location_Id TEXT)");
+
         String query_priority_id = "SELECT Asset_Id,Building_Id,Floor_Id,Room_Id FROM Asset_Details WHERE Asset_Id='"+AssetId+"'";
         Cursor cursor = db.rawQuery(query_priority_id, null);
         if (cursor.getCount() > 0) {
             if (cursor.moveToFirst()) {
                 try {
                     do {
+                        b_code=cursor.getString(cursor.getColumnIndex("Asset_Id"));
                         Building_id = cursor.getString(cursor.getColumnIndex("Building_Id"));
                         Floor_id = cursor.getString(cursor.getColumnIndex("Floor_Id"));
                         Room_id = cursor.getString(cursor.getColumnIndex("Room_Id"));
@@ -2940,21 +2943,25 @@ public class DynamicForm extends AppCompatActivity {
                 generateTicket.setUserType("Facilities");
                 Retrofit retrofit = HelpDeskClient.getClient();
                 HelpdeskApi helpdeskApi = retrofit.create(HelpdeskApi.class);
-                Call<MuiltiticketResponse> call = helpdeskApi.sendMultiTicket(generateTicket );
+                Call<ArrayList<MuiltiticketResponse>> call = helpdeskApi.sendMultiTicket(generateTicket );
 
                 //  Log.d("MADHURI:::::","" + UserId1 + ",  " + SiteId1+ ",  " + Building_id1+ ",  " + Floor_id1+ ",  " + Room_id1+ ",  " + Asset_id1+ ",  " + Category_id+ ",  " + service_sub_cat+ ",  " + issue_id+ ",  " + User_type+ ",  " + Mail_on_closure+ ",  " + et_desc+ ",  " + Site_DB_Name+ ",  " + Master_DB+ ",  " + parts+ ",  " + size);
                 if(!serviceDetaillist.isEmpty()){
-                    call.enqueue(new Callback<MuiltiticketResponse>() {
+                    call.enqueue(new Callback<ArrayList<MuiltiticketResponse>>() {
 
                     @Override
-                    public void onResponse(Call<MuiltiticketResponse> call, retrofit2.Response<MuiltiticketResponse> response) {
+                    public void onResponse(Call<ArrayList<MuiltiticketResponse>> call, retrofit2.Response<ArrayList<MuiltiticketResponse>> response) {
                         try {
                             if (response.code() == 200) {
                                 if (response.isSuccessful()) {
-                                    String ticket_message;
-                                    MuiltiticketResponse muiltiticketResponse = response.body();
-                                    ticket_message = muiltiticketResponse.getRespone();
-                                    Toast.makeText(DynamicForm.this,ticket_message , Toast.LENGTH_SHORT).show();
+                                    ArrayList<String> ticketCodeLst=new ArrayList<>();
+                                    ArrayList<MuiltiticketResponse> muiltiticketResponselist = response.body();
+                                   /* for (int i=0;i<muiltiticketResponselist.size();i++){
+                                        Log.d("TicketCode",""+muiltiticketResponselist.get(i).getTicketCode());
+                                        ticketCodeLst.add(muiltiticketResponselist.get(i).getTicketCode());
+                                    }*/
+                                    getTokenUpload();
+                                    Toast.makeText(DynamicForm.this,"Ticket update Successfully" , Toast.LENGTH_SHORT).show();
                                 }
 
                             } else if (response.code() == 404) {
@@ -2970,7 +2977,7 @@ public class DynamicForm extends AppCompatActivity {
 
 
                     @Override
-                    public void onFailure(Call<MuiltiticketResponse> call, Throwable t) {
+                    public void onFailure(Call<ArrayList<MuiltiticketResponse>> call, Throwable t) {
                         progressDialog.dismiss();
                         //Toast.makeText(TicketDetailsActivity.this,"Internet connection not found...plz check connection ",Toast.LENGTH_SHORT).show();
                         Toast.makeText(DynamicForm.this, "Error!!", Toast.LENGTH_LONG).show();
@@ -3004,7 +3011,7 @@ public class DynamicForm extends AppCompatActivity {
                         String Ticket_Id = ticketDetails.getString(ticketDetails.getColumnIndex("Auto_Id"));
                         String Type = ticketDetails.getString(ticketDetails.getColumnIndex("Department"));
                         String Subject = ticketDetails.getString(ticketDetails.getColumnIndex("Component"));
-                        String Group_Id = ticketDetails.getString(ticketDetails.getColumnIndex("Assigned_To"));
+                        String Assigned_To = ticketDetails.getString(ticketDetails.getColumnIndex("Assigned_To"));
                         Product = ticketDetails.getString(ticketDetails.getColumnIndex("Product"));
                         String Ticket_For = ticketDetails.getString(ticketDetails.getColumnIndex("Ticket_For"));
                         String IncidentSource = ticketDetails.getString(ticketDetails.getColumnIndex("IncidentSource"));
@@ -3023,6 +3030,8 @@ public class DynamicForm extends AppCompatActivity {
                             serviceDetail.setIssue(Type);
                         }
                         serviceDetaillist.add(serviceDetail);
+                        groupNamelist.add(UserGroupsIssue(Assigned_To));
+
                  /*categoryarraylist.add(Product);
                      subcategoryarraylist.add(Subject);
                      if(Subject.equalsIgnoreCase("NA")){
@@ -8211,6 +8220,63 @@ public class DynamicForm extends AppCompatActivity {
             //smsAlert(Id.toString());
             return null;
         }
+    }
+    private void getTokenUpload(){
+        site_id = myDb.Site_Location_Id(User_Id);
+        String msg=Asset_Location;
+        settings_token = getApplicationContext().getSharedPreferences(com.example.google.csmia_temp.ConstantList.Config.SHARED_PREF,0);
+        String token = settings_token.getString("token", null);
+        if(site_id!=null && group_name!=null){
+            Retrofit retrofit = HelpDeskClient.getClient();
+            final HelpdeskApi helpdeskApi = retrofit.create(HelpdeskApi.class);
+            Call<NotificationResponse> call =helpdeskApi.TokenUpload(token,msg,group_name,site_id);
+            //  Log.d("DEESHA:::::","" + UserId1 + ",  " + SiteId1+ ",  " + Building_id1+ ",  " + Floor_id1+ ",  " + Room_id1+ ",  " + Asset_id1+ ",  " + Category_id+ ",  " + service_sub_cat+ ",  " + issue_id+ ",  " + User_type+ ",  " + Mail_on_closure+ ",  " + et_desc+ ",  " + Site_DB_Name+ ",  " + Master_DB+ ",  " + parts+ ",  " + size);
+            call.enqueue(new Callback<NotificationResponse>() {
+                @Override
+                public void onResponse(Call<NotificationResponse> call, retrofit2.Response<NotificationResponse> response) {
+                    Log.d("subcategory_id",""+service_sub_cat);
+                    if(response.code()==200){
+//                        Toast.makeText(getApplicationContext(),"Notification Uploaded ",Toast.LENGTH_SHORT).show();
+                        NotificationResponse notificationResponse=response.body();
+                        Log.d("TokenUpload",""+notificationResponse.getMsg());
+                        onBackPressed();
+                    }else if(response.code()==404){
+                        Toast.makeText(getApplicationContext(),""+response.message(),Toast.LENGTH_SHORT).show();
+                    }else {
+                        Toast.makeText(getApplicationContext(),""+response.errorBody(),Toast.LENGTH_SHORT).show();
+                    }
+                    Log.d("qwresponse",""+response.code());
+                }
+
+
+                @Override
+                public void onFailure(Call<NotificationResponse> call, Throwable t) {
+                    progressDialog.dismiss();
+                    Log.d("Failure Exception",t.toString());
+                    //Toast.makeText(TicketDetailsActivity.this,"Internet connection not found...plz check connection ",Toast.LENGTH_SHORT).show();
+                    Toast.makeText(DynamicForm.this,"Failure!!",Toast.LENGTH_SHORT).show();
+//                    onBackPressed();
+                }
+            });}
+    }
+
+    private String UserGroupsIssue(String assigned_to){
+        String query_usergroups = "SELECT group_name,group_id FROM helpdk_user_group WHERE group_id ='" + assigned_to + "'";
+        Cursor cursor = db.rawQuery(query_usergroups, null);
+        if (cursor.getCount() > 0) {
+            if (cursor.moveToFirst()) {
+                try {
+                    do {
+                        group_name = cursor.getString(cursor.getColumnIndex("group_name"));
+//                        group_id = Integer.parseInt(cursor.getString(cursor.getColumnIndex("group_id")));
+                    } while (cursor.moveToNext());
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        db.close();
+        return group_name;
     }
 
 }

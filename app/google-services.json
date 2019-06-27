@@ -1,10 +1,48 @@
 {
   "project_info": {
-    "project_number": "229126252814",
-    "firebase_url": "https://my-application-2c62d.firebaseio.com",
-    "project_id": "my-application-2c62d",
-    "storage_bucket": "my-application-2c62d.appspot.com"
+    "project_number": "59171169042",
+    "firebase_url": "https://csmia-a400f.firebaseio.com",
+    "project_id": "csmia-a400f",
+    "storage_bucket": "csmia-a400f.appspot.com"
   },
-  "client": [],
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:59171169042:android:fba30cfc58acc53a",
+        "android_client_info": {
+          "package_name": "com.example.google.csmia_temp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "59171169042-r329rag3sc6eslqepmdob99a30cu213h.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.google.csmia_temp",
+            "certificate_hash": "945322a3b620cdc1d2b844c4b95a16e3c933cfd9"
+          }
+        },
+        {
+          "client_id": "59171169042-d7ike5r5b2013r7qetjvc12rcrqq6cg7.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC-FyWo_5VqZy3a0qzAQY-FOPkQM836730"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "59171169042-d7ike5r5b2013r7qetjvc12rcrqq6cg7.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
   "configuration_version": "1"
 }
